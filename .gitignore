@@ -38,3 +38,4 @@ tests/_support/_generated
 # database setup
 /config/db.php
 db.php
+config/db.php
