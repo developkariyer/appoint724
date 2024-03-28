@@ -2,11 +2,7 @@
 
 namespace app\models;
 
-/**
- * This is the ActiveQuery class for [[Business]].
- *
- * @see Business
- */
+/** @see Business */
 class BusinessQuery extends \yii\db\ActiveQuery
 {
     /*public function active()
@@ -14,20 +10,12 @@ class BusinessQuery extends \yii\db\ActiveQuery
         return $this->andWhere('[[status]]=1');
     }*/
 
-    /**
-     * {@inheritdoc}
-     * @return Business[]|array
-     */
-    public function all($db = null)
+    public function all($db = null): Business|array
     {
         return parent::all($db);
     }
 
-    /**
-     * {@inheritdoc}
-     * @return Business|array|null
-     */
-    public function one($db = null)
+    public function one($db = null): Business|array|null
     {
         return parent::one($db);
     }

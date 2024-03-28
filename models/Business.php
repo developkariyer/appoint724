@@ -5,37 +5,28 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "businesses".
- *
- * @property int $id
- * @property string $name
- * @property string $timezone
- * @property string|null $created_at
- * @property string|null $updated_at
- * @property string|null $deleted_at
- *
+ * @property int           $id
+ * @property string        $name
+ * @property string        $timezone
+ * @property string|null   $created_at
+ * @property string|null   $updated_at
+ * @property string|null   $deleted_at
  * @property Appointment[] $appointments
- * @property Resource[] $resources
- * @property Rule[] $rules
- * @property Service[] $services
- * @property User[] $usersBusinesses
+ * @property resource[]    $resources
+ * @property Rule[]        $rules
+ * @property Service[]     $services
+ * @property User[]        $usersBusinesses
  */
 class Business extends \yii\db\ActiveRecord
 {
-    use traits\SoftDeleteTrait; 
-    
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
+    use traits\SoftDeleteTrait;
+
+    public static function tableName(): string
     {
         return 'businesses';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['name'], 'required'],
@@ -45,10 +36,7 @@ class Business extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => Yii::t('app', 'ID'),
@@ -60,62 +48,33 @@ class Business extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * Gets query for [[Appointments]].
-     *
-     * @return \yii\db\ActiveQuery|AppointmentQuery
-     */
-    public function getAppointments()
+    public function getAppointments(): \yii\db\ActiveQuery|AppointmentQuery
     {
         return $this->hasMany(Appointment::class, ['business_id' => 'id'])->inverseOf('business');
     }
 
-    /**
-     * Gets query for [[Resources]].
-     *
-     * @return \yii\db\ActiveQuery|ResourceQuery
-     */
-    public function getResources()
+    public function getResources(): \yii\db\ActiveQuery|ResourceQuery
     {
         return $this->hasMany(Resource::class, ['business_id' => 'id'])->inverseOf('business');
     }
 
-    /**
-     * Gets query for [[Rules]].
-     *
-     * @return \yii\db\ActiveQuery|RuleQuery
-     */
-    public function getRules()
+    public function getRules(): \yii\db\ActiveQuery|RuleQuery
     {
         return $this->hasMany(Rule::class, ['business_id' => 'id'])->inverseOf('business');
     }
 
-    /**
-     * Gets query for [[Services]].
-     *
-     * @return \yii\db\ActiveQuery|ServiceQuery
-     */
-    public function getServices()
+    public function getServices(): \yii\db\ActiveQuery|ServiceQuery
     {
         return $this->hasMany(Service::class, ['business_id' => 'id'])->inverseOf('business');
     }
 
-    /**
-     * Gets query for [[Users]].
-     *
-     * @return \yii\db\ActiveQuery|UserQuery
-     */
-    public function getUsers()
+    public function getUsers(): \yii\db\ActiveQuery|UserQuery
     {
         return $this->hasMany(User::class, ['id' => 'user_id'])
             ->viaTable(UserBusiness::tableName(), ['business_id' => 'id']);
     }
 
-    /**
-     * {@inheritdoc}
-     * @return BusinessQuery the active query used by this AR class.
-     */
-    public static function find()
+    public static function find(): BusinessQuery
     {
         return new BusinessQuery(get_called_class());
     }

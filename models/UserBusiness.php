@@ -5,33 +5,24 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "users_businesses".
- *
- * @property int $id
- * @property int $user_id
- * @property int $business_id
- * @property string $created_at
+ * @property int         $id
+ * @property int         $user_id
+ * @property int         $business_id
+ * @property string      $created_at
  * @property string|null $deleted_at
- *
- * @property Business $business
- * @property User $user
+ * @property Business    $business
+ * @property User        $user
  */
 class UserBusiness extends \yii\db\ActiveRecord
 {
     use traits\SoftDeleteTrait;
-    
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
+
+    public static function tableName(): string
     {
         return 'users_businesses';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['user_id', 'business_id'], 'required'],
@@ -42,10 +33,7 @@ class UserBusiness extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => Yii::t('app', 'ID'),
@@ -56,43 +44,31 @@ class UserBusiness extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * Gets query for [[Business]].
-     *
-     * @return \yii\db\ActiveQuery|BusinessQuery
-     */
-    public function getBusiness()
+    public function getBusiness(): \yii\db\ActiveQuery|BusinessQuery
     {
         return $this->hasOne(Business::class, ['id' => 'business_id']);
     }
 
-    /**
-     * Gets query for [[User]].
-     *
-     * @return \yii\db\ActiveQuery|UserQuery
-     */
-    public function getUser()
+    public function getUser(): \yii\db\ActiveQuery|UserQuery
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 
-    public static function addUserToBusiness($userId, $businessId)
+    public static function addUserToBusiness($userId, $businessId): bool
     {
         if (!static::findOne(['user_id' => $userId, 'business_id' => $businessId, 'deleted_at' => null])) {
             $userBusiness = new UserBusiness([
                 'user_id' => $userId,
                 'business_id' => $businessId,
             ]);
+
             return $userBusiness->save();
         }
+
         return false;
     }
 
-    /**
-     * {@inheritdoc}
-     * @return UserBusinessQuery the active query used by this AR class.
-     */
-    public static function find()
+    public static function find(): UserBusinessQuery
     {
         return new UserBusinessQuery(get_called_class());
     }

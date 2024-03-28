@@ -2,32 +2,15 @@
 
 namespace app\models;
 
-/**
- * This is the ActiveQuery class for [[Login]].
- *
- * @see Login
- */
+/** @see Login  */
 class LoginQuery extends \yii\db\ActiveQuery
 {
-    /*public function active()
-    {
-        return $this->andWhere('[[status]]=1');
-    }*/
-
-    /**
-     * {@inheritdoc}
-     * @return Login[]|array
-     */
-    public function all($db = null)
+    public function all($db = null): Login|array
     {
         return parent::all($db);
     }
 
-    /**
-     * {@inheritdoc}
-     * @return Login|array|null
-     */
-    public function one($db = null)
+    public function one($db = null): Login|array|null
     {
         return parent::one($db);
     }

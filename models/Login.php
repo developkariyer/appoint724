@@ -5,33 +5,24 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "logins".
- *
- * @property int $id
- * @property string $ip_address
+ * @property int         $id
+ * @property string      $ip_address
  * @property string|null $user_agent
- * @property string $id_type
- * @property string $identifier
- * @property int|null $user_id
- * @property string $date
- * @property int $success
- *
- * @property User $user
+ * @property string      $id_type
+ * @property string      $identifier
+ * @property int|null    $user_id
+ * @property string      $date
+ * @property int         $success
+ * @property User        $user
  */
 class Login extends \yii\db\ActiveRecord
 {
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'logins';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['ip_address', 'id_type', 'identifier', 'success'], 'required'],
@@ -42,10 +33,7 @@ class Login extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => Yii::t('app', 'ID'),
@@ -59,21 +47,12 @@ class Login extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * Gets query for [[User]].
-     *
-     * @return \yii\db\ActiveQuery|UserQuery
-     */
-    public function getUser()
+    public function getUser(): \yii\db\ActiveQuery|UserQuery
     {
         return $this->hasOne(User::class, ['id' => 'user_id'])->inverseOf('logins');
     }
 
-    /**
-     * {@inheritdoc}
-     * @return LoginQuery the active query used by this AR class.
-     */
-    public static function find()
+    public static function find(): LoginQuery
     {
         return new LoginQuery(get_called_class());
     }

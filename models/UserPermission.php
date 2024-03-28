@@ -5,32 +5,23 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "users_permissions".
- *
- * @property int $id
- * @property int $user_id
- * @property string $permission
- * @property string $created_at
+ * @property int         $id
+ * @property int         $user_id
+ * @property string      $permission
+ * @property string      $created_at
  * @property string|null $deleted_at
- *
- * @property User $user
+ * @property User        $user
  */
 class UserPermission extends \yii\db\ActiveRecord
 {
     use traits\SoftDeleteTrait;
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'users_permissions';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['user_id', 'permission'], 'required'],
@@ -41,10 +32,7 @@ class UserPermission extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => Yii::t('app', 'ID'),
@@ -55,32 +43,24 @@ class UserPermission extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * Query for permission
-     *
-     * @return bool
-     */
-    public static function hasPermission($userId, $permission)
+    public static function hasPermission($userId, $permission): bool
     {
-        return self::find()->where(['user_id'=> $userId,'permission'=> $permission])->exists();
+        return self::find()->where(['user_id' => $userId, 'permission' => $permission])->exists();
     }
 
-    public static function givePermissionToUser($userId, $permission) 
+    public static function givePermissionToUser($userId, $permission): bool
     {
-        if (self::hasPermission($userId, $permission)) { 
-            return true; 
+        if (self::hasPermission($userId, $permission)) {
+            return true;
         }
         $userPermission = new UserPermission();
         $userPermission->user_id = $userId;
         $userPermission->permission = $permission;
-        return $userPermission->save();        
+
+        return $userPermission->save();
     }
 
-    /**
-     * {@inheritdoc}
-     * @return UserPermissionQuery the active query used by this AR class.
-     */
-    public static function find()
+    public static function find(): UserPermissionQuery
     {
         return new UserPermissionQuery(get_called_class());
     }

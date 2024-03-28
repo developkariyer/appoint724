@@ -5,36 +5,27 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "services".
- *
- * @property int $id Preset services given to customers. Used for fast appointment setting.
- * @property int $business_id
+ * @property int         $id            Preset services given to customers. Used for fast appointment setting.
+ * @property int         $business_id
  * @property string|null $name
  * @property string|null $resource_type
  * @property string|null $expert_type
- * @property int $duration
- * @property string $created_at
+ * @property int         $duration
+ * @property string      $created_at
  * @property string|null $updated_at
  * @property string|null $deleted_at
- *
- * @property Business $business
+ * @property Business    $business
  */
 class Service extends \yii\db\ActiveRecord
 {
-    use traits\SoftDeleteTrait; 
+    use traits\SoftDeleteTrait;
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'services';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['business_id', 'duration'], 'required'],
@@ -46,10 +37,7 @@ class Service extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => Yii::t('app', 'ID'),
@@ -64,21 +52,12 @@ class Service extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * Gets query for [[Business]].
-     *
-     * @return \yii\db\ActiveQuery|BusinessQuery
-     */
-    public function getBusiness()
+    public function getBusiness(): \yii\db\ActiveQuery|BusinessQuery
     {
         return $this->hasOne(Business::class, ['id' => 'business_id'])->inverseOf('services');
     }
 
-    /**
-     * {@inheritdoc}
-     * @return ServiceQuery the active query used by this AR class.
-     */
-    public static function find()
+    public static function find(): ServiceQuery
     {
         return new ServiceQuery(get_called_class());
     }

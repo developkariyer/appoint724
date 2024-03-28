@@ -5,27 +5,23 @@ namespace app\models;
 use Yii;
 
 /**
- * @property int $id
- * @property int $appointment_id
- * @property int $user_id
- * @property string $role
- * @property string $created_at
+ * @property int         $id
+ * @property int         $appointment_id
+ * @property int         $user_id
+ * @property string      $role
+ * @property string      $created_at
  * @property string|null $deleted_at
- *
  * @property Appointment $appointment
- * @property User $user
+ * @property User        $user
  */
 class AppointmentUser extends \yii\db\ActiveRecord
 {
-
     use traits\SoftDeleteTrait;
-
 
     public static function tableName(): string
     {
         return 'appointments_users';
     }
-
 
     public function rules(): array
     {
@@ -39,7 +35,6 @@ class AppointmentUser extends \yii\db\ActiveRecord
         ];
     }
 
-
     public function attributeLabels(): array
     {
         return [
@@ -52,18 +47,15 @@ class AppointmentUser extends \yii\db\ActiveRecord
         ];
     }
 
-
     public function getAppointment(): \yii\db\ActiveQuery|AppointmentQuery
     {
         return $this->hasOne(Appointment::class, ['id' => 'appointment_id'])->inverseOf('appointmentUsers');
     }
 
-
     public function getUser(): \yii\db\ActiveQuery|UserQuery
     {
         return $this->hasOne(User::class, ['id' => 'user_id'])->inverseOf('appointmentUsers');
     }
-
 
     public static function find(): AppointmentUserQuery
     {

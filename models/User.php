@@ -5,45 +5,36 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "users".
- *
- * @property int $id
- * @property string|null $status
- * @property string|null $status_message
- * @property int $gsmverified
- * @property int $emailverified
- * @property string|null $last_active
- * @property string|null $created_at
- * @property string|null $updated_at
- * @property string|null $deleted_at
- * @property string $first_name
- * @property string $last_name
- * @property string|null $tcno
- * @property string $gsm
- *
- * @property Appointment[] $appointments
- * @property Authidentity[] $authidentities
- * @property Login[] $logins
- * @property Business[] $Businesses
+ * @property int              $id
+ * @property string|null      $status
+ * @property string|null      $status_message
+ * @property int              $gsmverified
+ * @property int              $emailverified
+ * @property string|null      $last_active
+ * @property string|null      $created_at
+ * @property string|null      $updated_at
+ * @property string|null      $deleted_at
+ * @property string           $first_name
+ * @property string           $last_name
+ * @property string|null      $tcno
+ * @property string           $gsm
+ * @property Appointment[]    $appointments
+ * @property Authidentity[]   $authidentities
+ * @property Login[]          $logins
+ * @property Business[]       $Businesses
  * @property UserPermission[] $usersPermissions
- * @property UserGroup[] $userGroups
+ * @property UserGroup[]      $userGroups
  */
 class User extends \yii\db\ActiveRecord
 {
     use traits\SoftDeleteTrait;
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'users';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['gsmverified', 'emailverified'], 'integer'],
@@ -58,10 +49,7 @@ class User extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => Yii::t('app', 'ID'),
@@ -79,82 +67,46 @@ class User extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * Gets query for [[AppointmentsUsers]].
-     *
-     * @return \yii\db\ActiveQuery|AppointmentUserQuery
-     */
-    public function getAppointments()
+    public function getAppointments(): \yii\db\ActiveQuery|AppointmentUserQuery
     {
         return $this->hasMany(Appointment::class, ['id' => 'appointment_id'])
             ->viaTable(AppointmentUser::tableName(), ['user_id' => 'id']);
     }
 
-    /**
-     * Gets query for [[Authidentities]].
-     *
-     * @return \yii\db\ActiveQuery|AuthidentityQuery
-     */
-    public function getAuthidentities()
+    public function getAuthidentities(): \yii\db\ActiveQuery|AuthidentityQuery
     {
         return $this->hasMany(Authidentity::class, ['user_id' => 'id'])->inverseOf('user');
     }
 
-    /**
-     * Gets query for [[Logins]].
-     *
-     * @return \yii\db\ActiveQuery|LoginQuery
-     */
-    public function getLogins()
+    public function getLogins(): \yii\db\ActiveQuery|LoginQuery
     {
         return $this->hasMany(Login::class, ['user_id' => 'id'])->inverseOf('user');
     }
 
-    /**
-     * Gets query for [[Businesses]].
-     *
-     * @return \yii\db\ActiveQuery|BusinessQuery
-     */
-    public function getBusinesses()
+    public function getBusinesses(): \yii\db\ActiveQuery|BusinessQuery
     {
         return $this->hasMany(Business::class, ['id' => 'business_id'])
             ->viaTable(UserBusiness::tableName(), ['user_id' => 'id']);
     }
 
-    /**
-     * Query for checking if User is in given group.
-     *
-     * @return bool
-     */
-    public function isInGroup($group)
+    public function isInGroup($group): bool
     {
         return UserGroup::isUserInGroup($this->id, $group);
     }
 
-    /**
-     * Query for checking if User has permission to
-     *
-     * @return bool
-     */
-    public function hasPermission($permission)
+    public function hasPermission($permission): bool
     {
         return UserPermission::hasPermission($this->id, $permission);
     }
 
-    /**
-     * {@inheritdoc}
-     * @return UserQuery the active query used by this AR class.
-     */
-    public static function find()
+    public static function find(): UserQuery
     {
         return new UserQuery(get_called_class());
     }
 
-    public static function findforauth($condition)
+    public static function findforauth($condition): \yii\db\ActiveRecord|User|null
     {
         $user = User::find()->where($condition)->one();
-
-        // Put logic for checking if the user is allowed to login or not
 
         return $user;
     }

@@ -2,32 +2,15 @@
 
 namespace app\models;
 
-/**
- * This is the ActiveQuery class for [[Service]].
- *
- * @see Service
- */
+/** @see Service */
 class ServiceQuery extends \yii\db\ActiveQuery
 {
-    /*public function active()
-    {
-        return $this->andWhere('[[status]]=1');
-    }*/
-
-    /**
-     * {@inheritdoc}
-     * @return Service[]|array
-     */
-    public function all($db = null)
+    public function all($db = null): Service|array
     {
         return parent::all($db);
     }
 
-    /**
-     * {@inheritdoc}
-     * @return Service|array|null
-     */
-    public function one($db = null)
+    public function one($db = null): Service|array|null
     {
         return parent::one($db);
     }

@@ -5,31 +5,26 @@ namespace app\models;
 use Yii;
 
 /**
- * @property int $id
- * @property int $business_id
- * @property string $start_time Always, UTC. So MySQL's date and time related functions cannot be used in queries!
- * @property string $end_time
- * @property string $status 'New': Customer created\\n'Approved': Customer created, business approved\\n'Set': Business created\\n'Business Cancelled': Business cancelled\\n'Customer Cancelled: Customer cancelled\\n'Customer Noshow': Customer did not come\\n'Rescheduled': Rescheduled by agreement
- * @property string|null $created_at
- * @property string|null $updated_at
- * @property string|null $deleted_at
- *
+ * @property int                   $id
+ * @property int                   $business_id
+ * @property string                $start_time            Always, UTC. So MySQL's date and time related functions cannot be used in queries!
+ * @property string                $end_time
+ * @property string                $status                'New': Customer created\\n'Approved': Customer created, business approved\\n'Set': Business created\\n'Business Cancelled': Business cancelled\\n'Customer Cancelled: Customer cancelled\\n'Customer Noshow': Customer did not come\\n'Rescheduled': Rescheduled by agreement
+ * @property string|null           $created_at
+ * @property string|null           $updated_at
+ * @property string|null           $deleted_at
  * @property AppointmentResource[] $appointmentsResources
- * @property AppointmentUser[] $appointmentsUsers
- * @property Business $business
+ * @property AppointmentUser[]     $appointmentsUsers
+ * @property Business              $business
  */
-
 class Appointment extends \yii\db\ActiveRecord
 {
-    
     use traits\SoftDeleteTrait;
-
 
     public static function tableName(): string
     {
         return 'appointments';
     }
-
 
     public function rules(): array
     {
@@ -41,7 +36,6 @@ class Appointment extends \yii\db\ActiveRecord
             [['business_id'], 'exist', 'skipOnError' => true, 'targetClass' => Business::class, 'targetAttribute' => ['business_id' => 'id']],
         ];
     }
-
 
     public function attributeLabels(): array
     {
@@ -57,13 +51,11 @@ class Appointment extends \yii\db\ActiveRecord
         ];
     }
 
-
     public function getResources(): \yii\db\ActiveQuery|AppointmentResourceQuery
     {
         return $this->hasMany(Resource::class, ['id' => 'resource_id'])
             ->viaTable(AppointmentResource::tableName(), ['appointment_id' => 'id']);
     }
-
 
     public function getUsers(): \yii\db\ActiveQuery|AppointmentUserQuery
     {
@@ -71,12 +63,10 @@ class Appointment extends \yii\db\ActiveRecord
             ->viaTable(AppointmentUser::tableName(), ['appointment_id' => 'id']);
     }
 
-    
     public function getBusiness(): \yii\db\ActiveQuery|BusinessQuery
     {
         return $this->hasOne(Business::class, ['id' => 'business_id'])->inverseOf('appointments');
     }
-
 
     public static function find(): AppointmentQuery
     {

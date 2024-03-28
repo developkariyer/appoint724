@@ -5,34 +5,25 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "resources".
- *
- * @property int $id
- * @property int $business_id
- * @property string|null $resource_type
- * @property string $created_at
- * @property string|null $updated_at
- * @property string|null $deleted_at
- *
+ * @property int                   $id
+ * @property int                   $business_id
+ * @property string|null           $resource_type
+ * @property string                $created_at
+ * @property string|null           $updated_at
+ * @property string|null           $deleted_at
  * @property AppointmentResource[] $appointmentsResources
- * @property Business $business
+ * @property Business              $business
  */
 class Resource extends \yii\db\ActiveRecord
 {
-    use traits\SoftDeleteTrait; 
-    
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
+    use traits\SoftDeleteTrait;
+
+    public static function tableName(): string
     {
         return 'resources';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['business_id'], 'required'],
@@ -43,10 +34,7 @@ class Resource extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => Yii::t('app', 'ID'),
@@ -58,32 +46,18 @@ class Resource extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * Gets query for [[AppointmentsResources]].
-     *
-     * @return \yii\db\ActiveQuery|AppointmentResourceQuery
-     */
-    public function getAppointments()
+    public function getAppointments(): \yii\db\ActiveQuery|AppointmentQuery
     {
         return $this->hasMany(Appointment::class, ['id' => 'appointment_id'])
             ->viaTable(AppointmentResource::tableName(), ['resource_id' => 'id']);
     }
 
-    /**
-     * Gets query for [[Business]].
-     *
-     * @return \yii\db\ActiveQuery|BusinessQuery
-     */
-    public function getBusiness()
+    public function getBusiness(): \yii\db\ActiveQuery|BusinessQuery
     {
         return $this->hasOne(Business::class, ['id' => 'business_id'])->inverseOf('resources');
     }
 
-    /**
-     * {@inheritdoc}
-     * @return ResourceQuery the active query used by this AR class.
-     */
-    public static function find()
+    public static function find(): ResourceQuery
     {
         return new ResourceQuery(get_called_class());
     }

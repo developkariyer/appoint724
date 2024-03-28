@@ -5,32 +5,23 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "users_groups".
- *
- * @property int $id
- * @property int $user_id
- * @property string $group
- * @property string $created_at
+ * @property int         $id
+ * @property int         $user_id
+ * @property string      $group
+ * @property string      $created_at
  * @property string|null $deleted_at
- *
- * @property User $user
+ * @property User        $user
  */
 class UserGroup extends \yii\db\ActiveRecord
 {
     use traits\SoftDeleteTrait;
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'users_groups';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['user_id', 'group'], 'required'],
@@ -41,10 +32,7 @@ class UserGroup extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => Yii::t('app', 'ID'),
@@ -55,25 +43,24 @@ class UserGroup extends \yii\db\ActiveRecord
         ];
     }
 
-    public static function isUserInGroup($userId, $group) {
-        return self::find()->where(['user_id'=> $userId,'group'=> $group])->exists();
+    public static function isUserInGroup($userId, $group): bool
+    {
+        return self::find()->where(['user_id' => $userId, 'group' => $group])->exists();
     }
 
-    public static function addUserToGroup($userId, $group) {
-        if (self::isUserInGroup($userId, $group)) { 
-            return true; 
+    public static function addUserToGroup($userId, $group): bool
+    {
+        if (self::isUserInGroup($userId, $group)) {
+            return true;
         }
         $userGroup = new UserGroup();
         $userGroup->user_id = $userId;
         $userGroup->group = $group;
+
         return $userGroup->save();
     }
 
-    /**
-     * {@inheritdoc}
-     * @return UserGroupQuery the active query used by this AR class.
-     */
-    public static function find()
+    public static function find(): UserGroupQuery
     {
         return new UserGroupQuery(get_called_class());
     }

@@ -5,32 +5,28 @@ namespace app\models;
 use Yii;
 
 /**
- * @property int $id 
- * @property int $user_id
- * @property string $type // enum: email, gsm, token, authkey
- * @property string|null $name // email for email, gsm for gsm, null for token and authkey
- * @property string $secret // password for email, smspin for gsm, token for token and authkey (all hashed)
- * @property string|null $secret2 // authkey for authkey (hashed)
- * @property string|null $expires // expiration time in DATETIME format
+ * @property int         $id
+ * @property int         $user_id
+ * @property string      $type         // enum: email, gsm, token, authkey
+ * @property string|null $name         // email for email, gsm for gsm, null for token and authkey
+ * @property string      $secret       // password for email, smspin for gsm, token for token and authkey (all hashed)
+ * @property string|null $secret2      // authkey for authkey (hashed)
+ * @property string|null $expires      // expiration time in DATETIME format
  * @property string|null $extra
- * @property int $force_reset
+ * @property int         $force_reset
  * @property string|null $last_used_at
  * @property string|null $created_at
  * @property string|null $updated_at
- *
- * @property User $user
+ * @property User        $user
  */
 class Authidentity extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
-
     use traits\SoftDeleteTrait;
-
 
     public static function tableName(): string
     {
         return 'authidentities';
     }
-
 
     public function rules(): array
     {
@@ -43,7 +39,6 @@ class Authidentity extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
         ];
     }
-
 
     public function attributeLabels(): array
     {
@@ -63,18 +58,15 @@ class Authidentity extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
         ];
     }
 
-
     public function getUser(): \yii\db\ActiveQuery|UserQuery
     {
         return $this->hasOne(User::class, ['id' => 'user_id'])->inverseOf('authidentities');
     }
 
-
     public static function find(): AuthidentityQuery
     {
         return new AuthidentityQuery(get_called_class());
     }
-
 
     public static function findIdentity($id): User|null
     {
@@ -82,10 +74,12 @@ class Authidentity extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
             ->where(['id' => $id])
             ->andWhere(['or', ['expires' => null], ['>', 'expires', new \yii\db\Expression('NOW()')]])
             ->one();
-        if ($identity) return $identity->user;
+        if ($identity) {
+            return $identity->user;
+        }
+
         return null;
     }
-
 
     public static function findIdentityByAccessToken($token, $type = null): User|null
     {
@@ -98,12 +92,13 @@ class Authidentity extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
             if (Yii::$app->security->validatePassword($token, $candidate->secret)) {
                 $candidate->expires = new \yii\db\Expression('NOW()');
                 $candidate->save(false);
+
                 return $candidate->user;
             }
         }
+
         return null;
     }
-
 
     public static function findByUsername($username): Authidentity|null
     {
@@ -114,33 +109,29 @@ class Authidentity extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
             ->one();
     }
 
-
     public function getId(): int|null
     {
         return $this->user->getPrimaryKey();
     }
-
 
     public function getAuthKey(): string|null
     {
         return $this->secret2; // Using 'secret2' as the authKey
     }
 
-
     public function validateAuthKey($authKey): bool
     {
         return $this->getAuthKey() === $authKey;
     }
-
 
     public function validatePassword($password): bool
     {
         if (Yii::$app->security->validatePassword($password, $this->secret)) {
             return true;
         }
+
         return false;
     }
-
 
     public static function validateEmailPassword($email, $password): User|null
     {
@@ -153,9 +144,9 @@ class Authidentity extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
                 return $candidate->user;
             }
         }
+
         return null;
     }
-
 
     public static function validateGsmPin($gsm, $pin): User|null
     {
@@ -167,12 +158,13 @@ class Authidentity extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
             if (Yii::$app->security->validatePassword($pin, $candidate->secret)) {
                 $user = $candidate->user;
                 $candidate->delete();
+
                 return $user;
             }
         }
+
         return null;
     }
-
 
     public static function generateEmailToken($email): string|null
     {
@@ -192,9 +184,9 @@ class Authidentity extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
         if ($authIdentity->save()) {
             return $token; // For the purpose of sending it via email
         }
+
         return null; // failure
     }
-
 
     public static function generateGsmCode($gsm): string|null
     {
@@ -202,7 +194,7 @@ class Authidentity extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
         if (!$user) {
             return null; // User not found
         }
-        $code = sprintf("%06d", random_int(0, 999999));
+        $code = sprintf('%06d', random_int(0, 999999));
         $hash = Yii::$app->security->generatePasswordHash($code);
         $authIdentity = new self([
             'user_id' => $user->id,
@@ -214,6 +206,7 @@ class Authidentity extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
         if ($authIdentity->save()) {
             return $code; // For the purpose of sending it via SMS
         }
+
         return null; // Handle failure
     }
 }
