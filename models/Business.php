@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use DateTimeZone;
 use Yii;
 
 /**
@@ -29,10 +30,11 @@ class Business extends \yii\db\ActiveRecord
     public function rules(): array
     {
         return [
-            [['name'], 'required'],
+            [['name', 'timezone'], 'required'],
             [['created_at', 'updated_at', 'deleted_at'], 'safe'],
             [['name'], 'string', 'max' => 100],
             [['timezone'], 'string', 'max' => 45],
+            [['timezone'], 'validateTimezone'],
         ];
     }
 
@@ -46,6 +48,13 @@ class Business extends \yii\db\ActiveRecord
             'updated_at' => Yii::t('app', 'Updated At'),
             'deleted_at' => Yii::t('app', 'Deleted At'),
         ];
+    }
+
+    public function validateTimezone($attribute, $params)
+    {
+        if (!in_array($this->$attribute, DateTimeZone::listIdentifiers())) {
+            $this->addError($attribute, 'The timezone is invalid.');
+        }
     }
 
     public function getAppointments(): \yii\db\ActiveQuery|AppointmentQuery

@@ -2,13 +2,14 @@
 
 namespace app\controllers;
 
+use app\models\ContactForm;
+use app\models\LoginForm;
 use Yii;
+use yii\bootstrap5\ActiveForm;
 use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\Response;
-use yii\filters\VerbFilter;
-use app\models\LoginForm;
-use app\models\ContactForm;
 
 class SiteController extends Controller
 {
@@ -76,14 +77,24 @@ class SiteController extends Controller
         }
 
         $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
+
+        if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            $retval = ActiveForm::validate($model);
+
+            return $retval;
         }
 
-        $model->password = '';
-        return $this->render('login', [
-            'model' => $model,
-        ]);
+        if ($model->load($this->request->post())) {
+            if ($model->validate()) {
+                echo '<pre>';
+                var_dump($model);
+                exit;
+                Yii::$app->session->setFlash('success', 'Login with password');
+            }
+        }
+
+        return $this->render('login', ['model' => $model]);
     }
 
     /**
@@ -111,6 +122,7 @@ class SiteController extends Controller
 
             return $this->refresh();
         }
+
         return $this->render('contact', [
             'model' => $model,
         ]);

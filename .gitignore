@@ -39,3 +39,8 @@ tests/_support/_generated
 /config/db.php
 db.php
 config/db.php
+
+# custom additions
+/__tmp
+
+

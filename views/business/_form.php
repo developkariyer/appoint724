@@ -1,5 +1,6 @@
 <?php
 
+use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
@@ -14,8 +15,11 @@ use yii\widgets\ActiveForm;
 
     <?php echo $form->field($model, 'name')->textInput(['maxlength' => true]); ?>
 
-    <?php echo $form->field($model, 'timezone')->textInput(['maxlength' => true]); ?>
-
+    <?php $timezones = DateTimeZone::listIdentifiers(DateTimeZone::ALL);
+    $timezoneItems = ArrayHelper::map($timezones, function ($tz) { return $tz; }, function ($tz) { return $tz; });
+    echo $form->field($model, 'timezone')->dropDownList($timezoneItems, ['prompt' => 'Select Timezone']);
+    ?>
+    
     <div class="form-group">
         <?php echo Html::submitButton(Yii::t('app', 'Save'), ['class' => 'btn btn-success']); ?>
     </div>

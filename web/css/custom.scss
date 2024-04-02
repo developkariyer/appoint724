@@ -1,0 +1,12 @@
+// custom.scss
+// Override Bootstrap variables
+//$body-bg: #e2f9fa;
+//$primary: #092852; // Example primary color
+
+// Import Bootstrap after your custom variables
+@import "../../vendor/bower-asset/bootstrap/scss/bootstrap.scss";
+
+//$bs-dark-rgb: 0, 173, 181; // Set the variable 
+//:root {
+//  --bs-dark-rgb: #{inspect($bs-dark-rgb)}; // Apply to CSS custom property
+//}
