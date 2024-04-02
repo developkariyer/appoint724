@@ -16,21 +16,28 @@ class LoginForm extends Model
     public $email;
     public $emaillink;
     public $rememberMe = true;
+    public $smsform = false;
 
     private $_user = null;
 
-    public function scenarios()
+    public function attributeLabels(): array
     {
-        $scenarios = parent::scenarios();
-
-        return $scenarios;
+        return [
+            'email' => Yii::t('app', 'E-mail'),
+            'gsm' => Yii::t('app', 'Mobile Phone Number'),
+            'emaillink' => Yii::t('app', 'E-mail'),
+            'sms' => Yii::t('app', 'SMS'),
+            'password' => Yii::t('app', 'Password'),
+        ];
     }
+
 
     public function rules(): array
     {
         return [
             [['email', 'gsm', 'emaillink', 'sms'], 'validateLoginForm', 'skipOnEmpty' => false, 'skipOnError' => false],
-            [['email', 'gsm', 'emaillink', 'sms'], 'safe'], // Keep other fields safe if necessary
+            [['email', 'gsm', 'emaillink', 'sms', 'smsform'], 'safe'],
+            ['password', 'validatePassword'],
         ];
     }
 
@@ -38,7 +45,7 @@ class LoginForm extends Model
     {
         $this->clearErrors();
         if (empty($this->email) && empty($this->gsm) && empty($this->emaillink) && empty($this->sms)) {
-            $this->addError($attribute, 'At least one of Email, GSM, Email Link, or SMS must be provided.');
+            $this->addError($attribute, Yii::t('app', 'At least one of Email, GSM, Email Link, or SMS must be provided.'));
         }
     }
 
@@ -48,7 +55,7 @@ class LoginForm extends Model
             $user = $this->getUser();
 
             if (!$user || !$user->validatePassword($this->password)) {
-                $this->addError($attribute, 'E-mail not registered or invalid password.');
+                $this->addError($attribute, Yii::t('app', 'E-mail not registered or invalid password.'));
             }
         }
     }

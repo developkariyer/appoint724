@@ -87,13 +87,27 @@ class SiteController extends Controller
 
         if ($model->load($this->request->post())) {
             if ($model->validate()) {
-                echo '<pre>';
-                var_dump($model);
-                exit;
-                Yii::$app->session->setFlash('success', 'Login with password');
+                switch (Yii::$app->request->post('action')) {
+                    case 'password':
+                        // login with email and password
+                        break;
+                    case 'sms_verify':
+                        // login with gsm and sms
+                        break;
+                    case 'link':
+                        // send a OTP link to email address emaillink
+                        break;
+                    case 'sms_request':
+                        // send an sms to gsm and render form with SMS input field
+                        if (empty($model->gsm)) {
+                            Yii::$app->session->setFlash('error', Yii::t('app', 'Login error: GSM number not found.'));
+                            return $this->redirect(['login']);
+                        }
+                        $model->smsform = true;
+                        break;
+                }
             }
         }
-
         return $this->render('login', ['model' => $model]);
     }
 
