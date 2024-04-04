@@ -15,11 +15,19 @@ use Yii;
  * @property string|null $last_used_at
  * @property string|null $created_at
  * @property string|null $updated_at
+ * @property string|null $authKey
  * @property User        $user
  */
 class Authidentity extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
     //use traits\SoftDeleteTrait; // used for soft deletes but this model does not require this feature
+    const AUTHTYPE_PASSWORD = 'password';
+    const AUTHTYPE_EMAIL_TOKEN = 'email_token';
+    const AUTHTYPE_SMS_OTP = 'sms_otp';
+    const AUTHTYPE_GOOGLE = 'google';
+    const AUTHTYPE_FACEBOOK = 'facebook';
+    const AUTHTYPE_TWITTER = 'twitter';
+    const AUTHTYPE_REMEMBERME = 'rememberme';
 
     public static function tableName(): string
     {
@@ -64,43 +72,31 @@ class Authidentity extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
         return new AuthidentityQuery(get_called_class());
     }
 
-    public static function findIdentity($id): Authidentity|null
-    {   // Function required by Yii2 User interface
-        return static::find()
-            ->where(['id' => $id])
-            ->andWhere(['>', 'expires', new \yii\db\Expression('NOW()')])
-            ->one();
-    }
-
     public static function findIdentityByAccessToken($token, $type = null): Authidentity|null
     {   // Function required by Yii2 User interface
         $candidates = Authidentity::find()
-            ->where(['type' => 'remember_me'])
+            ->where(['type' => self::AUTHTYPE_REMEMBERME])
             ->andWhere(['>', 'expires', new \yii\db\Expression('NOW()')])
             ->all();
-
         foreach ($candidates as $candidate) {
             if (Yii::$app->security->validatePassword($token, $candidate->secret)) {
                 return $candidate;
             }
         }
-
         return null;
     }
 
     public static function findIdentityByEmailToken($token): Authidentity|null
     {
         $candidates = Authidentity::find()
-            ->where(['type' => 'email_token'])
+            ->where(['type' => self::AUTHTYPE_EMAIL_TOKEN])
             ->andWhere(['>', 'expires', new \yii\db\Expression('NOW()')])
             ->all();
-
         foreach ($candidates as $candidate) {
             if (Yii::$app->security->validatePassword($token, $candidate->secret)) {
                 return $candidate;
             }
         }
-
         return null;
     }
 
@@ -108,85 +104,107 @@ class Authidentity extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
     {
         if ($user = User::find()->where(['email' => $email])->one()) {
             return $user->getAuthIdentities()
-                ->where(['type' => 'password'])
+                ->where(['type' => self::AUTHTYPE_PASSWORD])
                 ->andWhere(['>', 'expires', new \yii\db\Expression('NOW()')])
                 ->one();
         }
-
         return null;
     }
 
     public static function findIdentityByGsm($gsm): Authidentity|null
     {
-        if ($user = User::find()->where(['gsm' => $gsm])->one()) {
+        $user = \app\models\User::find()->where(['gsm' => $gsm])->one();
+        if ($user) {
             return $user->getAuthIdentities()
-                ->where(['type' => 'sms_pin'])
+                ->where(['type' => self::AUTHTYPE_SMS_OTP])
                 ->andWhere(['>', 'expires', new \yii\db\Expression('NOW()')])
                 ->one();
         }
-
         return null;
     }
 
+    public static function findIdentity($id): Authidentity|null
+    {   // Function required by Yii2 User interface
+        return static::find()
+            ->where(['id' => $id])
+            ->one();
+    }
+
     public function getId(): int|null
-    {
+    {   // Function required by Yii2 User interface
         return $this->getPrimaryKey();
     }
 
     public function getAuthKey(): string|null
-    {
-        return $this->secret;
+    {   // Function required by Yii2 User interface
+        return $this->authKey;
     }
 
     public function validateAuthKey($authKey): bool
-    {
-        return Yii::$app->security->validatePassword($authKey, $this->getAuthKey());
+    {   // Function required by Yii2 User interface
+        return $this->getAuthKey() === $authKey;
     }
 
     public function validatePassword($password): bool
     {
-        if (Yii::$app->security->validatePassword($password, $this->secret)) {
-            return true;
-        }
-
-        return false;
+        return Yii::$app->security->validatePassword($password, $this->secret);
     }
 
     public static function generateEmailToken($email): string|null
     {
         if ($user = User::findOne(['email' => $email])) {
+            if (self::getActiveTokenCount($user->id, self::AUTHTYPE_EMAIL_TOKEN) > 2) {
+                return true;
+            }
             $token = Yii::$app->security->generateRandomString();
             $hash = Yii::$app->security->generatePasswordHash($token);
             $authIdentity = new self([
                 'user_id' => $user->id,
-                'type' => 'email_token',
+                'type' => self::AUTHTYPE_EMAIL_TOKEN,
                 'secret' => $hash,
-                'expires' => date('Y-m-d H:i:s', strtotime('+10 minutes')), // Sets expires 10 minutes from now
+                'authKey' => Yii::$app->security->generateRandomString(),
+                'expires' => date('Y-m-d H:i:s', strtotime('+10 minutes')),
             ]);
             if ($authIdentity->save()) {
-                return $token; // For the purpose of sending it via email
+                return $token;
             }
         }
-
-        return null; // failure
+        return false; // failure
     }
 
-    public static function generateSmsPin($gsm): string|null
+    public static function generateSmsPin($gsm): string|bool
     {
         if ($user = User::findOne(['gsm' => $gsm])) {
+            if (self::getActiveTokenCount($user->id, self::AUTHTYPE_SMS_OTP)) {
+                return true;
+            }
             $code = sprintf('%06d', random_int(0, 999999));
             $hash = Yii::$app->security->generatePasswordHash($code);
             $authIdentity = new self([
                 'user_id' => $user->id,
-                'type' => 'sms_pin',
+                'type' => self::AUTHTYPE_SMS_OTP,
                 'secret' => $hash,
-                'expires' => date('Y-m-d H:i:s', strtotime('+2 minutes')), // Sets expires 2 minutes from now
+                'authKey' => Yii::$app->security->generateRandomString(),
+                'expires' => date('Y-m-d H:i:s', strtotime('+3 minutes')),
             ]);
             if ($authIdentity->save()) {
-                return $code; // For the purpose of sending it via SMS
+                return $code;
             }
         }
+        return false;
+    }
 
-        return null; // Handle failure
+    public static function getActiveTokenCount($user_id, $type): int
+    {
+        $count = static::find()
+            ->where(['type' => $type])
+            ->andWhere(['>', 'expires', new \yii\db\Expression('NOW()')])
+            ->count();
+        return (int) $count;
+    }
+
+    public function getUsername()
+    {
+        return $this->user ? $this->user->fullname : null;
     }
 }

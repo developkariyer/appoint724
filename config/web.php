@@ -13,8 +13,20 @@ $config = [
         '@npm' => '@vendor/npm-asset',
     ],
     'components' => [
+        'i18n' => [
+            'translations' => [
+                '*' => [
+                    'class' => 'yii\i18n\PhpMessageSource',
+                    'basePath' => '@app/messages',
+                    'fileMap' => [
+                        'app' => 'app.php',
+                        'app/error' => 'error.php',
+                    ],
+                ],
+            ],
+        ],
         'request' => [
-            'cookieValidationKey' => '0YJTc1dgmiN5PM8tWAYVb19QZVhFC5-D',
+            'cookieValidationKey' => '0YJTc1dgmiN5PM8tWAYVb1339QZVhFC5-D',
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -22,6 +34,7 @@ $config = [
         'user' => [
             'identityClass' => 'app\models\Authidentity',
             'enableAutoLogin' => true,
+            'authTimeout' => null,
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
@@ -46,8 +59,16 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'language/<lang>' => 'site/language',
+                'login/<s>' => 'site/login',
                 'login' => 'site/login',
+                'logout' => 'site/logout',
+                'verifyemail/<token>' => 'site/verifyemail',
+
             ],
+        ],
+        'session' => [
+            'class' => 'yii\web\Session',
         ],
         'assetManager' => [
             'bundles' => [
@@ -58,6 +79,17 @@ $config = [
         ],
     ],
     'params' => $params,
+    'on beforeRequest' => function ($event) {
+        if (!Yii::$app->user->isGuest && !empty(Yii::$app->user->identity->user->language)) {
+            $language = Yii::$app->user->identity->user->language;
+        } elseif (Yii::$app->session->has('language')) {
+            $language = Yii::$app->session->get('language');
+        }
+        if (empty($language) || !isset(Yii::$app->params['supportedLanguages'][$language])) {
+            $language = Yii::$app->params['defaultLanguage'];
+        }
+        Yii::$app->language = $language;
+    },
 ];
 
 if (YII_ENV_DEV) {

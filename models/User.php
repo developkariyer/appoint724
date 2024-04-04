@@ -18,6 +18,7 @@ use Yii;
  * @property string           $last_name
  * @property string|null      $tcno
  * @property string           $gsm
+ * @property string           $language
  * @property Appointment[]    $appointments
  * @property Authidentity[]   $authidentities
  * @property Login[]          $logins
@@ -46,6 +47,7 @@ class User extends \yii\db\ActiveRecord
             [['gsm'], 'string', 'max' => 20],
             [['email'], 'required'],
             [['email'], 'email'],
+            ['gmsverified', 'safe'],
         ];
     }
 
@@ -57,13 +59,14 @@ class User extends \yii\db\ActiveRecord
             'status_message' => Yii::t('app', 'Status Message'),
             'active' => Yii::t('app', 'Active'),
             'last_active' => Yii::t('app', 'Last Active'),
+            'tcno' => Yii::t('app', 'Tcno'),
+            'gsm' => Yii::t('app', 'Gsm'),
+            'gmsverified' => Yii::t('app', 'GSM verified'),
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),
             'deleted_at' => Yii::t('app', 'Deleted At'),
             'first_name' => Yii::t('app', 'First Name'),
             'last_name' => Yii::t('app', 'Last Name'),
-            'tcno' => Yii::t('app', 'Tcno'),
-            'gsm' => Yii::t('app', 'Gsm'),
         ];
     }
 
@@ -110,4 +113,10 @@ class User extends \yii\db\ActiveRecord
 
         return $user;
     }
+
+    public function getFullname(): string
+    {
+        return $this->first_name.' '.$this->last_name;
+    }
+
 }

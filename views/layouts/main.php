@@ -36,18 +36,29 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
         'brandUrl' => Yii::$app->homeUrl,
         'options' => ['class' => 'navbar-expand-md navbar-dark bg-dark fixed-top'],
     ]);
+
+    $languageItems = [
+        ['label' => 'English', 'url' => ['/site/language', 'lang' => 'en-US']],
+        ['label' => 'Deutsch', 'url' => ['/site/language', 'lang' => 'de']],
+        ['label' => 'Türkçe', 'url' => ['/site/language', 'lang' => 'tr']],
+    ];
+
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav'],
         'items' => [
-            ['label' => 'Home', 'url' => ['/site/index']],
-            ['label' => 'About', 'url' => ['/site/about']],
-            ['label' => 'Contact', 'url' => ['/site/contact']],
+            ['label' => Yii::t('app', 'Home'), 'url' => ['/site/index']],
+            ['label' => Yii::t('app', 'About'), 'url' => ['/site/about']],
+            ['label' => Yii::t('app', 'Contact'), 'url' => ['/site/contact']],
+            [
+                'label' => Yii::t('app', 'Language'),
+                'items' => $languageItems,
+            ],
             Yii::$app->user->isGuest
-                ? ['label' => 'Login', 'url' => ['/site/login']]
+                ? ['label' => Yii::t('app', 'Login'), 'url' => ['/site/login']]
                 : '<li class="nav-item">'
                     .Html::beginForm(['/site/logout'])
                     .Html::submitButton(
-                        'Logout ('.Yii::$app->user->identity->username.')',
+                        Yii::t('app', 'Logout').' ('.Yii::$app->user->identity->username.')',
                         ['class' => 'nav-link btn btn-link logout']
                     )
                     .Html::endForm()
