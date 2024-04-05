@@ -13,7 +13,7 @@ nbproject
 Thumbs.db
 
 # composer vendor dir
-/vendor
+# /vendor
 
 # composer itself is not needed
 composer.phar
@@ -36,9 +36,9 @@ tests/_support/_generated
 /.vagrant
 
 # database setup
-/config/db.php
-db.php
-config/db.php
+#/config/db.php
+#db.php
+#config/db.php
 
 # custom additions
 /__tmp
