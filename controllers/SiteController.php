@@ -85,6 +85,7 @@ class SiteController extends Controller
         if (!Yii::$app->user->isGuest) {
             $email_token = \app\models\Authidentity::generateEmailToken(Yii::$app->user->identity->user->email);
             error_log("*********** $email_token ************");
+            Yii::$app->session->setFlash('info', "***********".\yii\helpers\Html::a($email_token, ['verifyemail/'.$email_token], ['class' => 'alert-link'])."************");
             if ($email_token !== false) {
                 Yii::$app->session->setFlash('error', Yii::t('app','Check your e-mail for a login link.'));
             } else {
@@ -194,6 +195,7 @@ XML;
         } else {
             $sms_otp = \app\models\Authidentity::generateSmsPin($model->gsm);
             // send sms_otp via SMS service API call
+            Yii::$app->session->setFlash('info', "*********** $sms_otp ************");
             error_log("*********** $sms_otp ************");
         }
 
@@ -273,6 +275,7 @@ XML;
                     case LoginForm::SCENARIO_SMS_REQUEST:
                         $sms_otp = \app\models\Authidentity::generateSmsPin($model->gsm);
                         error_log("*********** $sms_otp ************");
+                        Yii::$app->session->setFlash('info', "*********** $sms_otp ************");
                         if ($sms_otp !== false) {
                             if ($sms_otp !==true ) { /* send sms via external api call, to be implemented */ }
                             $model->scenario=LoginForm::SCENARIO_SMS_VALIDATE;
@@ -283,6 +286,7 @@ XML;
                     case LoginForm::SCENARIO_EMAIL_LINK:
                         $email_token = \app\models\Authidentity::generateEmailToken($model->emaillink);
                         error_log("*********** $email_token ************");
+                        Yii::$app->session->setFlash('info', "***********".\yii\helpers\Html::a($email_token, ['verifyemail/'.$email_token], ['class' => 'alert-link'])."************");
                         if ($email_token !== false) {
                             Yii::$app->session->setFlash('warning', Yii::t('app','Check your e-mail for a login link.'));
                             return $this->goHome();

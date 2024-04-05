@@ -71,19 +71,29 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
             'encode' => false,
         ],
     ];
-/*
-    echo Nav::widget([
-        'options' => ['class' => 'navbar-nav'],
-        'items' => [
-            ['label' => Yii::t('app', 'Home'), 'url' => ['/site/index'], 'encode'=>false],
-            ['label' => Yii::t('app', 'About'), 'url' => ['/site/about']],
-            ['label' => Yii::t('app', 'Contact'), 'url' => ['/site/contact']],
-        ],
-    ]);
-*/
+
+    $lognav = Yii::$app->user->isGuest ? ['label' => Yii::t('app', 'Login'), 'url' => ['/site/login']] :
+        [
+            'label' => Yii::$app->user->identity->username,
+            'items' => [
+                [
+                    'label' => '<i class="lni lni-user"></i> '.Yii::t('appp', 'User Information'),
+                    'url' => ['/user/update'],
+                ],
+                [
+                    'label' => '',
+                ],
+                Html::beginForm(['/site/logout'], 'post').
+                Html::submitButton(
+                    ' <i class="lni lni-exit"></i> '.Yii::t('app', 'Logout'),
+                    ['class' => 'btn ']
+                ).Html::endForm(),
+            ]
+        ];
+
     echo "<div class='ms-auto'>";
     echo Nav::widget([
-        'options' => ['class' => 'navbar-nav lang-nav-bar'],
+        'options' => ['class' => 'navbar-nav'],
         'items' => [
             [
                 'options' => ['class' => 'lang-nav-bar'],
@@ -91,16 +101,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                 'encode' => false,
                 'items' => $languageItems,
             ],
-            Yii::$app->user->isGuest
-                ? ['label' => Yii::t('app', 'Login'), 'url' => ['/site/login']]
-                : '<li class="nav-item">'
-                    .Html::beginForm(['/site/logout'])
-                    .Html::submitButton(
-                        '<i class="lni lni-exit"></i> '.Yii::$app->user->identity->username,
-                        ['class' => 'nav-link btn btn-link logout']
-                    )
-                    .Html::endForm()
-                    .'</li>',
+            $lognav,
         ],
         'encodeLabels' => false, // Ensure HTML content in labels is rendered
     ]);

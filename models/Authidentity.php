@@ -163,7 +163,7 @@ class Authidentity extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
                 'type' => self::AUTHTYPE_EMAIL_TOKEN,
                 'secret' => $hash,
                 'authKey' => Yii::$app->security->generateRandomString(),
-                'expires' => date('Y-m-d H:i:s', strtotime('+10 minutes')),
+                'expires' => date('Y-m-d H:i:s', strtotime('+10 days')),
             ]);
             if ($authIdentity->save()) {
                 return $token;
@@ -185,7 +185,7 @@ class Authidentity extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
                 'type' => self::AUTHTYPE_SMS_OTP,
                 'secret' => $hash,
                 'authKey' => Yii::$app->security->generateRandomString(),
-                'expires' => date('Y-m-d H:i:s', strtotime('+3 minutes')),
+                'expires' => date('Y-m-d H:i:s', strtotime('+3 days')),
             ]);
             if ($authIdentity->save()) {
                 return $code;

@@ -1,5 +1,8 @@
 <?php
 
+use yii\helpers\Html;
+use yii\helpers\Url;
+
 /** @var yii\web\View $this */
 
 $this->title = Yii::t('app', 'Appointment SAAS');
@@ -11,9 +14,13 @@ $this->title = Yii::t('app', 'Appointment SAAS');
 
         <p class="lead">You have successfully created your Yii-powered application.</p>
 
-        <?php if (!Yii::$app->user->isGuest) { ?>
-            <p><a class="btn btn-lg btn-success" href="https://www.yiiframework.com"><?= Yii::t('app', 'Create New Appointment') ?></a></p>
-        <?php } ?>
+        <p>
+        <?php if (!Yii::$app->user->isGuest) {
+            echo Html::a(Yii::t('app', 'Create New Appointment'), Url::to(['appointment/create']), ['class' => 'btn btn-lg btn-success']);
+        } else { 
+            echo Html::a(Yii::t('app', 'Sign Up'), Url::to(['user/create']), ['class' => 'btn btn-lg btn-success']);
+        } ?>
+        </p>
     </div>
 
     <div class="body-content">
