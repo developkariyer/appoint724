@@ -185,7 +185,7 @@ class Authidentity extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
                 'type' => self::AUTHTYPE_SMS_OTP,
                 'secret' => $hash,
                 'authKey' => Yii::$app->security->generateRandomString(),
-                'expires' => date('Y-m-d H:i:s', strtotime('+3 days')),
+                'expires' => date('Y-m-d H:i:s', strtotime('+3 minutes')),
             ]);
             if ($authIdentity->save()) {
                 return $code;
