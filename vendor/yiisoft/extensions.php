@@ -58,4 +58,13 @@ return array (
       '@hiqdev/yii2/mfa' => $vendorDir . '/hiqdev/yii2-mfa/src',
     ),
   ),
+  'yiithings/yii2-dotenv' => 
+  array (
+    'name' => 'yiithings/yii2-dotenv',
+    'version' => '1.1.0.0',
+    'alias' => 
+    array (
+      '@yiithings/dotenv' => $vendorDir . '/yiithings/yii2-dotenv/src',
+    ),
+  ),
 );

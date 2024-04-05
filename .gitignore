@@ -44,3 +44,4 @@ tests/_support/_generated
 /__tmp
 
 
+.env
