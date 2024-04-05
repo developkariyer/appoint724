@@ -38,6 +38,7 @@ class UserBusiness extends \yii\db\ActiveRecord
         return [
             'id' => Yii::t('app', 'ID'),
             'user_id' => Yii::t('app', 'User ID'),
+            'role' => Yii::t('app', 'Role'),
             'business_id' => Yii::t('app', 'Business ID'),
             'created_at' => Yii::t('app', 'Created At'),
             'deleted_at' => Yii::t('app', 'Deleted At'),
@@ -54,12 +55,13 @@ class UserBusiness extends \yii\db\ActiveRecord
         return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 
-    public static function addUserToBusiness($userId, $businessId): bool
+    public static function addUserToBusiness($userId, $businessId, $role): bool
     {
         if (!static::findOne(['user_id' => $userId, 'business_id' => $businessId, 'deleted_at' => null])) {
             $userBusiness = new UserBusiness([
                 'user_id' => $userId,
                 'business_id' => $businessId,
+                'role' => $role,
             ]);
 
             return $userBusiness->save();

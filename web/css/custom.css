@@ -11964,4 +11964,7 @@ textarea.form-control-lg {
   .d-print-none {
     display: none !important;
   }
+}
+:root {
+  --bs-dropdownmenu-min-width: 1rem !important;
 }/*# sourceMappingURL=custom.css.map */

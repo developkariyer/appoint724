@@ -70,7 +70,7 @@ class SiteController extends Controller
         if (!Yii::$app->user->isGuest) {
             $user = Yii::$app->user->identity->user;
             $user->language = $lang;
-            $user->save();
+            $user->save(false);
         }
     
         // Update the application language
@@ -80,6 +80,22 @@ class SiteController extends Controller
         return $this->redirect(Yii::$app->request->referrer ?: Yii::$app->homeUrl);
     }
     
+    public function actionVerifymyemail()
+    {
+        if (!Yii::$app->user->isGuest) {
+            $email_token = \app\models\Authidentity::generateEmailToken(Yii::$app->user->identity->user->email);
+            error_log("*********** $email_token ************");
+            if ($email_token !== false) {
+                Yii::$app->session->setFlash('error', Yii::t('app','Check your e-mail for a login link.'));
+            } else {
+                Yii::$app->session->setFlash('error', Yii::t('app','Unable to e-mail a login link.'));
+            }
+            return $this->goBack();
+        } else {
+            return $this->redirect(['login', 's' => 8]);
+        }
+    }
+
     public function actionVerifyemail($token)
     {
         $authidentity = \app\models\Authidentity::findIdentityByEmailToken($token);
@@ -106,15 +122,6 @@ class SiteController extends Controller
         if (!$user) {
             return $this->goBack();
         }
-/*        $client = new SoapClient('https://tckimlik.nvi.gov.tr/Service/KPSPublic.asmx?WSDL', ['trace' => 1, 'exception' => 0]);
-        $result = $client->TCKimlikNoDogrula([
-            'TCKimlikNo' => $user->tcno,
-            'Ad' => $user->first_name,
-            'Soyad' => $user->last_name,
-            'DogumYili' => $user->dogumyili,
-        ]);
-        var_dump($result);*/
-
         $soapRequest = <<<XML
 <?xml version="1.0" encoding="utf-8"?>
 <soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
@@ -123,7 +130,7 @@ class SiteController extends Controller
       <TCKimlikNo>{$user->tcno}</TCKimlikNo>
       <Ad>{$user->first_name}</Ad>
       <Soyad>{$user->last_name}</Soyad>
-      <DogumYili>{$user->dogumyili}</DogumYili>
+      <DogumYili>{$user->dogum_yili}</DogumYili>
     </TCKimlikNoDogrula>
   </soap12:Body>
 </soap12:Envelope>
@@ -209,7 +216,7 @@ XML;
                 $messages[] = Yii::t('app', "Your GSM number is not verified.")." {$url}";
             }
             if (!$authidentity->user->emailverified) {
-                $url = \yii\helpers\Html::a(Yii::t('app', 'Please verify your e-mail.'), ['site/verifyemail'], ['class' => 'alert-link']);
+                $url = \yii\helpers\Html::a(Yii::t('app', 'Please verify your e-mail.'), ['site/verifymyemail'], ['class' => 'alert-link']);
                 $messages[] = Yii::t('app', "Your e-mail address is not verified.")." {$url}";
             }
             if (count($messages)) Yii::$app->session->setFlash('warning', $messages);

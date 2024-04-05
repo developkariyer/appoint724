@@ -9,6 +9,7 @@ use yii\bootstrap5\Breadcrumbs;
 use yii\bootstrap5\Html;
 use yii\bootstrap5\Nav;
 use yii\bootstrap5\NavBar;
+use yii\helpers\Url;
 
 AppAsset::register($this);
 
@@ -36,21 +37,58 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
         'brandUrl' => Yii::$app->homeUrl,
         'options' => ['class' => 'navbar-expand-md navbar-dark bg-dark fixed-top'],
     ]);
-
+/*
     $languageItems = [
         ['label' => 'English', 'url' => ['/site/language', 'lang' => 'en-US']],
         ['label' => 'Deutsch', 'url' => ['/site/language', 'lang' => 'de']],
         ['label' => 'Türkçe', 'url' => ['/site/language', 'lang' => 'tr']],
     ];
+*/
 
+    $languageItems = [
+        'en-US'=>[
+            'label' => Html::img(Url::to('@web/images/flags/en-US.png'), [
+                'style' => 'height: 20px; vertical-align: middle;', // Adjust dimensions as needed
+                'alt' => 'English',
+            ]),
+            'url' => ['/site/language', 'lang' => 'en-US'],
+            'encode' => false,
+        ],
+        'de'=>[
+            'label' => Html::img(Url::to('@web/images/flags/de.png'), [
+                'style' => 'height: 20px; vertical-align: middle;',
+                'alt' => 'Deutsch',
+            ]),
+            'url' => ['/site/language', 'lang' => 'de'],
+            'encode' => false,
+        ],
+        'tr'=>[
+            'label' => Html::img(Url::to('@web/images/flags/tr.png'), [
+                'style' => 'height: 20px; vertical-align: middle;',
+                'alt' => 'Türkçe',
+            ]),
+            'url' => ['/site/language', 'lang' => 'tr'],
+            'encode' => false,
+        ],
+    ];
+/*
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav'],
         'items' => [
-            ['label' => Yii::t('app', 'Home'), 'url' => ['/site/index']],
+            ['label' => Yii::t('app', 'Home'), 'url' => ['/site/index'], 'encode'=>false],
             ['label' => Yii::t('app', 'About'), 'url' => ['/site/about']],
             ['label' => Yii::t('app', 'Contact'), 'url' => ['/site/contact']],
+        ],
+    ]);
+*/
+    echo "<div class='ms-auto'>";
+    echo Nav::widget([
+        'options' => ['class' => 'navbar-nav lang-nav-bar'],
+        'items' => [
             [
-                'label' => Yii::t('app', 'Language'),
+                'options' => ['class' => 'lang-nav-bar'],
+                'label' => $languageItems[Yii::$app->language]['label'],
+                'encode' => false,
                 'items' => $languageItems,
             ],
             Yii::$app->user->isGuest
@@ -58,13 +96,16 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                 : '<li class="nav-item">'
                     .Html::beginForm(['/site/logout'])
                     .Html::submitButton(
-                        Yii::t('app', 'Logout').' ('.Yii::$app->user->identity->username.')',
+                        '<i class="lni lni-exit"></i> '.Yii::$app->user->identity->username,
                         ['class' => 'nav-link btn btn-link logout']
                     )
                     .Html::endForm()
                     .'</li>',
         ],
+        'encodeLabels' => false, // Ensure HTML content in labels is rendered
     ]);
+    echo "</div>";
+
     NavBar::end();
     ?>
 </header>

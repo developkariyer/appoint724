@@ -7,27 +7,28 @@ use Yii;
 /**
  * @property int         $id
  * @property int         $user_id
- * @property string      $group
+ * @property string      $permission
  * @property string      $created_at
  * @property string|null $deleted_at
  * @property User        $user
+ * @property Business    $business
  */
-class UserGroup extends \yii\db\ActiveRecord
+class Permission extends \yii\db\ActiveRecord
 {
     use traits\SoftDeleteTrait;
 
     public static function tableName(): string
     {
-        return 'users_groups';
+        return 'users_permissions';
     }
 
     public function rules(): array
     {
         return [
-            [['user_id', 'group'], 'required'],
+            [['user_id', 'permission'], 'required'],
             [['user_id'], 'integer'],
             [['created_at', 'deleted_at'], 'safe'],
-            [['group'], 'string', 'max' => 255],
+            [['permission'], 'string', 'max' => 255],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
         ];
     }
@@ -37,31 +38,29 @@ class UserGroup extends \yii\db\ActiveRecord
         return [
             'id' => Yii::t('app', 'ID'),
             'user_id' => Yii::t('app', 'User ID'),
-            'group' => Yii::t('app', 'Group'),
+            'permission' => Yii::t('app', 'Permission'),
             'created_at' => Yii::t('app', 'Created At'),
             'deleted_at' => Yii::t('app', 'Deleted At'),
         ];
     }
 
-    public static function isUserInGroup($userId, $group): bool
+    public function getBusiness(): \yii\db\ActiveQuery|BusinessQuery
     {
-        return self::find()->where(['user_id' => $userId, 'group' => $group])->exists();
+        return $this->hasOne(Business::class, ['id' => 'business_id'])->inverseOf('permissions');
     }
 
-    public static function addUserToGroup($userId, $group): bool
+    public function getUser(): \yii\db\ActiveQuery|UserQuery
     {
-        if (self::isUserInGroup($userId, $group)) {
-            return true;
-        }
-        $userGroup = new UserGroup();
-        $userGroup->user_id = $userId;
-        $userGroup->group = $group;
-
-        return $userGroup->save();
+        return $this->hasOne(User::class, ['id' => 'user_id'])->inverseOf('permissions');
     }
 
-    public static function find(): UserGroupQuery
+    public static function hasPermission($userId, $permission): bool
     {
-        return new UserGroupQuery(get_called_class());
+        return self::find()->where(['user_id' => $userId, 'permission' => $permission])->exists();
+    }
+
+    public static function find(): PermissionQuery
+    {
+        return new PermissionQuery(get_called_class());
     }
 }

@@ -10,6 +10,7 @@ use Yii;
  * @property string|null      $status_message
  * @property int              $gsmverified
  * @property int              $emailverified
+ * @property int              $tcnoverified
  * @property string|null      $last_active
  * @property string|null      $created_at
  * @property string|null      $updated_at
@@ -19,12 +20,12 @@ use Yii;
  * @property string|null      $tcno
  * @property string           $gsm
  * @property string           $language
+ * @property int              $dogum_yili
  * @property Appointment[]    $appointments
  * @property Authidentity[]   $authidentities
  * @property Login[]          $logins
- * @property Business[]       $Businesses
- * @property UserPermission[] $usersPermissions
- * @property UserGroup[]      $userGroups
+ * @property Business[]       $businesses
+ * @property Permission[]     $permissions
  */
 class User extends \yii\db\ActiveRecord
 {
@@ -38,33 +39,25 @@ class User extends \yii\db\ActiveRecord
     public function rules(): array
     {
         return [
-            [['gsmverified', 'emailverified'], 'integer'],
+            [['gsmverified', 'emailverified', 'tcnoverified'], 'integer'],
             [['last_active', 'created_at', 'updated_at', 'deleted_at'], 'safe'],
-            [['first_name', 'last_name', 'gsm'], 'required'],
+            [['first_name', 'last_name', 'gsm', 'email', 'tcno', 'dogum_yili'], 'required'],
+            [['first_name', 'last_name', 'gsm', 'email', 'tcno', 'dogum_yili'], 'safe'],
             [['status', 'status_message'], 'string', 'max' => 255],
             [['first_name', 'last_name'], 'string', 'max' => 100],
-            [['tcno'], 'string', 'max' => 11],
-            [['gsm'], 'string', 'max' => 20],
-            [['email'], 'required'],
-            [['email'], 'email'],
-            ['gmsverified', 'safe'],
+            [['tcno'], 'string', 'max' => 11, 'min' => 11],
+            [['gsm', 'language'], 'string', 'max' => 30],
+            [['email'], 'email'],        
         ];
     }
 
     public function attributeLabels(): array
     {
         return [
-            'id' => Yii::t('app', 'ID'),
-            'status' => Yii::t('app', 'Status'),
-            'status_message' => Yii::t('app', 'Status Message'),
-            'active' => Yii::t('app', 'Active'),
-            'last_active' => Yii::t('app', 'Last Active'),
-            'tcno' => Yii::t('app', 'Tcno'),
-            'gsm' => Yii::t('app', 'Gsm'),
-            'gmsverified' => Yii::t('app', 'GSM verified'),
-            'created_at' => Yii::t('app', 'Created At'),
-            'updated_at' => Yii::t('app', 'Updated At'),
-            'deleted_at' => Yii::t('app', 'Deleted At'),
+            'tcno' => Yii::t('app', 'TC Identity Number'),
+            'gsm' => Yii::t('app', 'GSM Number'),
+            'email' => Yii::t('app', 'E-mail'),
+            'dogum_yili' => Yii::t('app', 'Year of Birth'),
             'first_name' => Yii::t('app', 'First Name'),
             'last_name' => Yii::t('app', 'Last Name'),
         ];
@@ -92,14 +85,9 @@ class User extends \yii\db\ActiveRecord
             ->viaTable(UserBusiness::tableName(), ['user_id' => 'id']);
     }
 
-    public function isInGroup($group): bool
+    public function getPermissions(): \yii\db\ActiveQuery|PermissionQuery
     {
-        return UserGroup::isUserInGroup($this->id, $group);
-    }
-
-    public function hasPermission($permission): bool
-    {
-        return UserPermission::hasPermission($this->id, $permission);
+        return $this->hasMany(Permission::class, ['user_id' => 'id'])->inverseOf('user');
     }
 
     public static function find(): UserQuery

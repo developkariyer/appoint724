@@ -86,3 +86,7 @@ a.desc:after {
 .form-group {
     margin-bottom: 1rem;
 }
+
+.lang-nav-bar .dropdown-menu {
+    min-width: 1rem; /* Override the default min-width */
+}

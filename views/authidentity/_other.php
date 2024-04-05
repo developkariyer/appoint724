@@ -1,6 +1,12 @@
-<?php 
-$form = yii\bootstrap5\ActiveForm::begin(['id' => 'login-form', 'enableAjaxValidation' => true]);
+<?php $form = yii\bootstrap5\ActiveForm::begin(['id' => 'login-form', 'enableAjaxValidation' => true]); ?>
 
-echo Yii::t('app', 'Coming soon...');
+<div class="text-center">
 
-yii\bootstrap5\ActiveForm::end();
+    <p><?= Yii::t('app', 'Coming soon...') ?></p>
+
+    <p><i class="lni lni-google"></i> Google</p>
+    <p><i class="lni lni-facebook"></i> Facebook</p>
+
+</div>
+
+<?php yii\bootstrap5\ActiveForm::end(); ?>

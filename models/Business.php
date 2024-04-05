@@ -87,4 +87,10 @@ class Business extends \yii\db\ActiveRecord
     {
         return new BusinessQuery(get_called_class());
     }
+
+    public function getPermissions(): \yii\db\ActiveQuery|PermissionQuery
+    {
+        return $this->hasMany(Permission::class, ['business_id' => 'id'])->inverseOf('business');
+    }
+
 }
