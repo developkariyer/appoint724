@@ -62,6 +62,7 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+//                '' => 'site/index',
                 "<lang:{$langPattern}>" => 'site/index',
                 "<lang:{$langPattern}>/<controller:\w+>/<action:\w+>" => '<controller>/<action>',
                 "<lang:{$langPattern}>/site/login/<s>" => 'site/login',

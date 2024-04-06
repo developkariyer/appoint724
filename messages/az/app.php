@@ -65,6 +65,7 @@ return [
     'Please update your profile.' => '',
     'Please verify your GSM number.' => '',
     'Please verify your e-mail.' => '',
+    'Request Login with SMS' => '',
     'Reset' => '',
     'Resource ID' => '',
     'Resource Type' => '',

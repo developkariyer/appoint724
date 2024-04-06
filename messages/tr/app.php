@@ -65,6 +65,7 @@ return [
     'Please update your profile.' => 'Lütfen bilgilerinizi kontrol edin.',
     'Please verify your GSM number.' => 'Lütfen GSM numaranızı onaylatın.',
     'Please verify your e-mail.' => 'Lütfen e-posta adresinizi onaylatın.',
+    'Request Login with SMS' => 'SMS ile Giriş Talep',
     'Reset' => '',
     'Resource ID' => '',
     'Resource Type' => '',

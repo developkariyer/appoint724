@@ -7,11 +7,11 @@ use yii\base\Model;
 
 class LoginForm extends Model
 {
-    const SCENARIO_PASSWORD = '1';
-    const SCENARIO_SMS_REQUEST = '2';
-    const SCENARIO_SMS_VALIDATE = '4';
-    const SCENARIO_EMAIL_LINK = '8';
-    const SCENARIO_OTHER = '16';
+    const SCENARIO_PASSWORD = 'password';
+    const SCENARIO_SMS_REQUEST = 'sms_request';
+    const SCENARIO_SMS_VALIDATE = 'sms_validate';
+    const SCENARIO_EMAIL_LINK = 'email_link';
+    const SCENARIO_OTHER = 'other';
 
     public $password;
     public $gsm;
@@ -44,6 +44,18 @@ class LoginForm extends Model
             'password' => Yii::t('app', 'Password'),
             'smsotp' => Yii::t('app', 'OTP'),
         ];
+    }
+
+    public function getScenariodesc(): string
+    {
+        $scenariodescs = [
+            self::SCENARIO_PASSWORD => Yii::t('app', 'Login with Password'),
+            self::SCENARIO_SMS_REQUEST => Yii::t('app', 'Request Login with SMS'),
+            self::SCENARIO_SMS_VALIDATE => Yii::t('app', 'Login with SMS'),
+            self::SCENARIO_EMAIL_LINK => Yii::t('app', 'Login with Link'),
+            self::SCENARIO_OTHER => Yii::t('app', 'Other'),
+        ];
+        return $this->scenario ? $scenariodescs[$this->scenario] : $scenariodescs[self::SCENARIO_PASSWORD];
     }
 
     public function rules(): array

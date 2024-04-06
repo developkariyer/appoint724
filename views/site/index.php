@@ -7,6 +7,8 @@ use app\components\MyUrl;
 /** @var yii\web\View $this */
 
 $this->title = Yii::t('app', 'Appointment SAAS');
+$this->registerMetaTag(['name' => 'description', 'content' => $this->params['meta_description'] ?? $this->title]);
+
 ?>
 <div class="site-index">
 
@@ -17,9 +19,9 @@ $this->title = Yii::t('app', 'Appointment SAAS');
 
         <p>
         <?php if (!Yii::$app->user->isGuest) {
-            echo Html::a(Yii::t('app', 'Create New Appointment'), MyUrl::to(['appointment/create']), ['class' => 'btn btn-lg btn-success']);
+            //echo Html::a(Yii::t('app', 'Create New Appointment'), MyUrl::to(['appointment/create']), ['class' => 'btn btn-lg btn-success']);
         } else { 
-            echo Html::a(Yii::t('app', 'Sign Up'), MyUrl::to(['user/create']), ['class' => 'btn btn-lg btn-success']);
+            //echo Html::a(Yii::t('app', 'Sign Up'), MyUrl::to(['user/create']), ['class' => 'btn btn-lg btn-success']);
         } ?>
         </p>
     </div>

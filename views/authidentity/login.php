@@ -6,8 +6,9 @@ use app\components\MyUrl;
 /* @var yii\bootstrap5\ActiveForm $form */
 /* @var app\models\LoginForm $model */
 
-$this->title = Yii::t('app', 'Login');
+$this->title = $model->scenariodesc.' ('.Yii::$app->params['supportedLanguages'][Yii::$app->language].')';
 $this->params['breadcrumbs'][] = $this->title;
+$this->registerMetaTag(['name' => 'description', 'content' => $this->params['meta_description'] ?? $this->title]);
 
 $this->registerCss("
     .nav-tabs .nav-link {
