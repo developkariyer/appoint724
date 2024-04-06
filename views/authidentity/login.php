@@ -1,5 +1,7 @@
 <?php
 
+use app\components\MyUrl;
+
 /* @var yii\web\View $this */
 /* @var yii\bootstrap5\ActiveForm $form */
 /* @var app\models\LoginForm $model */
@@ -22,10 +24,10 @@ $this->registerCss("
         <div class="col-md-6 col-lg-4">
             <nav>
                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                    <a href="<?php echo \yii\helpers\Url::to(['login', 's' => app\models\LoginForm::SCENARIO_PASSWORD]); ?>" class="nav-link <?= ($model->scenario === app\models\LoginForm::SCENARIO_PASSWORD) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'Password') ?></a>
-                    <a href="<?php echo \yii\helpers\Url::to(['login', 's' => app\models\LoginForm::SCENARIO_SMS_REQUEST]); ?>" class="nav-link <?= ($model->scenario === app\models\LoginForm::SCENARIO_SMS_REQUEST || $model->scenario === app\models\LoginForm::SCENARIO_SMS_VALIDATE) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'SMS') ?></a>
-                    <a href="<?php echo \yii\helpers\Url::to(['login', 's' => app\models\LoginForm::SCENARIO_EMAIL_LINK]); ?>" class="nav-link <?= ($model->scenario === app\models\LoginForm::SCENARIO_EMAIL_LINK) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'Link') ?></a>
-                    <a href="<?php echo \yii\helpers\Url::to(['login', 's' => app\models\LoginForm::SCENARIO_OTHER]); ?>" class="nav-link <?= ($model->scenario === app\models\LoginForm::SCENARIO_OTHER) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'Other') ?></a>
+                    <a href="<?php echo MyUrl::to(['site/login/'.app\models\LoginForm::SCENARIO_PASSWORD]); ?>" class="nav-link <?= ($model->scenario === app\models\LoginForm::SCENARIO_PASSWORD) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'Password') ?></a>
+                    <a href="<?php echo MyUrl::to(['site/login/'.app\models\LoginForm::SCENARIO_SMS_REQUEST]); ?>" class="nav-link <?= ($model->scenario === app\models\LoginForm::SCENARIO_SMS_REQUEST || $model->scenario === app\models\LoginForm::SCENARIO_SMS_VALIDATE) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'SMS') ?></a>
+                    <a href="<?php echo MyUrl::to(['site/login/'.app\models\LoginForm::SCENARIO_EMAIL_LINK]); ?>" class="nav-link <?= ($model->scenario === app\models\LoginForm::SCENARIO_EMAIL_LINK) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'Link') ?></a>
+                    <a href="<?php echo MyUrl::to(['site/login/'.app\models\LoginForm::SCENARIO_OTHER]); ?>" class="nav-link <?= ($model->scenario === app\models\LoginForm::SCENARIO_OTHER) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'Other') ?></a>
                 </div>
             </nav>
             <?php switch ($model->scenario) {
@@ -63,6 +65,5 @@ $this->registerCss("
             } ?>
         </div>
     </div>
-    <?php //echo yii\helpers\Html::activeHiddenInput($model, 'scenario'); ?>
 </div>
 

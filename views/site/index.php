@@ -1,7 +1,8 @@
 <?php
 
 use yii\helpers\Html;
-use yii\helpers\Url;
+use app\components\MyUrl;
+
 
 /** @var yii\web\View $this */
 
@@ -16,9 +17,9 @@ $this->title = Yii::t('app', 'Appointment SAAS');
 
         <p>
         <?php if (!Yii::$app->user->isGuest) {
-            echo Html::a(Yii::t('app', 'Create New Appointment'), Url::to(['appointment/create']), ['class' => 'btn btn-lg btn-success']);
+            echo Html::a(Yii::t('app', 'Create New Appointment'), MyUrl::to(['appointment/create']), ['class' => 'btn btn-lg btn-success']);
         } else { 
-            echo Html::a(Yii::t('app', 'Sign Up'), Url::to(['user/create']), ['class' => 'btn btn-lg btn-success']);
+            echo Html::a(Yii::t('app', 'Sign Up'), MyUrl::to(['user/create']), ['class' => 'btn btn-lg btn-success']);
         } ?>
         </p>
     </div>

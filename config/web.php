@@ -3,9 +3,12 @@
 $params = require __DIR__.'/params.php';
 $db = require __DIR__.'/db.php';
 
+$langPattern = implode('|', array_keys($params['supportedLanguages']));
+
 $config = [
     'id' => 'basic',
     'name' => 'Appoint 7|24',
+    'language' => 'tr',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
     'aliases' => [
@@ -59,12 +62,11 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-                'language/<lang>' => 'site/language',
-                'login/<s>' => 'site/login',
-                'login' => 'site/login',
-                'logout' => 'site/logout',
+                "<lang:{$langPattern}>" => 'site/index',
+                "<lang:{$langPattern}>/<controller:\w+>/<action:\w+>" => '<controller>/<action>',
+                "<lang:{$langPattern}>/site/login/<s>" => 'site/login',
                 'verifyemail/<token>' => 'site/verifyemail',
-
+                '<path:.*>' => 'site/reroute',
             ],
         ],
         'session' => [
@@ -79,17 +81,6 @@ $config = [
         ],
     ],
     'params' => $params,
-    'on beforeRequest' => function ($event) {
-        if (!Yii::$app->user->isGuest && !empty(Yii::$app->user->identity->user->language)) {
-            $language = Yii::$app->user->identity->user->language;
-        } elseif (Yii::$app->session->has('language')) {
-            $language = Yii::$app->session->get('language');
-        }
-        if (empty($language) || !isset(Yii::$app->params['supportedLanguages'][$language])) {
-            $language = Yii::$app->params['defaultLanguage'];
-        }
-        Yii::$app->language = $language;
-    },
 ];
 
 if (YII_ENV_DEV) {

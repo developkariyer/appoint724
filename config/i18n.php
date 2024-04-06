@@ -9,7 +9,7 @@ return [
     // array, required, list of language codes that the extracted messages
     // should be translated to. For example, ['zh-CN', 'de'].
     'languages' => [
-        'de', 'tr'
+        'de', 'tr', 'az', 'ar',
 //        'af', 'ar', 'az', 'be', 'bg', 'bs', 'ca', 'cs', 'da', 'de', 'el', 'es', 'et', 'fa', 'fi', 'fr', 'he', 'hi',
 //        'pt-BR', 'ro', 'hr', 'hu', 'hy', 'id', 'it', 'ja', 'ka', 'kk', 'ko', 'kz', 'lt', 'lv', 'ms', 'nb-NO', 'nl',
 //        'pl', 'pt', 'ru', 'sk', 'sl', 'sr', 'sr-Latn', 'sv', 'tg', 'th', 'tr', 'uk', 'uz', 'uz-Cy', 'vi', 'zh-CN',

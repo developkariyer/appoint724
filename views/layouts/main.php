@@ -10,6 +10,7 @@ use yii\bootstrap5\Html;
 use yii\bootstrap5\Nav;
 use yii\bootstrap5\NavBar;
 use yii\helpers\Url;
+use app\components\MyUrl;
 
 AppAsset::register($this);
 
@@ -37,53 +38,35 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
         'brandUrl' => Yii::$app->homeUrl,
         'options' => ['class' => 'navbar-expand-md navbar-dark bg-dark fixed-top'],
     ]);
-/*
-    $languageItems = [
-        ['label' => 'English', 'url' => ['/site/language', 'lang' => 'en-US']],
-        ['label' => 'Deutsch', 'url' => ['/site/language', 'lang' => 'de']],
-        ['label' => 'Türkçe', 'url' => ['/site/language', 'lang' => 'tr']],
-    ];
-*/
 
-    $languageItems = [
-        'en-US'=>[
-            'label' => Html::img(Url::to('@web/images/flags/en-US.png'), [
-                'style' => 'height: 20px; vertical-align: middle;', // Adjust dimensions as needed
-                'alt' => 'English',
-            ]),
-            'url' => ['/site/language', 'lang' => 'en-US'],
-            'encode' => false,
-        ],
-        'de'=>[
-            'label' => Html::img(Url::to('@web/images/flags/de.png'), [
+    // build language selector dropdown
+    $pathInfo = Yii::$app->request->getPathInfo();
+    $segments = explode('/', $pathInfo);
+    if (in_array($segments[0], array_keys(Yii::$app->params['supportedLanguages']))) unset($segments[0]);
+    $languageItems = [];
+    foreach (Yii::$app->params['supportedLanguages'] as $lang=>$alt) {
+        $languageItems[$lang] = [
+            'label' => Html::img(Url::to("@web/images/flags/{$lang}.png"), [
                 'style' => 'height: 20px; vertical-align: middle;',
-                'alt' => 'Deutsch',
+                'alt' => $alt,
             ]),
-            'url' => ['/site/language', 'lang' => 'de'],
+            'url' => ["/{$lang}/".implode('/', $segments)],
             'encode' => false,
-        ],
-        'tr'=>[
-            'label' => Html::img(Url::to('@web/images/flags/tr.png'), [
-                'style' => 'height: 20px; vertical-align: middle;',
-                'alt' => 'Türkçe',
-            ]),
-            'url' => ['/site/language', 'lang' => 'tr'],
-            'encode' => false,
-        ],
-    ];
+        ];
+    }
 
-    $lognav = Yii::$app->user->isGuest ? ['label' => Yii::t('app', 'Login'), 'url' => ['/site/login']] :
+    $lognav = Yii::$app->user->isGuest ? ['label' => Yii::t('app', 'Login'), 'url' => ['/'.Yii::$app->language.'/site/login']] :
         [
             'label' => Yii::$app->user->identity->username,
             'items' => [
                 [
-                    'label' => '<i class="lni lni-user"></i> '.Yii::t('appp', 'User Information'),
-                    'url' => ['/user/update'],
+                    'label' => '<i class="lni lni-user"></i> '.Yii::t('app', 'User Information'),
+                    'url' => ['/'.Yii::$app->language.'/user/update'],
                 ],
                 [
                     'label' => '',
                 ],
-                Html::beginForm(['/site/logout'], 'post').
+                Html::beginForm(['/'.Yii::$app->language.'/site/logout'], 'post').
                 Html::submitButton(
                     ' <i class="lni lni-exit"></i> '.Yii::t('app', 'Logout'),
                     ['class' => 'btn ']
@@ -124,8 +107,8 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 <footer id="footer" class="mt-auto py-3 bg-light">
     <div class="container">
         <div class="row text-muted">
-            <div class="col-md-6 text-center text-md-start">&copy; Appointment SAAS <?php echo date('Y'); ?></div>
-            <div class="col-md-6 text-center text-md-end">iDeaMetric</div>
+            <div class="col-md-6 text-center text-md-start">&copy; Appointment SAAS</div>
+            <div class="col-md-6 text-center text-md-end"><?php echo date('Y'); ?></div>
         </div>
     </div>
 </footer>

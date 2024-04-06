@@ -10,6 +10,8 @@ use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\Response;
+use app\components\MyUrl;
+
 
 class SiteController extends Controller
 {
@@ -36,6 +38,9 @@ class SiteController extends Controller
                     'logout' => ['post'],
                 ],
             ],
+            'languageBehavior' => [
+                'class' => \app\components\LanguageBehavior::class,
+            ],
         ];
     }
 
@@ -55,31 +60,19 @@ class SiteController extends Controller
         ];
     }
 
-    public function actionLanguage($lang)
+    public function actionReroute($path)
     {
-        // Check if the selected language is supported
-        if (!array_key_exists($lang, Yii::$app->params['supportedLanguages'])) {
-            // If not supported, do nothing but return to the previous page
-            return $this->redirect(Yii::$app->request->referrer ?: Yii::$app->homeUrl);
+        $requestUrl = Yii::$app->request->url;
+        $baseUrl = Yii::$app->request->baseUrl; // Gets the base URL of the application
+    
+        if (trim($requestUrl, '/') === trim($baseUrl, '/')) {
+            return $this->redirect([Yii::$app->language.'/']);
         }
-    
-        // Set the session language variable to the new value
-        Yii::$app->session->set('language', $lang);
-    
-        // If the user is logged in, also update the user profile with the new language value
-        if (!Yii::$app->user->isGuest) {
-            $user = Yii::$app->user->identity->user;
-            $user->language = $lang;
-            $user->save(false);
-        }
-    
-        // Update the application language
-        Yii::$app->language = $lang;
-    
-        // Return to the previous page to display it in the new language
-        return $this->redirect(Yii::$app->request->referrer ?: Yii::$app->homeUrl);
+
+        echo Yii::$app->request->url;
+        exit;
     }
-    
+
     public function actionVerifymyemail()
     {
         if (!Yii::$app->user->isGuest) {
@@ -110,7 +103,7 @@ class SiteController extends Controller
             Yii::$app->session->setFlash('info', Yii::t('app','Login/verification successful.'));
             return $this->goHome();
         }
-        Yii::$app->session->setFlash('error', Yii::t('app',Yii::t('app', 'Token invalid or expired.')));
+        Yii::$app->session->setFlash('error', Yii::t('app', 'Token invalid or expired.'));
         return $this->goHome();
     }
 
@@ -163,11 +156,11 @@ XML;
             if (trim(strip_tags($response)) === 'true') {
                 $user->tcnoverified = true;
                 $user->save(false);
-                Yii::$app->session->setFlash('info', Yii::t('app',Yii::t('app', 'T.C. Identity Number verified.')));
+                Yii::$app->session->setFlash('info', Yii::t('app', 'T.C. Identity Number verified.'));
                 return $this->goBack();
             }
         }
-        Yii::$app->session->setFlash('error', Yii::t('app',Yii::t('app', 'Unknown error:')).$err);
+        Yii::$app->session->setFlash('error', Yii::t('app', 'Unknown error:').$err);
         return $this->goBack();
     }
 
@@ -314,7 +307,7 @@ XML;
     public function actionLogout()
     {
         Yii::$app->user->logout();
-
+        Yii::$app->session->setFlash('warning', Yii::t('app','Log out successful. See you soon.'));
         return $this->goHome();
     }
 

@@ -4,7 +4,8 @@ use app\models\Business;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
 use yii\helpers\Html;
-use yii\helpers\Url;
+use app\components\MyUrl;
+
 
 /* @var yii\web\View $this */
 /* @var app\models\BusinessSearch $searchModel */
@@ -35,7 +36,7 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'class' => ActionColumn::className(),
                 'urlCreator' => function ($action, Business $model, $key, $index, $column) {
-                    return Url::toRoute([$action, 'id' => $model->id]);
+                    return MyUrl::toRoute([$action, 'id' => $model->id]);
                 },
             ],
         ],
