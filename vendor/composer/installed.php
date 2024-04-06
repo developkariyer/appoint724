@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => 'c517e63c7a52a27a474d909d7f2af7d26841c782',
+        'reference' => '38756ec50bc91cd73412f5448795062dbe627253',
         'name' => 'yiisoft/yii2-app-basic',
         'dev' => true,
     ),
@@ -20,12 +20,12 @@
             'dev_requirement' => true,
         ),
         'bower-asset/bootstrap' => array(
-            'pretty_version' => 'v5.2.3',
-            'version' => '5.2.3.0',
+            'pretty_version' => 'v5.3.3',
+            'version' => '5.3.3.0',
             'type' => 'bower-asset',
             'install_path' => __DIR__ . '/../bower-asset/bootstrap',
             'aliases' => array(),
-            'reference' => 'cb021439c683d9805e2864c58095b92d405e9b11',
+            'reference' => '6e1f75f420f68e1d52733b8e407fc7c3766c9dba',
             'dev_requirement' => false,
         ),
         'bower-asset/inputmask' => array(
@@ -835,7 +835,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => 'c517e63c7a52a27a474d909d7f2af7d26841c782',
+            'reference' => '38756ec50bc91cd73412f5448795062dbe627253',
             'dev_requirement' => false,
         ),
         'yiisoft/yii2-bootstrap5' => array(
