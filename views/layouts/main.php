@@ -57,10 +57,10 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 
     $lognav = Yii::$app->user->isGuest ? ['label' => Yii::t('app', 'Login'), 'url' => ['/'.Yii::$app->language.'/site/login']] :
         [
-            'label' => Yii::$app->user->identity->username,
+            'label' => '<i class="lni lni-user"></i> '.Yii::$app->user->identity->username,
             'items' => [
                 [
-                    'label' => '<i class="lni lni-user"></i> '.Yii::t('app', 'User Information'),
+                    'label' => '<i class="lni lni-pencil"></i> '.Yii::t('app', 'User Information'),
                     'url' => ['/'.Yii::$app->language.'/user/update'],
                 ],
                 [
@@ -104,7 +104,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
     </div>
 </main>
 
-<footer id="footer" class="mt-auto py-3 bg-light">
+<footer id="footer" class="mt-auto py-1 bg-light">
     <div class="container">
         <div class="row text-muted">
             <div class="col-md-6 text-center text-md-start">&copy; Appointment SAAS</div>

@@ -29,7 +29,7 @@ class LanguageBehavior extends Behavior
             if (Yii::$app->session->has('lang')) {
                 $language = Yii::$app->session->get('lang');
             } elseif (!Yii::$app->user->isGuest && !empty(Yii::$app->user->identity->user->language)) {
-                $language = Yii::$app->user->identity->user->lang;
+                $language = Yii::$app->user->identity->user->language;
             } 
             if (!$language || !isset(Yii::$app->params['supportedLanguages'][$language])) {
                 $language = Yii::$app->params['defaultLanguage'];
