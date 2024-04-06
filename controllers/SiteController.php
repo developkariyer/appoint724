@@ -201,17 +201,17 @@ XML;
             $authidentity = Yii::$app->user->identity;
     
             $messages = [];
-            if (!$authidentity->user->tcnoverified) {
-                $url = \yii\helpers\Html::a(Yii::t('app', 'Please update your profile.'), ['user/update'], ['class' => 'alert-link']);
-                $url2 =  \yii\helpers\Html::a(Yii::t('app', 'Click here to verify.'), ['site/verifytcno'], ['class' => 'alert-link']);
-                $messages[] = Yii::t('app', 'Your T.C. No is not verified.')." {$url} {$url2}";
+            if (!$authidentity->user->tcnoverified) {   
+                $url = \yii\helpers\Html::a(Yii::t('app', 'Please update your profile.'), MyUrl::to(['user/update']), ['class' => 'alert-link']);
+                $url2 =  \yii\helpers\Html::a(Yii::t('app', 'Click here to verify.'), MyUrl::to(['site/verifytcno']), ['class' => 'alert-link']);
+                $messages[] = Yii::t('app', 'Your T.C. No is not verified.')." {$url} - {$url2}";
             }
             if (!$authidentity->user->gsmverified) {
-                $url = \yii\helpers\Html::a(Yii::t('app', 'Please verify your GSM number.'), ['site/verifygsm'], ['class' => 'alert-link']);
+                $url = \yii\helpers\Html::a(Yii::t('app', 'Please verify your GSM number.'), MyUrl::to(['site/verifygsm']), ['class' => 'alert-link']);
                 $messages[] = Yii::t('app', "Your GSM number is not verified.")." {$url}";
             }
             if (!$authidentity->user->emailverified) {
-                $url = \yii\helpers\Html::a(Yii::t('app', 'Please verify your e-mail.'), ['site/verifymyemail'], ['class' => 'alert-link']);
+                $url = \yii\helpers\Html::a(Yii::t('app', 'Please verify your e-mail.'), MyUrl::to(['site/verifymyemail']), ['class' => 'alert-link']);
                 $messages[] = Yii::t('app', "Your e-mail address is not verified.")." {$url}";
             }
             if (count($messages)) Yii::$app->session->setFlash('warning', $messages);
