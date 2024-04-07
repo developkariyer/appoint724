@@ -163,7 +163,7 @@ class Authidentity extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
                 'type' => self::AUTHTYPE_EMAIL_TOKEN,
                 'secret' => $hash,
                 'authKey' => Yii::$app->security->generateRandomString(),
-                'expires' => date('Y-m-d H:i:s', strtotime('+10 days')),
+                'expires' => date('Y-m-d H:i:s', strtotime('+10 minutes')),
             ]);
             if ($authIdentity->save()) {
                 return $token;
