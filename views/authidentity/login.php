@@ -24,11 +24,12 @@ $this->registerCss("
     <div class="row justify-content-md-center mt-5">
         <div class="col-md-6 col-lg-4">
             <nav>
-                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
                     <a href="<?php echo MyUrl::to(['site/login/'.app\models\LoginForm::SCENARIO_PASSWORD]); ?>" class="nav-link <?= ($model->scenario === app\models\LoginForm::SCENARIO_PASSWORD) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'Password') ?></a>
                     <a href="<?php echo MyUrl::to(['site/login/'.app\models\LoginForm::SCENARIO_SMS_REQUEST]); ?>" class="nav-link <?= ($model->scenario === app\models\LoginForm::SCENARIO_SMS_REQUEST || $model->scenario === app\models\LoginForm::SCENARIO_SMS_VALIDATE) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'SMS') ?></a>
                     <a href="<?php echo MyUrl::to(['site/login/'.app\models\LoginForm::SCENARIO_EMAIL_LINK]); ?>" class="nav-link <?= ($model->scenario === app\models\LoginForm::SCENARIO_EMAIL_LINK) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'Link') ?></a>
                     <a href="<?php echo MyUrl::to(['site/login/'.app\models\LoginForm::SCENARIO_OTHER]); ?>" class="nav-link <?= ($model->scenario === app\models\LoginForm::SCENARIO_OTHER) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'Other') ?></a>
+                    <a href="<?php echo MyUrl::to(['user/register/']); ?>" class="nav-link" role="tab"><?= Yii::t('app', 'New User') ?></a>
                 </div>
             </nav>
             <?php switch ($model->scenario) {

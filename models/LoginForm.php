@@ -87,10 +87,15 @@ class LoginForm extends Model
             switch ($this->scenario) {
                 case self::SCENARIO_PASSWORD:
                     $authidentity = Authidentity::findIdentityByEmail($this->email);
-                    if ($authidentity && $authidentity->validatePassword($this->password)) {
-                        return Yii::$app->user->login($authidentity, 3600 * 24 * 30);
+                    if ($authidentity) {
+                        if ($authidentity->validatePassword($this->password)) {
+                            return Yii::$app->user->login($authidentity, 3600 * 24 * 30);
+                        } else {
+                            $this->addError('password', 'Invalid e-mail or password.');
+                        }
+                    } else {
+                        $this->addError('email', 'Invalid e-mail or password.');
                     }
-                    $this->addError('password', 'Invalid e-mail or password.');
                     break;
                 case self::SCENARIO_SMS_VALIDATE:
                     $authidentity = Authidentity::findIdentityByGsm($this->gsm);

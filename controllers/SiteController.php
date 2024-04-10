@@ -77,7 +77,6 @@ class SiteController extends Controller
     {
         if (!Yii::$app->user->isGuest) {
             $email_token = \app\models\Authidentity::generateEmailToken(Yii::$app->user->identity->user->email);
-            error_log("*********** $email_token ************");
             Yii::$app->session->setFlash('info', "***********".\yii\helpers\Html::a($email_token, ['verifyemail/'.$email_token], ['class' => 'alert-link'])."************");
             if ($email_token !== false) {
                 Yii::$app->session->setFlash('error', Yii::t('app','Check your e-mail for a login link.'));
@@ -152,7 +151,6 @@ XML;
         curl_close($curl);
 
         if (!$err) {
-            error_log($response);
             if (trim(strip_tags($response)) === 'true') {
                 $user->tcnoverified = true;
                 $user->save(false);
@@ -164,7 +162,7 @@ XML;
         return $this->goBack();
     }
 
-    public function actionVerifygsm(): string
+    public function actionVerifygsm()
     {
         if (Yii::$app->user->isGuest) {
             return $this->goBack();
@@ -184,18 +182,18 @@ XML;
             if ($model->validate() && $model->login()) {
                 // no need to do anything, login automatically verifies GSM if successful
                 Yii::$app->session->setFlash('info', Yii::t('app','Login/verification successful.'));
+                return $this->goHome();
             }
         } else {
             $sms_otp = \app\models\Authidentity::generateSmsPin($model->gsm);
             // send sms_otp via SMS service API call
             Yii::$app->session->setFlash('info', "*********** $sms_otp ************");
-            error_log("*********** $sms_otp ************");
         }
 
         return $this->render('@app/views/authidentity/sms_validate', ['model' => $model]);
     }
 
-    public function actionIndex(): string
+    public function actionIndex()
     {
         if (!Yii::$app->user->isGuest) {
             $authidentity = Yii::$app->user->identity;
@@ -217,7 +215,16 @@ XML;
             if (count($messages)) Yii::$app->session->setFlash('warning', $messages);
         }
             
-        return $this->render('index');
+        if (Yii::$app->user->isGuest) {
+            return $this->redirect(MyUrl::to(['site/login']));
+        } else {
+            if (Yii::$app->user->identity->user->superadmin) {
+                return $this->redirect(MyUrl::to(['site/superadmin']));
+            } else {
+                // later, business logic will be implemented here *****
+                return $this->redirect(MyUrl::to(['site/index']));
+            }
+        }
     }
 
     /**
@@ -255,6 +262,7 @@ XML;
                     case LoginForm::SCENARIO_PASSWORD:
                     case LoginForm::SCENARIO_SMS_VALIDATE:
                         if ($model->login()) {
+                            $this->setHomePage();
                             Yii::$app->session->setFlash('info', Yii::t('app','Login successful.'));
                             return $this->goHome();
                         } else {
@@ -267,7 +275,6 @@ XML;
                         break;
                     case LoginForm::SCENARIO_SMS_REQUEST:
                         $sms_otp = \app\models\Authidentity::generateSmsPin($model->gsm);
-                        error_log("*********** $sms_otp ************");
                         Yii::$app->session->setFlash('info', "*********** $sms_otp ************");
                         if ($sms_otp !== false) {
                             if ($sms_otp !==true ) { /* send sms via external api call, to be implemented */ }
@@ -278,7 +285,6 @@ XML;
                         break;
                     case LoginForm::SCENARIO_EMAIL_LINK:
                         $email_token = \app\models\Authidentity::generateEmailToken($model->emaillink);
-                        error_log("*********** $email_token ************");
                         Yii::$app->session->setFlash('info', "***********".\yii\helpers\Html::a($email_token, ['verifyemail/'.$email_token], ['class' => 'alert-link'])."************");
                         if ($email_token !== false) {
                             Yii::$app->session->setFlash('warning', Yii::t('app','Check your e-mail for a login link.'));
@@ -339,4 +345,19 @@ XML;
     {
         return $this->render('about');
     }
+
+    private function setHomePage() 
+    {
+    }
+
+    public function actionSuperadmin()
+    {
+        if (Yii::$app->user->isGuest || !Yii::$app->user->identity->user->superadmin) {
+            $this->setHomePage();
+            return $this->goHome();
+        }
+
+        return $this->render('superadmin');
+    }
+
 }

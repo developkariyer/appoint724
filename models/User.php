@@ -30,6 +30,7 @@ use Yii;
 class User extends \yii\db\ActiveRecord
 {
     use traits\SoftDeleteTrait;
+    use traits\UserTrait;
 
     public static function tableName(): string
     {
@@ -38,17 +39,12 @@ class User extends \yii\db\ActiveRecord
 
     public function rules(): array
     {
-        return [
-            [['gsmverified', 'emailverified', 'tcnoverified'], 'integer'],
+        return array_merge($this->commonRules(), 
+        [
             [['last_active', 'created_at', 'updated_at', 'deleted_at'], 'safe'],
             [['first_name', 'last_name', 'gsm', 'email', 'tcno', 'dogum_yili'], 'required'],
-            [['first_name', 'last_name', 'gsm', 'email', 'tcno', 'dogum_yili'], 'safe'],
-            [['status', 'status_message'], 'string', 'max' => 255],
-            [['first_name', 'last_name'], 'string', 'max' => 100],
-            [['tcno'], 'string', 'max' => 11, 'min' => 11],
-            [['gsm', 'language'], 'string', 'max' => 30],
-            [['email'], 'email'],        
-        ];
+            [['first_name', 'last_name', 'gsm', 'email', 'tcno', 'dogum_yili', 'tcnoverified', 'gsmverified', 'emailverified'], 'safe'],
+        ]);
     }
 
     public function attributeLabels(): array
@@ -98,7 +94,6 @@ class User extends \yii\db\ActiveRecord
     public static function findforauth($condition): \yii\db\ActiveRecord|User|null
     {
         $user = User::find()->where($condition)->one();
-
         return $user;
     }
 

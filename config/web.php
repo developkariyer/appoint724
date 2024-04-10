@@ -65,9 +65,9 @@ $config = [
             'rules' => [
 //                '' => 'site/index',
                 "<lang:{$langPattern}>" => 'site/index',
+                'verifyemail/<token>' => 'site/verifyemail',
                 "<lang:{$langPattern}>/<controller:\w+>/<action:\w+>" => '<controller>/<action>',
                 "<lang:{$langPattern}>/site/login/<s>" => 'site/login',
-                'verifyemail/<token>' => 'site/verifyemail',
                 '<path:.*>' => 'site/reroute',
             ],
         ],

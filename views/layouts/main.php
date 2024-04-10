@@ -48,64 +48,12 @@ $this->registerCss("
 
 <header id="header">
     <?php
-    NavBar::begin([
-        'brandLabel' => Yii::$app->name,
-        'brandUrl' => Yii::$app->homeUrl,
-        'options' => ['class' => 'navbar-expand-md navbar-dark bg-dark fixed-top'],
+
+    echo \app\widgets\Navigation::widget([
+        'supportedLanguages' => Yii::$app->params['supportedLanguages'],
+        'currentPath' => Yii::$app->request->getPathInfo(),
     ]);
 
-    // build language selector dropdown
-    $pathInfo = Yii::$app->request->getPathInfo();
-    $segments = explode('/', $pathInfo);
-    if (in_array($segments[0], array_keys(Yii::$app->params['supportedLanguages']))) unset($segments[0]);
-    $languageItems = [];
-    foreach (Yii::$app->params['supportedLanguages'] as $lang=>$alt) {
-        $languageItems[$lang] = [
-            'label' => Html::img(Url::to("@web/images/flags/{$lang}.png"), [
-                'class' => 'langflags',
-                'alt' => $alt,
-            ]),
-            'url' => ["/{$lang}/".implode('/', $segments)],
-            'encode' => false,
-        ];
-    }
-
-    $lognav = Yii::$app->user->isGuest ? ['label' => Yii::t('app', 'Login'), 'url' => ['/'.Yii::$app->language.'/site/login']] :
-        [
-            'label' => '<i class="lni lni-user"></i> '.Yii::$app->user->identity->username,
-            'items' => [
-                [
-                    'label' => '<i class="lni lni-pencil"></i> '.Yii::t('app', 'User Information'),
-                    'url' => ['/'.Yii::$app->language.'/user/update'],
-                ],
-                [
-                    'label' => '',
-                ],
-                Html::beginForm(['/'.Yii::$app->language.'/site/logout'], 'post').
-                Html::submitButton(
-                    ' <i class="lni lni-exit"></i> '.Yii::t('app', 'Logout'),
-                    ['class' => 'btn ']
-                ).Html::endForm(),
-            ]
-        ];
-
-    echo "<div class='ms-auto'>";
-    echo Nav::widget([
-        'options' => ['class' => 'navbar-nav'],
-        'items' => [
-            [
-                'options' => ['class' => 'lang-nav-bar'],
-                'label' => $languageItems[Yii::$app->language]['label'],
-                'encode' => false,
-                'items' => $languageItems,
-            ],
-            $lognav,
-        ],
-        'encodeLabels' => false, // Ensure HTML content in labels is rendered
-    ]);
-    echo "</div>";
-
-    NavBar::end();
     ?>
 </header>
 

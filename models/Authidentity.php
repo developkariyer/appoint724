@@ -105,7 +105,7 @@ class Authidentity extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
         if ($user = User::find()->where(['email' => $email])->one()) {
             return $user->getAuthIdentities()
                 ->where(['type' => self::AUTHTYPE_PASSWORD])
-                ->andWhere(['>', 'expires', new \yii\db\Expression('NOW()')])
+//                ->andWhere(['>', 'expires', new \yii\db\Expression('NOW()')])
                 ->one();
         }
         return null;

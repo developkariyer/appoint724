@@ -24,12 +24,13 @@ class AppAsset extends AssetBundle
     public $css = [
         'css/site.css',
 //        'css/ud-styles.css',
-        'css/lineicons.css',
+//        'css/lineicons.css',
     ];
     public $js = [
     ];
     public $depends = [
         'yii\web\YiiAsset',
         'yii\bootstrap5\BootstrapAsset',
+        'yii\bootstrap5\BootstrapIconAsset',
     ];
 }
