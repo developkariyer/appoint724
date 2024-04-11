@@ -222,7 +222,8 @@ XML;
                 return $this->redirect(MyUrl::to(['site/superadmin']));
             } else {
                 // later, business logic will be implemented here *****
-                return $this->redirect(MyUrl::to(['site/index']));
+                //return $this->redirect(MyUrl::to(['site/index']));
+                return $this->render('index');
             }
         }
     }

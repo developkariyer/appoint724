@@ -8,6 +8,7 @@ use yii\bootstrap5\NavBar;
 use yii\bootstrap5\Nav;
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\components\MyUrl;
 
 class Navigation extends Widget
 {
@@ -67,50 +68,64 @@ class Navigation extends Widget
             ];
         }
 
-        $lognav = Yii::$app->user->isGuest ? ['label' => Yii::t('app', 'Login'), 'url' => ['/'.Yii::$app->language.'/site/login']] : [
+        // login/logout items and dropdown
+        $lognav = Yii::$app->user->isGuest ? ['label' => Yii::t('app', 'Login'), 'url' => MyUrl::to(['site/login'])] : [
             'label' => '<i class="bi bi-person"></i> '.Yii::$app->user->identity->username,
             'items' => [
                 [
                     'label' => '<i class="bi bi-key"></i> '.Yii::t('app', 'Change Password'),
-                    'url' => ['/'.Yii::$app->language.'/user/password'],
+                    'url' => MyUrl::to(['user/password']),
                 ],
                 [
                     'label' => '<i class="bi bi-person-vcard"></i> '.Yii::t('app', 'User Information'),
-                    'url' => ['/'.Yii::$app->language.'/user/update'],
+                    'url' => MyUrl::to(['user/update']),
                 ],
                 [
                     'label' => '',
                 ],
-                Html::beginForm(['/'.Yii::$app->language.'/site/logout'], 'post').
+                Html::beginForm(MyUrl::to(['site/logout']), 'post').
                 Html::submitButton(
                     ' <i class="bi bi-box-arrow-right"></i> '.Yii::t('app', 'Logout'),
                     ['class' => 'btn ']
                 ).Html::endForm(),
             ]
         ];
+
+        // superadmin menu
         if ($this->userType == self::userSuperAdmin) {
             echo Nav::widget([
                 'options' => ['class' => 'navbar-nav'],
                 'items' => [
                     [
                         'label' => Yii::t('app', 'Businesses'),
-
-                    ],
-                    [
-                        'label' => Yii::t('app', 'Resources'),
-
-                    ],
-                    [
-                        'label' => Yii::t('app', 'Appointments'),
-
+                        'items' => [
+                            [
+                                'label' => Yii::t('app', 'List Businesses'),
+                                'url' => MyUrl::to(['business/index']),
+                            ],
+                            [
+                                'label' => Yii::t('app', 'Create Business'),
+                                'url' => MyUrl::to(['business/create']),
+                            ],
+                        ],
                     ],
                     [
                         'label' => Yii::t('app', 'Users'),
+                        'items' => [
+                            [
+                                'label' => Yii::t('app', 'List Users'),
+                                'url' => MyUrl::to(['user/index']),
+                            ],
+                            [
+                                'label' => Yii::t('app', 'Add New User'),
+                                'url' => MyUrl::to(['user/create']),
+                            ],
+                            [
+                                'label' => Yii::t('app', 'Reset User Password'),
+                                'url' => MyUrl::to(['user/reset']),
+                            ],
 
-                    ],
-                    [
-                        'label' => Yii::t('app', 'Rules'),
-
+                        ],
                     ],
                 ],
                 'encodeLabels' => false, 
