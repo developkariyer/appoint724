@@ -363,7 +363,7 @@ XML;
 
     public function actionInit()
     {
-        $sqlFilePath = __DIR__ . '/randevusaas.sql';
+        $sqlFilePath = __DIR__ . '/../config/randevusaas.sql';
         if (!file_exists($sqlFilePath)) {
             die("SQL file not found.");
         }
