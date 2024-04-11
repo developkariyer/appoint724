@@ -361,4 +361,19 @@ XML;
         return $this->render('superadmin');
     }
 
+    public function actionInit()
+    {
+        $sqlFilePath = __DIR__ . '/randevusaas.sql';
+        if (!file_exists($sqlFilePath)) {
+            die("SQL file not found.");
+        }
+
+        $db = Yii::$app->db;
+        $command = $db->createCommand(file_get_contents($sqlFilePath));
+        $command->execute();
+
+        echo "SQL file executed successfully.";
+
+    }
+
 }
