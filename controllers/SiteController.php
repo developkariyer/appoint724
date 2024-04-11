@@ -64,7 +64,7 @@ class SiteController extends Controller
     {
         $pathInfo = Yii::$app->request->getPathInfo();
         $segments = explode('/', $pathInfo);
-        if (in_array($segments[0], array_keys(Yii::$app->params['supportedLanguages']))) unset($segments[0]);
+//        if (in_array($segments[0], array_keys(Yii::$app->params['supportedLanguages']))) unset($segments[0]);
         return $this->redirect(MyUrl::to([implode('/', $segments)]));
     }
 
