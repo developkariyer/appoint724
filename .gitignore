@@ -45,3 +45,5 @@ tests/_support/_generated
 
 
 .env
+web/index.php
+/web/index.php
