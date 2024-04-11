@@ -62,15 +62,10 @@ class SiteController extends Controller
 
     public function actionReroute($path)
     {
-        $requestUrl = Yii::$app->request->url;
-        $baseUrl = Yii::$app->request->baseUrl; // Gets the base URL of the application
-    
-        if (trim($requestUrl, '/') === trim($baseUrl, '/')) {
-            return $this->redirect([Yii::$app->language.'/']);
-        }
-
-        echo Yii::$app->request->url;
-        exit;
+        $pathInfo = Yii::$app->request->getPathInfo();
+        $segments = explode('/', $pathInfo);
+        if (in_array($segments[0], array_keys(Yii::$app->params['supportedLanguages']))) unset($segments[0]);
+        return $this->redirect(MyUrl::to([implode('/', $segments)]));
     }
 
     public function actionVerifymyemail()
