@@ -43,7 +43,8 @@ tests/_support/_generated
 # custom additions
 /__tmp
 
-
+.vscode
+.idea
 .env
 web/index.php
 /web/index.php
