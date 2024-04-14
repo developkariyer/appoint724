@@ -1,8 +1,6 @@
 <p align="center">
-    <a href="https://github.com/yiisoft" target="_blank">
-        <img src="https://avatars0.githubusercontent.com/u/993323" height="100px">
-    </a>
-    <h1 align="center">Yii 2 Basic Project Template</h1>
+    <img src="https://github.com/developkariyer/yii2/blob/4a4d4ccad09f8a9a6dbafa29392afca72fa72f05/web/android-chrome-192x192.png">
+    <h1 align="center">Appointment SAAS</h1>
     <br>
 </p>
 
