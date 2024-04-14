@@ -63,12 +63,13 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-//                '' => 'site/index',
-                "<lang:{$langPattern}>" => 'site/index',
+                '' => 'site/index',
+                "<lang:{$langPattern}>/?" => 'site/index',
+                "<lang:{$langPattern}>/<action>" => 'site/<action>',
                 'verifyemail/<token>' => 'site/verifyemail',
                 "<lang:{$langPattern}>/<controller:\w+>/<action:\w+>" => '<controller>/<action>',
                 "<lang:{$langPattern}>/site/login/<s>" => 'site/login',
-                '<path:.*>' => 'site/reroute',
+//                '<path:.*>' => 'site/reroute',
             ],
         ],
         'session' => [

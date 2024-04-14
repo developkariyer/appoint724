@@ -7,7 +7,6 @@ use app\components\MyUrl;
 /** @var yii\web\View $this */
 
 $this->title = Yii::t('app', 'Appointment SAAS');
-$this->registerMetaTag(['name' => 'description', 'content' => $this->params['meta_description'] ?? $this->title]);
 
 ?>
 <div class="site-index">

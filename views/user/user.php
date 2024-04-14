@@ -21,9 +21,8 @@ switch ($model->scenario) {
 
 ?>
 <div class="user-operations">
-    <h1><?php echo yii\helpers\Html::encode($this->title); ?></h1>
     <div class="row justify-content-md-center mt-5">
-        <div class="col-md-6 col-lg-4">
+        <div class="col-md-8 col-lg-6">
             <?php $form = yii\bootstrap5\ActiveForm::begin(['id' => 'user-form', 'enableAjaxValidation' => true]); ?>
             <?php 
                 switch ($model->scenario) {

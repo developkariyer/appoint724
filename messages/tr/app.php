@@ -116,7 +116,7 @@ return [
     'User Agent' => '',
     'User ID' => '',
     'User Information' => 'Kullanıcı Bilgileri',
-    'User has been registered successfully.' => '',
+    'User has been registered successfully.' => 'Yeni kullanıcı başarıyla kaydedildi ve oturum açıldı.',
     'Users' => 'Kullanıcılar',
     'Verify GSM' => 'GSM numaranızı onaylatın',
     'Welcome' => 'Hoşgeldiniz',

@@ -7,22 +7,21 @@ use app\components\MyUrl;
 /* @var app\models\LoginForm $model */
 
 $this->title = $model->scenariodesc.' ('.Yii::$app->params['supportedLanguages'][Yii::$app->language].')';
-$this->params['breadcrumbs'][] = $this->title;
+//$this->params['breadcrumbs'][] = $this->title;
 $this->registerMetaTag(['name' => 'description', 'content' => $this->params['meta_description'] ?? $this->title]);
 
 $this->registerCss("
     .nav-tabs .nav-link {
         padding: 3px 8px;
-        font-size: 0.85rem;
+        font-size: 1rem;
     }
 ");
 
 ?>
 
 <div class="site-login">
-    <h1><?php echo yii\helpers\Html::encode($this->title); ?></h1>
     <div class="row justify-content-md-center mt-5">
-        <div class="col-md-6 col-lg-4">
+        <div class="col-md-8 col-lg-6">
             <nav>
                 <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
                     <a href="<?php echo MyUrl::to(['site/login/'.app\models\LoginForm::SCENARIO_PASSWORD]); ?>" class="nav-link <?= ($model->scenario === app\models\LoginForm::SCENARIO_PASSWORD) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'Password') ?></a>
