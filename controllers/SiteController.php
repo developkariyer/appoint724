@@ -64,8 +64,10 @@ class SiteController extends Controller
     {
         $pathInfo = Yii::$app->request->getPathInfo();
         $segments = explode('/', $pathInfo);
+        $newurl = MyUrl::to([implode('/', $segments)]);
 //        if (in_array($segments[0], array_keys(Yii::$app->params['supportedLanguages']))) unset($segments[0]);
-        return $this->redirect(MyUrl::to([implode('/', $segments)]));
+        error_log("No routes have been hit. Trying to reroute: $newurl");
+        return $this->redirect($newurl);
     }
 
     public function actionVerifymyemail()
@@ -228,7 +230,7 @@ XML;
      *
      * @return Response|string
      */
-    public function actionLogin()
+    public function actionLogin($s = null)
     {
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
@@ -238,7 +240,7 @@ XML;
         if (Yii::$app->request->isPost) {
             $model->scenario = Yii::$app->request->post('action');
         } else {
-            $model->scenario = Yii::$app->request->get('s', LoginForm::SCENARIO_PASSWORD);
+            $model->scenario = $s ?? LoginForm::SCENARIO_PASSWORD;
         }
 
         $allowed_scenarios = array_keys($model->scenarios());

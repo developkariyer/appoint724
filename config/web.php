@@ -63,13 +63,14 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-                '' => 'site/index',
-                "<lang:$langPattern>/?" => 'site/index',
-                "<lang:$langPattern>/<action>" => 'site/<action>',
-                'verifyemail/<token>' => 'site/verifyemail',
-                "<lang:$langPattern>/<controller:\w+>/<action:\w+>" => '<controller>/<action>',
-                "<lang:$langPattern>/site/login/<s>" => 'site/login',
-//                '<path:.*>' => 'site/reroute',
+                '' => 'site/index', // URL without any parameters
+                "<lang:$langPattern>/?" => 'site/index', // URL with language parameter only, trailing / is optional
+                "<lang:$langPattern>/site/?" => 'site/index', // URL with language parameter and site controller only, trailing / is optional
+                "<lang:$langPattern>/<action>" => 'site/<action>', // URL with language parameter and action only, default to site controller
+                'verifyemail/<token>' => 'site/verifyemail', // URL with token parameter only, used for email verification and non-interactive link login
+                "<lang:$langPattern>/site/login/<s>" => 'site/login', // URL with language parameter, site controller and login action with s as login scenario parameter
+                "<lang:$langPattern>/<controller:\w+>/<action:\w+>" => '<controller>/<action>', // URL with language parameter, controller and action, valid for all situations
+                '<path:.*>' => 'site/reroute', // URL without any matching rule, site controller reroute action will apply language and redirect to a valid URL
             ],
         ],
         'session' => [
