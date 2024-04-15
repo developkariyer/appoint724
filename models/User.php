@@ -56,6 +56,7 @@ class User extends \yii\db\ActiveRecord
             'dogum_yili' => Yii::t('app', 'Year of Birth'),
             'first_name' => Yii::t('app', 'First Name'),
             'last_name' => Yii::t('app', 'Last Name'),
+            'fullname' => Yii::t('app', 'Full Name'),
         ];
     }
 

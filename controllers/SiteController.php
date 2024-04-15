@@ -60,20 +60,35 @@ class SiteController extends Controller
         ];
     }
 
+    /**
+     * Fallback route function, tries to guess what user intents
+     * @param mixed $path
+     * @return Yii\web\Response
+     */
     public function actionReroute($path)
     {
         $pathInfo = Yii::$app->request->getPathInfo();
         $segments = explode('/', $pathInfo);
-        $newurl = MyUrl::to([implode('/', $segments)]);
-//        if (in_array($segments[0], array_keys(Yii::$app->params['supportedLanguages']))) unset($segments[0]);
-        error_log("No routes have been hit. Trying to reroute: $newurl");
-        return $this->redirect($newurl);
+        $controllerlist = ['business', 'user', 'site']; //manually fill this array with controllers
+        if (isset($segments[0]) && in_array($segments[0], $controllerlist)) {
+            return $this->redirect(MyUrl::to([implode('/', $segments)]));
+        }
+        if (isset($segments[1]) && in_array($segments[1], $controllerlist)) {
+            unset($segments[0]);
+            return $this->redirect(MyUrl::to([implode('/', $segments)]));
+        }
+        return $this->redirect(MyUrl::to(['site/index']));
     }
 
+    /**
+     * Generate token for e-mail and send it to user
+     * @return Yii\web\Response
+     */
     public function actionVerifymyemail()
     {
         if (!Yii::$app->user->isGuest) {
             $email_token = \app\models\Authidentity::generateEmailToken(Yii::$app->user->identity->user->email);
+            // This token will be sent to user via e-mail
             Yii::$app->session->setFlash('info', "***********".\yii\helpers\Html::a($email_token, ['verifyemail/'.$email_token], ['class' => 'alert-link'])."************");
             if ($email_token !== false) {
                 Yii::$app->session->setFlash('error', Yii::t('app','Check your e-mail for a login link.'));
@@ -86,6 +101,11 @@ class SiteController extends Controller
         }
     }
 
+    /**
+     * Do the actual login with e-mail token
+     * @param mixed $token
+     * @return Yii\web\Response
+     */
     public function actionVerifyemail($token)
     {
         $authidentity = \app\models\Authidentity::findIdentityByEmailToken($token);
@@ -103,6 +123,10 @@ class SiteController extends Controller
         return $this->goHome();
     }
 
+    /**
+     * Verify TC identity number from official government service
+     * @return Yii\web\Response
+     */
     public function actionVerifytcno()
     {
         if (Yii::$app->user->isGuest) {
@@ -159,6 +183,10 @@ XML;
         return $this->goBack();
     }
 
+    /**
+     * Generate an SMS for GSM verification and do the verification afterwards
+     * @return array|string|Yii\web\Response
+     */
     public function actionVerifygsm()
     {
         if (Yii::$app->user->isGuest) {
@@ -190,6 +218,10 @@ XML;
         return $this->render('@app/views/authidentity/sms_validate', ['model' => $model]);
     }
 
+    /**
+     * Default homepage, which will redirect or render user-specific homepage after setting common messages
+     * @return string|Yii\web\Response
+     */
     public function actionIndex()
     {
         if (!Yii::$app->user->isGuest) {
@@ -227,7 +259,6 @@ XML;
 
     /**
      * Login action.
-     *
      * @return Response|string
      */
     public function actionLogin($s = null)
@@ -260,7 +291,6 @@ XML;
                     case LoginForm::SCENARIO_PASSWORD:
                     case LoginForm::SCENARIO_SMS_VALIDATE:
                         if ($model->login()) {
-                            $this->setHomePage();
                             Yii::$app->session->setFlash('info', Yii::t('app','Login successful.'));
                             return $this->goHome();
                         } else {
@@ -305,7 +335,6 @@ XML;
 
     /**
      * Logout action.
-     *
      * @return Response
      */
     public function actionLogout()
@@ -317,7 +346,6 @@ XML;
 
     /**
      * Displays contact page.
-     *
      * @return Response|string
      */
     public function actionContact()
@@ -336,7 +364,6 @@ XML;
 
     /**
      * Displays about page.
-     *
      * @return string
      */
     public function actionAbout()
@@ -344,20 +371,24 @@ XML;
         return $this->render('about');
     }
 
-    private function setHomePage() 
-    {
-    }
-
-    public function actionSuperadmin()
+    /**
+     * Super Admin homepage
+     * @param mixed $businesId
+     * @return string|Yii\web\Response
+     */
+    public function actionSuperadmin($businesId = null)
     {
         if (Yii::$app->user->isGuest || !Yii::$app->user->identity->user->superadmin) {
-            $this->setHomePage();
             return $this->goHome();
         }
 
         return $this->render('superadmin');
     }
 
+    /**
+     * Updates database. Only for development purposes!!!
+     * @return void
+     */
     public function actionInit()
     {
         $sqlFilePath = __DIR__ . '/../config/randevusaas.sql';

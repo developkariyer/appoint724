@@ -1,10 +1,6 @@
 <?php
 
-use app\models\Business;
-use yii\grid\ActionColumn;
-use yii\grid\GridView;
 use yii\helpers\Html;
-use app\components\MyUrl;
 
 
 /* @var yii\web\View $this */
@@ -12,33 +8,29 @@ use app\components\MyUrl;
 /* @var yii\data\ActiveDataProvider $dataProvider */
 
 $this->title = Yii::t('app', 'Businesses');
-$this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="business-index">
 
     <h1><?php echo Html::encode($this->title); ?></h1>
 
-    <p>
-        <?php echo Html::a(Yii::t('app', 'Create Business'), ['create'], ['class' => 'btn btn-success']); ?>
-    </p>
-
-    <?php // echo $this->render('_search', ['model' => $searchModel]);?>
-
-    <?php echo GridView::widget([
+    <?= \yii\widgets\ListView::widget([
         'dataProvider' => $dataProvider,
-        'filterModel' => $searchModel,
-        'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
-
-            'id',
-            'name',
-            'timezone',
-            [
-                'class' => ActionColumn::className(),
-                'urlCreator' => function ($action, Business $model, $key, $index, $column) {
-                    return MyUrl::toRoute([$action, 'id' => $model->id]);
-                },
-            ],
+        'itemView' => function ($model, $key, $index, $widget) {
+            return $this->render('_business', ['model' => $model]);
+        },
+        'layout' => "{items} {summary} {pager}",
+        'options' => [
+            'class' => 'list-view row',
+        ],
+        'itemOptions' => [
+            'class' => 'card mb-3 bg-light business-card col-xs-12 col-sm-12 col-md-12', // responsive card design
+        ],
+        'pager' => [
+            'options' => ['class' => 'pagination justify-content-center'], // Centers the pager and applies Bootstrap pagination styling
+            'linkContainerOptions' => ['class' => 'page-item'], // Bootstrap specific class
+            'linkOptions' => ['class' => 'page-link'], // Bootstrap specific class
+            'disabledListItemSubTagOptions' => ['tag' => 'a', 'class' => 'page-link'], // Options for disabled links
+            'maxButtonCount' => 5, // Limits the number of page links shown
         ],
     ]); ?>
 

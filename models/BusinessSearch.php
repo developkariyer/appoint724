@@ -35,6 +35,11 @@ class BusinessSearch extends Business
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => [
+                'defaultOrder' => [
+                    'name' => SORT_ASC, // Always sorts by name in ascending order
+                ]
+            ],
         ]);
 
         $this->load($params);

@@ -17,6 +17,11 @@ class UserBusiness extends \yii\db\ActiveRecord
 {
     use traits\SoftDeleteTrait;
 
+    const ROLE_ADMIN = 'admin';
+    const ROLE_SECRETARY = 'secretary';
+    const ROLE_EXPERT = 'expert';
+    const ROLE_CUSTOMER = 'customer';
+
     public static function tableName(): string
     {
         return 'users_businesses';

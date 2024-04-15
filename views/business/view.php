@@ -6,9 +6,8 @@ use yii\widgets\DetailView;
 /* @var yii\web\View $this */
 /* @var app\models\Business $model */
 
-$this->title = $model->name;
-$this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Businesses'), 'url' => ['index']];
-$this->params['breadcrumbs'][] = $this->title;
+$this->title = Yii::t('app', 'Business')." : {$model->name}";
+
 \yii\web\YiiAsset::register($this);
 ?>
 <div class="business-view">

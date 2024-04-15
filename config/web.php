@@ -3,7 +3,6 @@
 $params = require __DIR__.'/params.php';
 $db = require __DIR__.'/db.php';
 
-$langPattern = implode('|', array_keys($params['supportedLanguages']));
 
 $config = [
     'id' => 'basic',
@@ -62,16 +61,7 @@ $config = [
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-            'rules' => [
-                '' => 'site/index', // URL without any parameters
-                "<lang:$langPattern>/?" => 'site/index', // URL with language parameter only, trailing / is optional
-                "<lang:$langPattern>/site/?" => 'site/index', // URL with language parameter and site controller only, trailing / is optional
-                "<lang:$langPattern>/<action>" => 'site/<action>', // URL with language parameter and action only, default to site controller
-                'verifyemail/<token>' => 'site/verifyemail', // URL with token parameter only, used for email verification and non-interactive link login
-                "<lang:$langPattern>/site/login/<s>" => 'site/login', // URL with language parameter, site controller and login action with s as login scenario parameter
-                "<lang:$langPattern>/<controller:\w+>/<action:\w+>" => '<controller>/<action>', // URL with language parameter, controller and action, valid for all situations
-                '<path:.*>' => 'site/reroute', // URL without any matching rule, site controller reroute action will apply language and redirect to a valid URL
-            ],
+            'rules' => require(__DIR__ . '/routes.php'),
         ],
         'session' => [
             'class' => 'yii\web\Session',

@@ -35,6 +35,7 @@ class Business extends \yii\db\ActiveRecord
             [['name'], 'string', 'max' => 100],
             [['timezone'], 'string', 'max' => 45],
             [['timezone'], 'validateTimezone'],
+            [['name'], 'unique'],
         ];
     }
 
@@ -42,7 +43,7 @@ class Business extends \yii\db\ActiveRecord
     {
         return [
             'id' => Yii::t('app', 'ID'),
-            'name' => Yii::t('app', 'Name'),
+            'name' => Yii::t('app', 'Business Name'),
             'timezone' => Yii::t('app', 'Timezone'),
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),
@@ -77,12 +78,21 @@ class Business extends \yii\db\ActiveRecord
         return $this->hasMany(Service::class, ['business_id' => 'id'])->inverseOf('business');
     }
 
-    public function getUsers(): \yii\db\ActiveQuery|UserQuery
+    public function getUsers($role = null)
     {
-        return $this->hasMany(User::class, ['id' => 'user_id'])
+        $query = $this->hasMany(User::class, ['id' => 'user_id'])
             ->viaTable(UserBusiness::tableName(), ['business_id' => 'id']);
+    
+        if ($role !== null) {
+            $userIDs = UserBusiness::find()
+                ->select('user_id')
+                ->where(['role' => $role, 'business_id' => $this->id]);
+            $query->andWhere(['id' => $userIDs]);
+        }
+    
+        return $query;
     }
-
+    
     public static function find(): BusinessQuery
     {
         return new BusinessQuery(get_called_class());
