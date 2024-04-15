@@ -21,7 +21,7 @@ use Symfony\Component\VarDumper\Exception\ThrowingCasterException;
  */
 abstract class AbstractCloner implements ClonerInterface
 {
-    public static array $defaultCasters = [
+    public static $defaultCasters = [
         '__PHP_Incomplete_Class' => ['Symfony\Component\VarDumper\Caster\Caster', 'castPhpIncompleteClass'],
 
         'Symfony\Component\VarDumper\Caster\CutStub' => ['Symfony\Component\VarDumper\Caster\StubCaster', 'castStub'],
@@ -197,9 +197,9 @@ abstract class AbstractCloner implements ClonerInterface
         'FFI\CType' => ['Symfony\Component\VarDumper\Caster\FFICaster', 'castCTypeOrCData'],
     ];
 
-    protected int $maxItems = 2500;
-    protected int $maxString = -1;
-    protected int $minDepth = 1;
+    protected $maxItems = 2500;
+    protected $maxString = -1;
+    protected $minDepth = 1;
 
     /**
      * @var array<string, list<callable>>
@@ -233,8 +233,10 @@ abstract class AbstractCloner implements ClonerInterface
      * see e.g. static::$defaultCasters.
      *
      * @param callable[] $casters A map of casters
+     *
+     * @return void
      */
-    public function addCasters(array $casters): void
+    public function addCasters(array $casters)
     {
         foreach ($casters as $type => $callback) {
             $this->casters[$type][] = $callback;
@@ -243,16 +245,20 @@ abstract class AbstractCloner implements ClonerInterface
 
     /**
      * Sets the maximum number of items to clone past the minimum depth in nested structures.
+     *
+     * @return void
      */
-    public function setMaxItems(int $maxItems): void
+    public function setMaxItems(int $maxItems)
     {
         $this->maxItems = $maxItems;
     }
 
     /**
      * Sets the maximum cloned length for strings.
+     *
+     * @return void
      */
-    public function setMaxString(int $maxString): void
+    public function setMaxString(int $maxString)
     {
         $this->maxString = $maxString;
     }
@@ -260,8 +266,10 @@ abstract class AbstractCloner implements ClonerInterface
     /**
      * Sets the minimum tree depth where we are guaranteed to clone all the items.  After this
      * depth is reached, only setMaxItems items will be cloned.
+     *
+     * @return void
      */
-    public function setMinDepth(int $minDepth): void
+    public function setMinDepth(int $minDepth)
     {
         $this->minDepth = $minDepth;
     }
