@@ -20,7 +20,7 @@
         "yiisoft/yii2-symfonymailer": "~2.0.3",
         "hiqdev/yii2-mfa": "^0.1.0",
         "twbs/bootstrap-icons": "^1.11",
-        "yiithings/yii2-dotenv": "*"
+        "yiithings/yii2-dotenv": "~1.1.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",
