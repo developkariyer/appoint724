@@ -5,7 +5,6 @@
 /* @var app\models\LoginForm $model */
 
 $this->title = Yii::t('app', 'SMS Verify');
-//$this->params['breadcrumbs'][] = $this->title;
 
 ?>
 

@@ -9,6 +9,7 @@ use yii\bootstrap5\Nav;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\components\MyUrl;
+use app\components\MyMenu;
 
 class Navigation extends Widget
 {
@@ -23,14 +24,13 @@ class Navigation extends Widget
     const userAdmin = 'admin';
     const userSecretary = 'secretary';
     const classNavBar =  [
-        self::userGuest => 'navbar-expand-md navbar-dark bg-dark fixed-top',
-        self::userSuperAdmin => 'navbar-expand-md navbar-dark bg-danger fixed-top',
-        self::userCustomer => 'navbar-expand-md navbar-dark bg-primary fixed-top',
-        self::userExpert => 'navbar-expand-md navbar-dark bg-primary fixed-top',
-        self::userSecretary => 'navbar-expand-md navbar-dark bg-primary fixed-top',
-        self::userAdmin => 'navbar-expand-md navbar-dark bg-primary fixed-top',
+        self::userGuest => 'navbar-expand-md navbar-dark bg-dark fixed-top p-0 text-center',
+        self::userSuperAdmin => 'navbar-expand-md navbar-dark bg-danger fixed-top p-0 text-center',
+        self::userCustomer => 'navbar-expand-md navbar-dark bg-primary fixed-top p-0',
+        self::userExpert => 'navbar-expand-md navbar-dark bg-primary fixed-top p-0',
+        self::userSecretary => 'navbar-expand-md navbar-dark bg-primary fixed-top p-0',
+        self::userAdmin => 'navbar-expand-md navbar-dark bg-primary fixed-top p-0',
     ];
-
 
     public function run()
     {
@@ -50,6 +50,8 @@ class Navigation extends Widget
             'brandLabel' => Yii::$app->name,
             'brandUrl' => Yii::$app->homeUrl,
             'options' => ['class' => self::classNavBar[$this->userType]],
+            'innerContainerOptions' => ['class' => ''], // Remove default container class
+            'renderInnerContainer' => false, // Do not render the inner container
         ]);
 
         // build language selector dropdown
@@ -63,7 +65,7 @@ class Navigation extends Widget
                     'class' => 'langflags',
                     'alt' => $alt,
                 ]),
-                'url' => ["/{$lang}/".implode('/', $segments)],
+                'url' => ["/$lang/".implode('/', $segments)],
                 'encode' => false,
             ];
         }
@@ -95,39 +97,7 @@ class Navigation extends Widget
         if ($this->userType == self::userSuperAdmin) {
             echo Nav::widget([
                 'options' => ['class' => 'navbar-nav'],
-                'items' => [
-                    [
-                        'label' => Yii::t('app', 'Businesses'),
-                        'items' => [
-                            [
-                                'label' => Yii::t('app', 'List Businesses'),
-                                'url' => MyUrl::to(['business/index']),
-                            ],
-                            [
-                                'label' => Yii::t('app', 'Create Business'),
-                                'url' => MyUrl::to(['business/create']),
-                            ],
-                        ],
-                    ],
-                    [
-                        'label' => Yii::t('app', 'Users'),
-                        'items' => [
-                            [
-                                'label' => Yii::t('app', 'List Users'),
-                                'url' => MyUrl::to(['user/index']),
-                            ],
-                            [
-                                'label' => Yii::t('app', 'Add New User'),
-                                'url' => MyUrl::to(['user/create']),
-                            ],
-                            [
-                                'label' => Yii::t('app', 'Reset User Password'),
-                                'url' => MyUrl::to(['user/reset']),
-                            ],
-
-                        ],
-                    ],
-                ],
+                'items' => MyMenu::getSuperAdminNavItems(),
                 'encodeLabels' => false, 
             ]);
         }

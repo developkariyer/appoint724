@@ -5,8 +5,8 @@
 
 use app\assets\AppAsset;
 use app\widgets\Alert;
-use yii\bootstrap5\Breadcrumbs;
 use yii\bootstrap5\Html;
+use app\components\MyUrl;
 
 
 AppAsset::register($this);
@@ -22,6 +22,38 @@ $this->registerCss("
     .langflags {
         height: 20px;
         vertical-align: middle;
+    }
+    .leftmenu {
+        width: 200px;
+        overflow-y: auto; 
+        overflow-x: hidden;
+    }
+    .rightcontent {
+        overflow-y: auto; 
+        overflow-x: hidden; 
+        /*border-top-left-radius: 0.25rem;*/
+        background-color: #ffffff;
+    }
+    .navbar-brand {
+        width: 200px;  
+        white-space: nowrap;  
+        overflow: hidden;  
+        text-overflow: ellipsis;  
+    }
+    body {
+        padding-top: 40px;
+        background-color: #dc3545;
+    }
+    .accordion-header:hover, .list-group-item:hover  {
+        background-color: #f8d7da;
+        color: #721c24;
+        cursor: pointer;
+    }
+    .submenu-item {
+        padding-left: 2rem;
+    }
+    .main-item {
+        font-weight: bold;
     }
 ");
 
@@ -54,24 +86,18 @@ $this->registerCss("
     ?>
 </header>
 
-<main id="main" class="flex-shrink-0" role="main">
-    <div class="container">
-        <?php if (!empty($this->params['breadcrumbs'])) { ?>
-            <?php echo Breadcrumbs::widget(['links' => $this->params['breadcrumbs']]); ?>
-        <?php } ?>
-        <?php echo Alert::widget(); ?>
-        <?php echo $content; ?>
-    </div>
-</main>
+<main id="main" class="flex-shrink-0 h-100" role="main">
+    <div class="container-fluid h-100">
+        <div class="row h-100">
+            <?= $this->render('menu') ?>
+            <div class="col p-5 rightcontent h-100" id="main-content">
+                <?php echo Alert::widget(); ?>
+                <?php echo $content; ?>
+            </div>
 
-<footer id="footer" class="mt-auto py-1 bg-light">
-    <div class="container">
-        <div class="row text-muted">
-            <div class="col-md-6 text-center text-md-start">&copy; Appointment SAAS</div>
-            <div class="col-md-6 text-center text-md-end"><?php echo date('Y'); ?></div>
         </div>
     </div>
-</footer>
+</main>
 
 <?php $this->endBody(); ?>
 </body>
