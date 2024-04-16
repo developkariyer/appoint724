@@ -6,6 +6,11 @@ use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use app\models\query\AppointmentQuery;
+use app\models\query\AppointmentResourceQuery;
+use app\models\query\AppointmentUserQuery;
+use app\models\query\BusinessQuery;
+use app\components\LogBehavior;
 
 /**
  * @property int                   $id
@@ -51,6 +56,18 @@ class Appointment extends ActiveRecord
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),
             'deleted_at' => Yii::t('app', 'Deleted At'),
+        ];
+    }
+
+    public function behaviors()
+    {
+        return [
+            'logBehavior' => [
+                'class' => LogBehavior::class,
+                'eventTypeCreate' => LogBase::EVENT_BUSINESS_CREATED,
+                'eventTypeUpdate' => LogBase::EVENT_BUSINESS_UPDATED,
+                'eventTypeDelete' => LogBase::EVENT_BUSINESS_DELETED,
+            ],
         ];
     }
 

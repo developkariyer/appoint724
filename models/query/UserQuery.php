@@ -1,8 +1,9 @@
 <?php
 
-namespace app\models;
+namespace app\models\query;
 
 use yii\db\ActiveQuery;
+use app\models\User;
 
 /** @see User */
 class UserQuery extends ActiveQuery

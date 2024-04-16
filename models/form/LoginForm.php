@@ -1,9 +1,11 @@
 <?php
 
-namespace app\models;
+namespace app\models\form;
 
 use Yii;
 use yii\base\Model;
+use app\models\Authidentity;
+use app\models\Login;
 
 /**
  * @property mixed $scenariodesc
@@ -90,7 +92,9 @@ class LoginForm extends Model
                     $authidentity = Authidentity::findIdentityByEmail($this->email);
                     if ($authidentity) {
                         if ($authidentity->validatePassword($this->password)) {
-                            return Yii::$app->user->login($authidentity, 3600 * 24 * 30);
+                            $retval = Yii::$app->user->login($authidentity, 3600 * 24 * 30);
+                            Login::log($this->scenario, $this->email, 1);
+                            return $retval;
                         } else {
                             $this->addError('password', 'Invalid e-mail or password.');
                         }
@@ -103,18 +107,23 @@ class LoginForm extends Model
                     if ($authidentity && $authidentity->validatePassword($this->smsotp)) {
                         $authidentity->expires = date('Y-m-d H:i:s', strtotime('+3 seconds'));
                         $authidentity->save(false);
-                        $user = $authidentity->user;
-                        $user->gsmverified = true;
-                        $user->save(false);
-                        return Yii::$app->user->login($authidentity, 3600 * 24 * 30);
+                        if (!$authidentity->user->gsmverified) {
+                            $authidentity->user->gsmverified = 1;
+                            $authidentity->user->save(false);
+                        }
+                        $retval = Yii::$app->user->login($authidentity, 3600 * 24 * 30);
+                        Login::log($this->scenario, $this->gsm, 1);
+                        return $retval;
                     }
                     $this->addError('smsotp', 'Invalid OTP or GSM number.');
                     break;
                 case self::SCENARIO_LINK:
                 case self::SCENARIO_SMS_REQUEST:
+                    Login::log($this->scenario, $this->email, 0);
                     return false;
             }
         }
+        Login::log($this->scenario, $this->email, 0);
         return false;
     }
 

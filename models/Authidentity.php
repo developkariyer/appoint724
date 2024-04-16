@@ -5,6 +5,12 @@ namespace app\models;
 use Random\RandomException;
 use Yii;
 use yii\base\Exception;
+use yii\db\ActiveRecord;
+use yii\web\IdentityInterface;
+use app\models\query\AuthidentityQuery;
+use app\models\query\UserQuery;
+use app\components\LogBehavior;
+
 
 /**
  * @property int         $id
@@ -20,7 +26,7 @@ use yii\base\Exception;
  * @property string|null $authKey
  * @property User        $user
  */
-class Authidentity extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
+class Authidentity extends ActiveRecord implements IdentityInterface
 {
     //use traits\SoftDeleteTrait; // used for soft deletes but this model does not require this feature
     const AUTHTYPE_PASSWORD = 'password';
@@ -34,6 +40,18 @@ class Authidentity extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
     public static function tableName(): string
     {
         return 'authidentities';
+    }
+
+    public function behaviors()
+    {
+        return [
+            'logBehavior' => [
+                'class' => LogBehavior::class,
+                'eventTypeCreate' => LogBase::EVENT_USER_AUTH_ADDED,
+                'eventTypeUpdate' => null,
+                'eventTypeDelete' => null,
+            ],
+        ];
     }
 
     public function rules(): array

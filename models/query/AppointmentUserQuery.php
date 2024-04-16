@@ -1,9 +1,12 @@
 <?php
 
-namespace app\models;
+namespace app\models\query;
+
+use yii\db\ActiveQuery;
+use app\models\AppointmentUser;
 
 /** @see AppointmentUser */
-class AppointmentUserQuery extends \yii\db\ActiveQuery
+class AppointmentUserQuery extends ActiveQuery
 {
     public function all($db = null): AppointmentUser|array|null
     {

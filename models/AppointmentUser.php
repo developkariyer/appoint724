@@ -5,6 +5,11 @@ namespace app\models;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use app\models\query\AppointmentQuery;
+use app\models\query\AppointmentUserQuery;
+use app\models\query\UserQuery;
+use app\components\LogBehavior;
+
 
 /**
  * @property int         $id
@@ -49,6 +54,17 @@ class AppointmentUser extends ActiveRecord
         ];
     }
 
+    public function behaviors()
+    {
+        return [
+            'logBehavior' => [
+                'class' => LogBehavior::class,
+                'eventTypeCreate' => LogBase::EVENT_APPOINTMENT_USER_ADDED,
+                'eventTypeUpdate' => null,
+                'eventTypeDelete' => LogBase::EVENT_APPOINTMENT_USER_DELETED,
+            ],
+        ];
+    }
     public function getAppointment(): ActiveQuery|AppointmentQuery
     {
         return $this->hasOne(Appointment::class, ['id' => 'appointment_id'])->inverseOf('appointmentUsers');

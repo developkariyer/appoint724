@@ -3,6 +3,14 @@
 namespace app\models;
 
 use Yii;
+use app\models\query\UserQuery;
+use app\models\query\AuthidentityQuery;
+use app\models\query\LoginQuery;
+use app\models\query\BusinessQuery;
+use app\models\query\PermissionQuery;
+use app\models\query\AppointmentUserQuery;
+use app\components\LogBehavior;
+
 
 /**
  * @property int              $id
@@ -35,6 +43,18 @@ class User extends \yii\db\ActiveRecord
     public static function tableName(): string
     {
         return 'users';
+    }
+
+    public function behaviors()
+    {
+        return [
+            'logBehavior' => [
+                'class' => LogBehavior::class,
+                'eventTypeCreate' => LogBase::EVENT_USER_CREATED,
+                'eventTypeUpdate' => LogBase::EVENT_USER_UPDATED,
+                'eventTypeDelete' => LogBase::EVENT_USER_DELETED,
+            ],
+        ];
     }
 
     public function rules(): array

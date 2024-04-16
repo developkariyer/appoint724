@@ -1,9 +1,12 @@
 <?php
 
-namespace app\models;
+namespace app\models\query;
+
+use yii\db\ActiveQuery;
+use app\models\Rule;
 
 /** @see Rule  */
-class RuleQuery extends \yii\db\ActiveQuery
+class RuleQuery extends ActiveQuery
 {
     public function all($db = null): Rule|array
     {

@@ -108,13 +108,13 @@ class UserController extends Controller
             $user->attributes = $model->attributes;
             // if tcno, gsm or email attributes changed in update form, set tcnoverified, gsmverified an emailverified to false respectively
             if ($user->isAttributeChanged('tcno')) {
-                $user->tcnoverified = false;
+                $user->tcnoverified = 0;
             }
             if ($user->isAttributeChanged('gsm')) {
-                $user->gsmverified = false;
+                $user->gsmverified = 0;
             }
             if ($user->isAttributeChanged('email')) {
-                $user->emailverified = false;
+                $user->emailverified = 0;
             }
             if ($user->save()) {
                 return $this->goHome();

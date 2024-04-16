@@ -1,17 +1,18 @@
 <?php
 
-namespace app\models;
+namespace app\models\form;
 
 use Yii;
 use yii\base\Model;
+use app\models\User;
 
 class UserForm extends Model
 {
-    use traits\UserTrait;
+    use \app\models\traits\UserTrait;
 
-    const string SCENARIO_REGISTER = 'register';
-    const string SCENARIO_PASSWORD = 'password';
-    const string SCENARIO_UPDATE = 'update';
+    const SCENARIO_REGISTER = 'register';
+    const SCENARIO_PASSWORD = 'password';
+    const SCENARIO_UPDATE = 'update';
     public $first_name;
     public $last_name;
     public $gsm;
@@ -42,19 +43,17 @@ class UserForm extends Model
             [['password', 'password_repeat'], 'string', 'min' => 8],
             [['password', 'password_repeat'], 'required', 'on' => [self::SCENARIO_REGISTER, self::SCENARIO_PASSWORD]],
             [['password_repeat'], 'compare', 'compareAttribute' => 'password', 'message' => Yii::t('app', 'Passwords do not match.'), 'on' => [self::SCENARIO_REGISTER, self::SCENARIO_PASSWORD]],
-//            [['password_old'], 'required', 'on' => self::SCENARIO_PASSWORD],
-//            [['password_old'], 'validatePassword', 'on' => self::SCENARIO_PASSWORD],
         ]);
     }
     
-    public function validatePassword($attribute, $params): void
+/*    public function validatePassword($attribute, $params): void
     {
         $user = Yii::$app->user;
         if (!$user || !$user->validatePassword($this->password_old)) {
             $this->addError($attribute, Yii::t('app', 'Incorrect password.'));
         }
     }
-
+*/
     public function attributeLabels(): array
     {
         $userModel = new User();

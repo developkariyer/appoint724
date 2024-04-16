@@ -2,10 +2,11 @@
 
 use app\components\MyUrl;
 use app\widgets\Card;
+use app\models\form\LoginForm;
 
 /* @var yii\web\View $this */
 /* @var yii\bootstrap5\ActiveForm $form */
-/* @var app\models\LoginForm $model */
+/* @var app\models\form\LoginForm $model */
 
 $this->title = $model->scenariodesc;
 $this->registerMetaTag(['name' => 'description', 'content' => $this->params['meta_description'] ?? $this->title]);
@@ -24,60 +25,42 @@ $this->registerCss("
         <div class="col-md-8 col-lg-6">
             <nav>
                 <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
-                    <a href="<?php echo MyUrl::to(['site/login/'.app\models\LoginForm::SCENARIO_PASSWORD]); ?>" class="nav-link <?= ($model->scenario === app\models\LoginForm::SCENARIO_PASSWORD) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'Password') ?></a>
-                    <a href="<?php echo MyUrl::to(['site/login/'.app\models\LoginForm::SCENARIO_SMS_REQUEST]); ?>" class="nav-link <?= ($model->scenario === app\models\LoginForm::SCENARIO_SMS_REQUEST || $model->scenario === app\models\LoginForm::SCENARIO_SMS_VALIDATE) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'SMS') ?></a>
-                    <a href="<?php echo MyUrl::to(['site/login/'.app\models\LoginForm::SCENARIO_LINK]); ?>" class="nav-link <?= ($model->scenario === app\models\LoginForm::SCENARIO_LINK) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'Link') ?></a>
-                    <a href="<?php echo MyUrl::to(['site/login/'.app\models\LoginForm::SCENARIO_OTHER]); ?>" class="nav-link <?= ($model->scenario === app\models\LoginForm::SCENARIO_OTHER) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'Other') ?></a>
+                    <a href="<?php echo MyUrl::to(['site/login/'.LoginForm::SCENARIO_PASSWORD]); ?>" class="nav-link <?= ($model->scenario === LoginForm::SCENARIO_PASSWORD) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'Password') ?></a>
+                    <a href="<?php echo MyUrl::to(['site/login/'.LoginForm::SCENARIO_SMS_REQUEST]); ?>" class="nav-link <?= ($model->scenario === LoginForm::SCENARIO_SMS_REQUEST || $model->scenario === LoginForm::SCENARIO_SMS_VALIDATE) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'SMS') ?></a>
+                    <a href="<?php echo MyUrl::to(['site/login/'.LoginForm::SCENARIO_LINK]); ?>" class="nav-link <?= ($model->scenario === LoginForm::SCENARIO_LINK) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'Link') ?></a>
+                    <a href="<?php echo MyUrl::to(['site/login/'.LoginForm::SCENARIO_OTHER]); ?>" class="nav-link <?= ($model->scenario === LoginForm::SCENARIO_OTHER) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'Other') ?></a>
                     <a href="<?php echo MyUrl::to(['user/register/']); ?>" class="nav-link" role="tab"><?= Yii::t('app', 'New User') ?></a>
                 </div>
             </nav>
             <?php switch ($model->scenario) {
-                case app\models\LoginForm::SCENARIO_PASSWORD:
+                case LoginForm::SCENARIO_PASSWORD:
                 default:
-                    try {
-                        echo Card::widget([
-                            'title' => Yii::t('app', 'Login with Password'),
-                            'content' => $this->render('_password', ['model' => $model]),
-                        ]);
-                    } catch (Throwable $e) {
-                    }
+                    $title = Yii::t('app', 'Login with Password');
+                    $content = $this->render('_password', ['model' => $model]);
                     break;
-                case app\models\LoginForm::SCENARIO_SMS_REQUEST:
-                    try {
-                        echo Card::widget([
-                            'title' => Yii::t('app', 'Login with SMS'),
-                            'content' => $this->render('_sms_request', ['model' => $model]),
-                        ]);
-                    } catch (Throwable $e) {
-                    }
+                case LoginForm::SCENARIO_SMS_REQUEST:
+                    $title = Yii::t('app', 'Login with SMS');
+                    $content = $this->render('_sms_request', ['model' => $model]);
                     break;
-                case app\models\LoginForm::SCENARIO_SMS_VALIDATE:
-                    try {
-                        echo Card::widget([
-                            'title' => Yii::t('app', 'Login with SMS'),
-                            'content' => $this->render('_sms_validate', ['model' => $model]),
-                        ]);
-                    } catch (Throwable $e) {
-                    }
+                case LoginForm::SCENARIO_SMS_VALIDATE:
+                    $title = Yii::t('app', 'Login with SMS');
+                    $content = $this->render('_sms_validate', ['model' => $model]);
                     break;
-                case app\models\LoginForm::SCENARIO_LINK:
-                    try {
-                        echo Card::widget([
-                            'title' => Yii::t('app', 'Login with Link'),
-                            'content' => $this->render('_link', ['model' => $model]),
-                        ]);
-                    } catch (Throwable $e) {
-                    }
+                case LoginForm::SCENARIO_LINK:
+                    $title = Yii::t('app', 'Login with Link');
+                    $content = $this->render('_link', ['model' => $model]);
                     break;
-                case app\models\LoginForm::SCENARIO_OTHER:
-                    try {
-                        echo Card::widget([
-                            'title' => Yii::t('app', 'Other'),
-                            'content' => $this->render('_other', ['model' => $model]),
-                        ]);
-                    } catch (Throwable $e) {
-                    }
+                case LoginForm::SCENARIO_OTHER:
+                    $title = Yii::t('app', 'Other');
+                    $content = $this->render('_other', ['model' => $model]);
                     break;                        
+            } 
+            try {
+                echo Card::widget([
+                    'title' => $title,
+                    'content' => $content,
+                ]);
+            } catch (Throwable $e) {
             } ?>
         </div>
     </div>

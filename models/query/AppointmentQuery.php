@@ -1,8 +1,9 @@
 <?php
 
-namespace app\models;
+namespace app\models\query;
 
 use yii\db\ActiveQuery;
+use app\models\Appointment;
 
 /** @see Appointment */
 class AppointmentQuery extends ActiveQuery

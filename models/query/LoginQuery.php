@@ -1,9 +1,12 @@
 <?php
 
-namespace app\models;
+namespace app\models\query;
+
+use yii\db\ActiveQuery;
+use app\models\Login;
 
 /** @see Login  */
-class LoginQuery extends \yii\db\ActiveQuery
+class LoginQuery extends ActiveQuery
 {
     public function all($db = null): Login|array
     {

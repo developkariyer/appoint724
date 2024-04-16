@@ -4,8 +4,7 @@ namespace app\components;
 
 use Yii;
 use yii\base\Behavior;
-use yii\web\Controller;
-use yii\helpers\Url;
+use yii\base\Controller;
 
 class LanguageBehavior extends Behavior
 {

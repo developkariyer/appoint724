@@ -3,6 +3,9 @@
 namespace app\models;
 
 use Yii;
+use app\models\query\PermissionQuery;
+use app\models\query\UserQuery;
+use app\models\query\BusinessQuery;
 
 /**
  * @property int         $id
@@ -44,7 +47,7 @@ class Permission extends \yii\db\ActiveRecord
         ];
     }
 
-    public function getBusiness(): \yii\db\ActiveQuery|BusinessQuery
+     public function getBusiness(): \yii\db\ActiveQuery|BusinessQuery
     {
         return $this->hasOne(Business::class, ['id' => 'business_id'])->inverseOf('permissions');
     }

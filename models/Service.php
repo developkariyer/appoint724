@@ -3,6 +3,10 @@
 namespace app\models;
 
 use Yii;
+use app\models\query\ServiceQuery;
+use app\models\query\BusinessQuery;
+use app\components\LogBehavior;
+
 
 /**
  * @property int         $id            Preset services given to customers. Used for fast appointment setting.
@@ -49,6 +53,18 @@ class Service extends \yii\db\ActiveRecord
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),
             'deleted_at' => Yii::t('app', 'Deleted At'),
+        ];
+    }
+
+    public function behaviors()
+    {
+        return [
+            'logBehavior' => [
+                'class' => LogBehavior::class,
+                'eventTypeCreate' => LogBase::EVENT_SERVICE_CREATED,
+                'eventTypeUpdate' => LogBase::EVENT_SERVICE_UPDATED,
+                'eventTypeDelete' => LogBase::EVENT_SERVICE_DELETED,
+            ],
         ];
     }
 

@@ -1,12 +1,12 @@
 <?php
 
+/* @var yii\web\View $this */
+/* @var app\models\Business $model */
+
 use yii\helpers\Html;
 use yii\web\YiiAsset;
 use yii\widgets\DetailView;
 use app\components\MyUrl;
-
-/* @var yii\web\View $this */
-/* @var app\models\Business $model */
 
 $this->title = Yii::t('app', 'Business')." : $model->name";
 

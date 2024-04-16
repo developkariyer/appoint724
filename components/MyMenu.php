@@ -146,12 +146,12 @@ class MyMenu extends Component
             $businesses = \app\models\Business::find()->orderBy('name')->all();
             $items = [];
             foreach ($businesses as $business) {
-                if ($business->id == Yii::$app->request->get('id')) $isExpanded = true; else $isExpanded = false;
+                if ($business->slug == Yii::$app->request->get('slug')) $isExpanded = true; else $isExpanded = false;
                 $items[] = [
                     'label' => $business->name,
                     'content' => [
                         [
-                            'label' => Yii::t('app', 'Business Details'),
+                            'label' => Yii::t('app', 'Business Settings'),
                             'url' => MyUrl::to(['business/view/'.$business->slug])
                         ],
                         [
@@ -160,19 +160,19 @@ class MyMenu extends Component
                         ],
                         [
                             'label' => Yii::t('app','Admins'),
-                            'url' => MyUrl::to(['user/business/'.$business->slug])
+                            'url' => MyUrl::to(['user/business/admin/'.$business->slug])
                         ],
                         [
                             'label' => Yii::t('app','Secretaries'),
-                            'url' => MyUrl::to(['user/business/'.$business->slug])
+                            'url' => MyUrl::to(['user/business/secretary/'.$business->slug])
                         ],
                         [
                             'label' => Yii::t('app','Experts'),
-                            'url' => MyUrl::to(['user/business/'.$business->slug])
+                            'url' => MyUrl::to(['user/business/expert/'.$business->slug])
                         ],
                         [
                             'label' => Yii::t('app','Customers'),
-                            'url' => MyUrl::to(['user/business/'.$business->slug])
+                            'url' => MyUrl::to(['user/business/customer/'.$business->slug])
                         ],
                         [
                             'label' => Yii::t('app', 'Resources'),

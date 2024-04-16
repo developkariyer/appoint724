@@ -5,6 +5,11 @@ namespace app\models;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use app\models\query\UserBusinessQuery;
+use app\models\query\UserQuery;
+use app\models\query\BusinessQuery;
+use app\components\LogBehavior;
+
 
 /**
  * @property int         $id
@@ -19,10 +24,10 @@ class UserBusiness extends ActiveRecord
 {
     use traits\SoftDeleteTrait;
 
-    const string ROLE_ADMIN = 'admin';
-    const string ROLE_SECRETARY = 'secretary';
-    const string ROLE_EXPERT = 'expert';
-    const string ROLE_CUSTOMER = 'customer';
+    const ROLE_ADMIN = 'admin';
+    const ROLE_SECRETARY = 'secretary';
+    const ROLE_EXPERT = 'expert';
+    const ROLE_CUSTOMER = 'customer';
 
     public static function tableName(): string
     {
@@ -49,6 +54,18 @@ class UserBusiness extends ActiveRecord
             'business_id' => Yii::t('app', 'Business ID'),
             'created_at' => Yii::t('app', 'Created At'),
             'deleted_at' => Yii::t('app', 'Deleted At'),
+        ];
+    }
+
+    public function behaviors()
+    {
+        return [
+            'logBehavior' => [
+                'class' => LogBehavior::class,
+                'eventTypeCreate' => LogBase::EVENT_USER_BUSINESS_ADDED,
+                'eventTypeUpdate' => null,
+                'eventTypeDelete' => LogBase::EVENT_USER_BUSINESS_DELETED,
+            ],
         ];
     }
 

@@ -1,6 +1,6 @@
 <?php
 /** @var \yii\bootstrap5\ActiveForm $form */
-/** @var \app\models\LoginForm $model */
+/** @var \app\models\form\LoginForm $model */
 
 use yii\widgets\MaskedInput;
 

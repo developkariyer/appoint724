@@ -1,9 +1,12 @@
 <?php
 
-namespace app\models;
+namespace app\models\query;
+
+use yii\db\ActiveQuery;
+use app\models\Authidentity;
 
 /** @see Authidentity */
-class AuthidentityQuery extends \yii\db\ActiveQuery
+class AuthidentityQuery extends ActiveQuery
 {
     public function all($db = null): Authidentity|array
     {

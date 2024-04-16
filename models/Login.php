@@ -3,6 +3,9 @@
 namespace app\models;
 
 use Yii;
+use app\models\query\LoginQuery;
+use app\models\query\UserQuery;
+
 
 /**
  * @property int         $id
@@ -55,5 +58,18 @@ class Login extends \yii\db\ActiveRecord
     public static function find(): LoginQuery
     {
         return new LoginQuery(get_called_class());
+    }
+
+    public static function log($id_type, $identifier, $success): void
+    {
+        $login = new self();
+        $login->ip_address = Yii::$app->request->userIP;
+        $login->user_agent = Yii::$app->request->userAgent;
+        $login->id_type = $id_type;
+        $login->identifier = $identifier;
+        $login->user_id = Yii::$app->user->id;
+        $login->date = date('Y-m-d H:i:s');
+        $login->success = $success;
+        $login->save();
     }
 }

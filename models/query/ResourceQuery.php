@@ -1,9 +1,12 @@
 <?php
 
-namespace app\models;
+namespace app\models\query;
+
+use yii\db\ActiveQuery;
+use app\models\Resource;
 
 /** @see Resource  */
-class ResourceQuery extends \yii\db\ActiveQuery
+class ResourceQuery extends ActiveQuery
 {
     public function all($db = null): Resource|array
     {

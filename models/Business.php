@@ -4,6 +4,14 @@ namespace app\models;
 
 use DateTimeZone;
 use Yii;
+use app\models\query\AppointmentQuery;
+use app\models\query\BusinessQuery;
+use app\models\query\PermissionQuery;
+use app\models\query\ResourceQuery;
+use app\models\query\RuleQuery;
+use app\models\query\ServiceQuery;
+use app\components\LogBehavior;
+
 
 /**
  * @property int           $id
@@ -23,8 +31,6 @@ class Business extends \yii\db\ActiveRecord
 {
     use traits\SoftDeleteTrait;
 
-
-    // write an beforeSave method to update the slug attribute
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
@@ -40,6 +46,18 @@ class Business extends \yii\db\ActiveRecord
             return true;
         }
         return false;
+    }
+
+    public function behaviors()
+    {
+        return [
+            'logBehavior' => [
+                'class' => LogBehavior::class,
+                'eventTypeCreate' => LogBase::EVENT_BUSINESS_CREATED,
+                'eventTypeUpdate' => LogBase::EVENT_BUSINESS_UPDATED,
+                'eventTypeDelete' => LogBase::EVENT_BUSINESS_DELETED,
+            ],
+        ];
     }
 
     public static function tableName(): string

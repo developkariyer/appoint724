@@ -1,9 +1,12 @@
 <?php
 
-namespace app\models;
+namespace app\models\query;
+
+use yii\db\ActiveQuery;
+use app\models\Service;
 
 /** @see Service */
-class ServiceQuery extends \yii\db\ActiveQuery
+class ServiceQuery extends ActiveQuery
 {
     public function all($db = null): Service|array
     {

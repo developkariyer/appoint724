@@ -1,9 +1,12 @@
 <?php
 
-namespace app\models;
+namespace app\models\query;
+
+use yii\db\ActiveQuery;
+use app\models\Permission;
 
 /** @see Permission */
-class PermissionQuery extends \yii\db\ActiveQuery
+class PermissionQuery extends ActiveQuery
 {
     public function all($db = null): Permission|array
     {

@@ -1,9 +1,12 @@
 <?php
 
-namespace app\models;
+namespace app\models\query;
+
+use yii\db\ActiveQuery;
+use app\models\Business;
 
 /** @see Business */
-class BusinessQuery extends \yii\db\ActiveQuery
+class BusinessQuery extends ActiveQuery
 {
     public function all($db = null): Business|array
     {

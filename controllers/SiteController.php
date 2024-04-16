@@ -2,10 +2,6 @@
 
 namespace app\controllers;
 
-use app\components\LanguageBehavior;
-use app\models\Authidentity;
-use app\models\ContactForm;
-use app\models\LoginForm;
 use Random\RandomException;
 use Yii;
 use yii\base\InvalidConfigException;
@@ -13,11 +9,14 @@ use yii\bootstrap5\ActiveForm;
 use yii\db\Exception;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
+use yii\helpers\Html;
 use yii\web\Controller;
 use yii\web\Response;
 use app\components\MyUrl;
-use yii\helpers\Html;
-
+use app\components\LanguageBehavior;
+use app\models\Authidentity;
+use app\models\form\LoginForm;
+use app\models\Login;
 
 class SiteController extends Controller
 {
@@ -120,14 +119,17 @@ class SiteController extends Controller
         if ($authidentity) {
             $authidentity->expires = date('Y-m-d H:i:s', strtotime('+10 seconds'));
             $authidentity->save(false);
-            $user = $authidentity->user;
-            $user->emailverified = true;
-            $user->save(false);
+            if (!$authidentity->user->emailverified) {
+                $authidentity->user->emailverified = 1;
+                $authidentity->user->save(false);
+            }
             Yii::$app->user->login($authidentity, 3600 * 24 * 30);
             Yii::$app->session->setFlash('info', Yii::t('app','Login/verification successful.'));
+            Login::log('Token', $token, 1);
             return $this->goHome();
         }
         Yii::$app->session->setFlash('error', Yii::t('app', 'Token invalid or expired.'));
+        Login::log('Token', $token, 0);
         return $this->goHome();
     }
 
@@ -181,7 +183,7 @@ XML;
 
         if (!$err) {
             if (trim(strip_tags($response)) === 'true') {
-                $user->tcnoverified = true;
+                $user->tcnoverified = 1;
                 $user->save(false);
                 Yii::$app->session->setFlash('info', Yii::t('app', 'T.C. Identity Number verified.'));
                 return $this->goBack();
@@ -345,28 +347,12 @@ XML;
      */
     public function actionLogout(): Response
     {
+        Login::log('Logout', '', 1);
         Yii::$app->user->logout();
         Yii::$app->session->setFlash('warning', Yii::t('app','Log out successful. See you soon.'));
         return $this->goHome();
     }
 
-    /**
-     * Displays contact page.
-     * @return Response|string
-     */
-    public function actionContact(): Response|string
-    {
-        $model = new ContactForm();
-        if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
-            Yii::$app->session->setFlash('contactFormSubmitted');
-
-            return $this->refresh();
-        }
-
-        return $this->render('contact', [
-            'model' => $model,
-        ]);
-    }
 
     /**
      * Displays about page.

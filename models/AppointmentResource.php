@@ -5,6 +5,11 @@ namespace app\models;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use app\models\query\AppointmentQuery;
+use app\models\query\AppointmentResourceQuery;
+use app\models\query\ResourceQuery;
+use app\components\LogBehavior;
+
 
 /**
  * @property int         $id
@@ -43,6 +48,18 @@ class AppointmentResource extends ActiveRecord
             'resource_id' => Yii::t('app', 'Resource ID'),
             'created_at' => Yii::t('app', 'Created At'),
             'deleted_at' => Yii::t('app', 'Deleted At'),
+        ];
+    }
+
+    public function behaviors()
+    {
+        return [
+            'logBehavior' => [
+                'class' => LogBehavior::class,
+                'eventTypeCreate' => LogBase::EVENT_APPOINTMENT_RESOURCE_ADDED,
+                'eventTypeUpdate' => null,
+                'eventTypeDelete' => LogBase::EVENT_APPOINTMENT_RESOURCE_DELETED,
+            ],
         ];
     }
 

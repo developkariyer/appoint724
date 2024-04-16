@@ -3,6 +3,9 @@
 namespace app\models;
 
 use Yii;
+use app\models\query\RuleQuery;
+use app\models\query\BusinessQuery;
+use app\components\LogBehavior;
 
 /**
  * @property int         $id
@@ -39,6 +42,18 @@ class Rule extends \yii\db\ActiveRecord
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),
             'deleted_at' => Yii::t('app', 'Deleted At'),
+        ];
+    }
+
+        public function behaviors()
+    {
+        return [
+            'logBehavior' => [
+                'class' => LogBehavior::class,
+                'eventTypeCreate' => LogBase::EVENT_RULE_CREATED,
+                'eventTypeUpdate' => LogBase::EVENT_RULE_UPDATED,
+                'eventTypeDelete' => LogBase::EVENT_RULE_DELETED,
+            ],
         ];
     }
 

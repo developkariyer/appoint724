@@ -2,10 +2,10 @@
 
 use app\widgets\Card;
 use yii\widgets\ActiveForm;
-use app\models\UserForm;
+use app\models\form\UserForm;
 
 /** @var yii\web\View $this */
-/** @var app\models\UserForm $model */
+/** @var app\models\form\UserForm $model */
 /** @var ActiveForm $form */
 
 switch ($model->scenario) {
