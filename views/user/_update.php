@@ -26,15 +26,18 @@ try {
     ]);
 } catch (Exception $e) {
 }
-echo $form->field($model, 'tcno')->widget(MaskedInput::class, [
-    'mask' => '###########',
-    'options' => [
-        'placeholder' => '___________',
-    ],
-    'clientOptions' => [
-        'removeMaskOnSubmit' => true,
-    ],
-]);
+try {
+    echo $form->field($model, 'tcno')->widget(MaskedInput::class, [
+        'mask' => '###########',
+        'options' => [
+            'placeholder' => '___________',
+        ],
+        'clientOptions' => [
+            'removeMaskOnSubmit' => true,
+        ],
+    ]);
+} catch (Exception $e) {
+}
 try {
     echo $form->field($model, 'dogum_yili')->widget(MaskedInput::class, [
         'mask' => '####',

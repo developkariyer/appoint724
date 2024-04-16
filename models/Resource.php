@@ -7,6 +7,9 @@ use app\models\query\AppointmentQuery;
 use app\models\query\BusinessQuery;
 use app\models\query\ResourceQuery;
 use app\components\LogBehavior;
+use yii\base\InvalidConfigException;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 
 
 /**
@@ -19,7 +22,7 @@ use app\components\LogBehavior;
  * @property AppointmentResource[] $appointmentsResources
  * @property Business              $business
  */
-class Resource extends \yii\db\ActiveRecord
+class Resource extends ActiveRecord
 {
     use traits\SoftDeleteTrait;
 
@@ -51,7 +54,7 @@ class Resource extends \yii\db\ActiveRecord
         ];
     }
 
-    public function behaviors()
+    public function behaviors(): array
     {
         return [
             'logBehavior' => [
@@ -63,13 +66,16 @@ class Resource extends \yii\db\ActiveRecord
         ];
     }
 
-    public function getAppointments(): \yii\db\ActiveQuery|AppointmentQuery
+    /**
+     * @throws InvalidConfigException
+     */
+    public function getAppointments(): ActiveQuery|AppointmentQuery
     {
         return $this->hasMany(Appointment::class, ['id' => 'appointment_id'])
             ->viaTable(AppointmentResource::tableName(), ['resource_id' => 'id']);
     }
 
-    public function getBusiness(): \yii\db\ActiveQuery|BusinessQuery
+    public function getBusiness(): ActiveQuery|BusinessQuery
     {
         return $this->hasOne(Business::class, ['id' => 'business_id'])->inverseOf('resources');
     }

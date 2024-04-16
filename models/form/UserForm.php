@@ -5,10 +5,11 @@ namespace app\models\form;
 use Yii;
 use yii\base\Model;
 use app\models\User;
+use app\models\traits\UserTrait;
 
 class UserForm extends Model
 {
-    use \app\models\traits\UserTrait;
+    use UserTrait;
 
     const SCENARIO_REGISTER = 'register';
     const SCENARIO_PASSWORD = 'password';

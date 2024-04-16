@@ -8,24 +8,23 @@ use yii\base\Controller;
 
 class LanguageBehavior extends Behavior
 {
-    public function events()
+    public function events(): array
     {
         return [
             Controller::EVENT_BEFORE_ACTION => 'applyLanguage',
         ];
     }
 
-    public function applyLanguage($event)
+    public function applyLanguage($event): void
     {
         // This is a non-interactive login method. In all cases it will redirect to another page, which this behavior will be called again.
         if (Yii::$app->request->get('token')) {
-            return true;
+            return;
         }
 
         $language = Yii::$app->request->get('lang');
 
         if (!$language || !isset(Yii::$app->params['supportedLanguages'][$language])) {
-            // we do not have a language parameter in the URL or it is not valid
             if (Yii::$app->session->has('lang')) {
                 // if we have a language stored in a session, use it
                 $language = Yii::$app->session->get('lang');

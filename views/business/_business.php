@@ -4,7 +4,6 @@ use app\components\MyUrl;
 use app\models\UserBusiness;
 use yii\helpers\Html;
 
-
 /* @var $model app\models\Business */
 ?>
 <div class="mb-3 p-3">

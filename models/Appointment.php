@@ -59,7 +59,7 @@ class Appointment extends ActiveRecord
         ];
     }
 
-    public function behaviors()
+    public function behaviors(): array
     {
         return [
             'logBehavior' => [

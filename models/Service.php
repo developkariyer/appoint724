@@ -6,6 +6,8 @@ use Yii;
 use app\models\query\ServiceQuery;
 use app\models\query\BusinessQuery;
 use app\components\LogBehavior;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 
 
 /**
@@ -20,7 +22,7 @@ use app\components\LogBehavior;
  * @property string|null $deleted_at
  * @property Business    $business
  */
-class Service extends \yii\db\ActiveRecord
+class Service extends ActiveRecord
 {
     use traits\SoftDeleteTrait;
 
@@ -56,7 +58,7 @@ class Service extends \yii\db\ActiveRecord
         ];
     }
 
-    public function behaviors()
+    public function behaviors(): array
     {
         return [
             'logBehavior' => [
@@ -68,7 +70,7 @@ class Service extends \yii\db\ActiveRecord
         ];
     }
 
-    public function getBusiness(): \yii\db\ActiveQuery|BusinessQuery
+    public function getBusiness(): ActiveQuery|BusinessQuery
     {
         return $this->hasOne(Business::class, ['id' => 'business_id'])->inverseOf('services');
     }

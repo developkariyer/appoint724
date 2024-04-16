@@ -7,7 +7,7 @@ use yii\helpers\Url;
 
 class MyUrl extends Url
 {
-    public static function to($url = '', $scheme = false)
+    public static function to($url = '', $scheme = false): string
     {
         // Get the current application language
         $currentLang = Yii::$app->language;
@@ -19,7 +19,7 @@ class MyUrl extends Url
             }
         } elseif (is_string($url)) {
             // If the URL is a string, ensure it starts with a '/'
-            if (strpos($url, '/') !== 0) {
+            if (!str_starts_with($url, '/')) {
                 $url = '/' . $url;
             }
             // Prepend the language to the URL string

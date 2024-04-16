@@ -52,7 +52,12 @@ $this->registerCss("
     }
     .submenu-item {
         padding-left: 2rem;
-    }/*
+    }
+    .accordion-collapse {
+        transition: height 0.5s ease;
+    }   
+    
+    /*
     .main-item {
         font-weight: bold;
     }*/

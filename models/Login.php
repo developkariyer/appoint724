@@ -5,6 +5,8 @@ namespace app\models;
 use Yii;
 use app\models\query\LoginQuery;
 use app\models\query\UserQuery;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 
 
 /**
@@ -18,7 +20,7 @@ use app\models\query\UserQuery;
  * @property int         $success
  * @property User        $user
  */
-class Login extends \yii\db\ActiveRecord
+class Login extends ActiveRecord
 {
     public static function tableName(): string
     {
@@ -50,7 +52,7 @@ class Login extends \yii\db\ActiveRecord
         ];
     }
 
-    public function getUser(): \yii\db\ActiveQuery|UserQuery
+    public function getUser(): ActiveQuery|UserQuery
     {
         return $this->hasOne(User::class, ['id' => 'user_id'])->inverseOf('logins');
     }

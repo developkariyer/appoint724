@@ -4,7 +4,6 @@ namespace app\components;
 
 use app\models\LogBase;
 use yii\base\Behavior;
-use yii\db\ActiveRecord;
 use yii\db\BaseActiveRecord;
 
 class LogBehavior extends Behavior
@@ -13,7 +12,7 @@ class LogBehavior extends Behavior
     public $eventTypeUpdate;
     public $eventTypeDelete;
 
-    public function events()
+    public function events(): array
     {
         return [
             BaseActiveRecord::EVENT_AFTER_INSERT => 'afterSave',
@@ -22,7 +21,7 @@ class LogBehavior extends Behavior
         ];
     }
 
-    public function afterSave($event)
+    public function afterSave($event): void
     {
         if (is_null($this->eventTypeUpdate) && $event->name === BaseActiveRecord::EVENT_AFTER_UPDATE) {
             return;
@@ -38,7 +37,7 @@ class LogBehavior extends Behavior
         );
     }
 
-    public function beforeDelete($event)
+    public function beforeDelete($event): bool
     {
         if (!parent::beforeDelete()) {
             return false;

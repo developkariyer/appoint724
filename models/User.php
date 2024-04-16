@@ -10,6 +10,9 @@ use app\models\query\BusinessQuery;
 use app\models\query\PermissionQuery;
 use app\models\query\AppointmentUserQuery;
 use app\components\LogBehavior;
+use yii\base\InvalidConfigException;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 
 
 /**
@@ -35,7 +38,7 @@ use app\components\LogBehavior;
  * @property Business[]       $businesses
  * @property Permission[]     $permissions
  */
-class User extends \yii\db\ActiveRecord
+class User extends ActiveRecord
 {
     use traits\SoftDeleteTrait;
     use traits\UserTrait;
@@ -45,7 +48,7 @@ class User extends \yii\db\ActiveRecord
         return 'users';
     }
 
-    public function behaviors()
+    public function behaviors(): array
     {
         return [
             'logBehavior' => [
@@ -80,29 +83,35 @@ class User extends \yii\db\ActiveRecord
         ];
     }
 
-    public function getAppointments(): \yii\db\ActiveQuery|AppointmentUserQuery
+    /**
+     * @throws InvalidConfigException
+     */
+    public function getAppointments(): ActiveQuery|AppointmentUserQuery
     {
         return $this->hasMany(Appointment::class, ['id' => 'appointment_id'])
             ->viaTable(AppointmentUser::tableName(), ['user_id' => 'id']);
     }
 
-    public function getAuthidentities(): \yii\db\ActiveQuery|AuthidentityQuery
+    public function getAuthidentities(): ActiveQuery|AuthidentityQuery
     {
         return $this->hasMany(Authidentity::class, ['user_id' => 'id'])->inverseOf('user');
     }
 
-    public function getLogins(): \yii\db\ActiveQuery|LoginQuery
+    public function getLogins(): ActiveQuery|LoginQuery
     {
         return $this->hasMany(Login::class, ['user_id' => 'id'])->inverseOf('user');
     }
 
-    public function getBusinesses(): \yii\db\ActiveQuery|BusinessQuery
+    /**
+     * @throws InvalidConfigException
+     */
+    public function getBusinesses(): ActiveQuery|BusinessQuery
     {
         return $this->hasMany(Business::class, ['id' => 'business_id'])
             ->viaTable(UserBusiness::tableName(), ['user_id' => 'id']);
     }
 
-    public function getPermissions(): \yii\db\ActiveQuery|PermissionQuery
+    public function getPermissions(): ActiveQuery|PermissionQuery
     {
         return $this->hasMany(Permission::class, ['user_id' => 'id'])->inverseOf('user');
     }
@@ -112,10 +121,9 @@ class User extends \yii\db\ActiveRecord
         return new UserQuery(get_called_class());
     }
 
-    public static function findforauth($condition): \yii\db\ActiveRecord|User|null
+    public static function findforauth($condition): ActiveRecord|User|null
     {
-        $user = User::find()->where($condition)->one();
-        return $user;
+        return User::find()->where($condition)->one();
     }
 
     public function getFullname(): string

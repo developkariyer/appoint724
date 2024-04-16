@@ -4,7 +4,7 @@ use yii\helpers\Html;
 use yii\widgets\ListView;
 
 /* @var yii\web\View $this */
-/* @var app\models\BusinessSearch $searchModel */
+/* @var app\models\query\BusinessSearch $searchModel */
 /* @var yii\data\ActiveDataProvider $dataProvider */
 
 $this->title = Yii::t('app', 'Businesses');

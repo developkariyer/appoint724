@@ -11,6 +11,10 @@ use app\models\query\ResourceQuery;
 use app\models\query\RuleQuery;
 use app\models\query\ServiceQuery;
 use app\components\LogBehavior;
+use yii\base\InvalidConfigException;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
+use yii\helpers\Inflector;
 
 
 /**
@@ -27,15 +31,15 @@ use app\components\LogBehavior;
  * @property Service[]     $services
  * @property User[]        $usersBusinesses
  */
-class Business extends \yii\db\ActiveRecord
+class Business extends ActiveRecord
 {
     use traits\SoftDeleteTrait;
 
-    public function beforeSave($insert)
+    public function beforeSave($insert): bool
     {
         if (parent::beforeSave($insert)) {
             if ($this->isNewRecord) {
-                $slug = \yii\helpers\Inflector::slug($this->name);
+                $slug = Inflector::slug($this->name);
                 // check if generated slug exists in Business table
                 $count = Business::find()->where(['slug' => $slug])->count();
                 if ($count > 0) {
@@ -48,7 +52,7 @@ class Business extends \yii\db\ActiveRecord
         return false;
     }
 
-    public function behaviors()
+    public function behaviors(): array
     {
         return [
             'logBehavior' => [
@@ -90,34 +94,37 @@ class Business extends \yii\db\ActiveRecord
         ];
     }
 
-    public function validateTimezone($attribute, $params)
+    public function validateTimezone($attribute, $params): void
     {
         if (!in_array($this->$attribute, DateTimeZone::listIdentifiers())) {
             $this->addError($attribute, 'The timezone is invalid.');
         }
     }
 
-    public function getAppointments(): \yii\db\ActiveQuery|AppointmentQuery
+    public function getAppointments(): ActiveQuery|AppointmentQuery
     {
         return $this->hasMany(Appointment::class, ['business_id' => 'id'])->inverseOf('business');
     }
 
-    public function getResources(): \yii\db\ActiveQuery|ResourceQuery
+    public function getResources(): ActiveQuery|ResourceQuery
     {
         return $this->hasMany(Resource::class, ['business_id' => 'id'])->inverseOf('business');
     }
 
-    public function getRules(): \yii\db\ActiveQuery|RuleQuery
+    public function getRules(): ActiveQuery|RuleQuery
     {
         return $this->hasMany(Rule::class, ['business_id' => 'id'])->inverseOf('business');
     }
 
-    public function getServices(): \yii\db\ActiveQuery|ServiceQuery
+    public function getServices(): ActiveQuery|ServiceQuery
     {
         return $this->hasMany(Service::class, ['business_id' => 'id'])->inverseOf('business');
     }
 
-    public function getUsers($role = null)
+    /**
+     * @throws InvalidConfigException
+     */
+    public function getUsers($role = null): ActiveQuery
     {
         $query = $this->hasMany(User::class, ['id' => 'user_id'])
             ->viaTable(UserBusiness::tableName(), ['business_id' => 'id']);
@@ -137,7 +144,7 @@ class Business extends \yii\db\ActiveRecord
         return new BusinessQuery(get_called_class());
     }
 
-    public function getPermissions(): \yii\db\ActiveQuery|PermissionQuery
+    public function getPermissions(): ActiveQuery|PermissionQuery
     {
         return $this->hasMany(Permission::class, ['business_id' => 'id'])->inverseOf('business');
     }

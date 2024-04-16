@@ -4,6 +4,7 @@ namespace app\models\query;
 
 use yii\db\ActiveQuery;
 use app\models\LogBase;
+use yii\db\ActiveRecord;
 
 /**
  * This is the ActiveQuery class for [[LogBase]].
@@ -21,16 +22,12 @@ class LogBaseQuery extends ActiveQuery
      * {@inheritdoc}
      * @return LogBase[]|array
      */
-    public function all($db = null)
+    public function all($db = null): array
     {
         return parent::all($db);
     }
 
-    /**
-     * {@inheritdoc}
-     * @return LogBase|array|null
-     */
-    public function one($db = null)
+    public function one($db = null): array|ActiveRecord|null
     {
         return parent::one($db);
     }

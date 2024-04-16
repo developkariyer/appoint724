@@ -2,11 +2,11 @@
 
 namespace app\components;
 
+use app\models\Business;
 use Yii;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\helpers\Html;
-use app\components\MyUrl;
 use yii\helpers\Url;
 
 class MyMenu extends Component
@@ -51,7 +51,7 @@ class MyMenu extends Component
                 [
                     'label' => '',
                 ],
-                Html::beginForm(MyUrl::to(['site/logout']), 'post').
+                Html::beginForm(MyUrl::to(['site/logout'])).
                 Html::submitButton(
                     ' <i class="bi bi-box-arrow-right"></i> '.Yii::t('app', 'Logout'),
                     ['class' => 'btn ']
@@ -73,7 +73,7 @@ class MyMenu extends Component
         $languageItems = [];
         foreach ($supportedLanguages as $lang=>$alt) {
             $languageItems[$lang] = [
-                'label' => Html::img(Url::to("@web/images/flags/{$lang}.png"), [
+                'label' => Html::img(Url::to("@web/images/flags/$lang.png"), [
                     'class' => 'langFlags',
                     'alt' => $alt,
                 ]),
@@ -90,7 +90,7 @@ class MyMenu extends Component
         ];
     }
 
-    public static function getNavItems()
+    public static function getNavItems(): array
     {
         if (Yii::$app->user->isGuest) return [
             [
@@ -136,6 +136,7 @@ class MyMenu extends Component
                 ],
             ],
         ];
+        return [];
     }
 
     public static function getLeftMenuItems(): ?array
@@ -143,7 +144,7 @@ class MyMenu extends Component
         if (Yii::$app->user->isGuest) return [];
 
         if (Yii::$app->user->identity->user->superadmin) {
-            $businesses = \app\models\Business::find()->orderBy('name')->all();
+            $businesses = Business::find()->orderBy('name')->all();
             $items = [];
             foreach ($businesses as $business) {
                 if ($business->slug == Yii::$app->request->get('slug')) $isExpanded = true; else $isExpanded = false;

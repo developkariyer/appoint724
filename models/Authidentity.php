@@ -5,7 +5,9 @@ namespace app\models;
 use Random\RandomException;
 use Yii;
 use yii\base\Exception;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\db\Expression;
 use yii\web\IdentityInterface;
 use app\models\query\AuthidentityQuery;
 use app\models\query\UserQuery;
@@ -28,7 +30,6 @@ use app\components\LogBehavior;
  */
 class Authidentity extends ActiveRecord implements IdentityInterface
 {
-    //use traits\SoftDeleteTrait; // used for soft deletes but this model does not require this feature
     const AUTHTYPE_PASSWORD = 'password';
     const AUTHTYPE_EMAIL_TOKEN = 'email_token';
     const AUTHTYPE_SMS_OTP = 'sms_otp';
@@ -42,7 +43,7 @@ class Authidentity extends ActiveRecord implements IdentityInterface
         return 'authidentities';
     }
 
-    public function behaviors()
+    public function behaviors(): array
     {
         return [
             'logBehavior' => [
@@ -82,7 +83,7 @@ class Authidentity extends ActiveRecord implements IdentityInterface
         ];
     }
 
-    public function getUser(): \yii\db\ActiveQuery|UserQuery
+    public function getUser(): ActiveQuery|UserQuery
     {
         return $this->hasOne(User::class, ['id' => 'user_id'])->inverseOf('authidentities');
     }
@@ -96,7 +97,7 @@ class Authidentity extends ActiveRecord implements IdentityInterface
     {   // Function required by Yii2 User interface
         $candidates = Authidentity::find()
             ->where(['type' => self::AUTHTYPE_REMEMBERME])
-            ->andWhere(['>', 'expires', new \yii\db\Expression('NOW()')])
+            ->andWhere(['>', 'expires', new Expression('NOW()')])
             ->all();
         foreach ($candidates as $candidate) {
             if (Yii::$app->security->validatePassword($token, $candidate->secret)) {
@@ -110,7 +111,7 @@ class Authidentity extends ActiveRecord implements IdentityInterface
     {
         $candidates = Authidentity::find()
             ->where(['type' => self::AUTHTYPE_EMAIL_TOKEN])
-            ->andWhere(['>', 'expires', new \yii\db\Expression('NOW()')])
+            ->andWhere(['>', 'expires', new Expression('NOW()')])
             ->all();
         foreach ($candidates as $candidate) {
             if (Yii::$app->security->validatePassword($token, $candidate->secret)) {
@@ -133,14 +134,11 @@ class Authidentity extends ActiveRecord implements IdentityInterface
 
     public static function findIdentityByGsm($gsm): Authidentity|null
     {
-        $user = \app\models\User::find()->where(['gsm' => $gsm])->one();
-        if ($user) {
-            return $user->getAuthIdentities()
-                ->where(['type' => self::AUTHTYPE_SMS_OTP])
-                ->andWhere(['>', 'expires', new \yii\db\Expression('NOW()')])
-                ->one();
-        }
-        return null;
+        $user = User::find()->where(['gsm' => $gsm])->one();
+        return $user?->getAuthIdentities()
+            ->where(['type' => self::AUTHTYPE_SMS_OTP])
+            ->andWhere(['>', 'expires', new Expression('NOW()')])
+            ->one();
     }
 
     public static function findIdentity($id): Authidentity|null
@@ -225,7 +223,7 @@ class Authidentity extends ActiveRecord implements IdentityInterface
     {
         $count = static::find()
             ->where(['type' => $type])
-            ->andWhere(['>', 'expires', new \yii\db\Expression('NOW()')])
+            ->andWhere(['>', 'expires', new Expression('NOW()')])
             ->count();
         return (int) $count;
     }

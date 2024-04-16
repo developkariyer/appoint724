@@ -18,9 +18,4 @@ class BusinessQuery extends ActiveQuery
         return parent::one($db);
     }
 
-    public function getDefaultBusiness()
-    {
-        // Filter the query to return the business with name 'Appointment SAAS'
-        return $this->andWhere(['name' => 'Appointment SAAS']);
-    }
 }

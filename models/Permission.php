@@ -6,6 +6,8 @@ use Yii;
 use app\models\query\PermissionQuery;
 use app\models\query\UserQuery;
 use app\models\query\BusinessQuery;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 
 /**
  * @property int         $id
@@ -16,7 +18,7 @@ use app\models\query\BusinessQuery;
  * @property User        $user
  * @property Business    $business
  */
-class Permission extends \yii\db\ActiveRecord
+class Permission extends ActiveRecord
 {
     use traits\SoftDeleteTrait;
 
@@ -47,12 +49,12 @@ class Permission extends \yii\db\ActiveRecord
         ];
     }
 
-     public function getBusiness(): \yii\db\ActiveQuery|BusinessQuery
+     public function getBusiness(): ActiveQuery|BusinessQuery
     {
         return $this->hasOne(Business::class, ['id' => 'business_id'])->inverseOf('permissions');
     }
 
-    public function getUser(): \yii\db\ActiveQuery|UserQuery
+    public function getUser(): ActiveQuery|UserQuery
     {
         return $this->hasOne(User::class, ['id' => 'user_id'])->inverseOf('permissions');
     }

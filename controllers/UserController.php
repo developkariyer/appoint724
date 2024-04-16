@@ -7,7 +7,7 @@ use Exception;
 use Yii;
 use app\models\User;
 use app\models\Authidentity;
-use app\models\UserForm;
+use app\models\form\UserForm;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\bootstrap5\ActiveForm;

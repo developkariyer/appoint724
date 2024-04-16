@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use app\models\query\LogBaseQuery;
+use yii\db\ActiveRecord;
 
 /**
  * @property int $id
@@ -11,7 +12,7 @@ use app\models\query\LogBaseQuery;
  * @property string $event
  * @property string $created_at
  */
-class LogBase extends \yii\db\ActiveRecord
+class LogBase extends ActiveRecord
 {
 
     const EVENT_USER_CREATED = 'user_created';
@@ -53,7 +54,7 @@ class LogBase extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'logs';
     }
@@ -61,7 +62,7 @@ class LogBase extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['event_type', 'event'], 'required'],
@@ -105,7 +106,7 @@ class LogBase extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => Yii::t('app', 'ID'),
@@ -115,7 +116,7 @@ class LogBase extends \yii\db\ActiveRecord
         ];
     }
 
-    public static function log($event_type, array $data)
+    public static function log($event_type, array $data): void
     {
         $log = new static();
         $log->event_type = $event_type;
@@ -127,7 +128,7 @@ class LogBase extends \yii\db\ActiveRecord
      * {@inheritdoc}
      * @return LogBaseQuery the active query used by this AR class.
      */
-    public static function find()
+    public static function find(): LogBaseQuery
     {
         return new LogBaseQuery(get_called_class());
     }

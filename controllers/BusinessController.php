@@ -4,7 +4,7 @@ namespace app\controllers;
 
 use app\components\LanguageBehavior;
 use app\models\Business;
-use app\models\BusinessSearch;
+use app\models\query\BusinessSearch;
 use Throwable;
 use yii\db\StaleObjectException;
 use yii\web\Controller;
@@ -54,10 +54,9 @@ class BusinessController extends Controller
         ]);
     }
 
+
     /**
-     * Displays a single Business model.
-     * @return string
-     * @throws NotFoundHttpException if the model cannot be found
+     * @throws NotFoundHttpException
      */
     public function actionView(string $slug): string
     {

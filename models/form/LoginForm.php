@@ -72,7 +72,7 @@ class LoginForm extends Model
         ];
     }
 
-    public function validatePassword($attribute, $params)
+    public function validatePassword($attribute, $params): void
     {
         if (!$this->hasErrors()) {
             $user = $this->getUser();
@@ -127,7 +127,7 @@ class LoginForm extends Model
         return false;
     }
 
-    public function getUser()
+    public function getUser(): ?Authidentity
     {
         if ($this->_user === null) {
             // Assuming findIdentityByEmail can handle null email gracefully

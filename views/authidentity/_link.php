@@ -1,7 +1,7 @@
 <?php
 /** @var LoginForm $model */
 
-use app\models\LoginForm;
+use app\models\form\LoginForm;
 use yii\widgets\MaskedInput;
 
 $form = yii\bootstrap5\ActiveForm::begin(['id' => 'login-form', 'enableAjaxValidation' => true]);
