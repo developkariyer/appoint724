@@ -1,5 +1,6 @@
 <?php
 
+use app\widgets\Card;
 use yii\widgets\ActiveForm;
 use app\models\UserForm;
 
@@ -27,27 +28,36 @@ switch ($model->scenario) {
             <?php 
                 switch ($model->scenario) {
                     case UserForm::SCENARIO_REGISTER:
-                        echo \app\widgets\Card::widget([
-                            'title' => $this->title,
-                            'content' => 
-                                $this->render('_update', ['form' => $form, 'model' => $model]).
-                                $this->render('_password', ['form' => $form, 'model' => $model]).
-                                $this->render('_submit', ['form' => $form, 'model' => $model]),
-                        ]);
+                        try {
+                            echo Card::widget([
+                                'title' => $this->title,
+                                'content' =>
+                                    $this->render('_update', ['form' => $form, 'model' => $model]) .
+                                    $this->render('_password', ['form' => $form, 'model' => $model]) .
+                                    $this->render('_submit', ['form' => $form, 'model' => $model]),
+                            ]);
+                        } catch (Throwable $e) {
+                        }
                         break;
                     case UserForm::SCENARIO_UPDATE:
-                        echo \app\widgets\Card::widget([
-                            'title' => $this->title,
-                            'content' => $this->render('_update', ['form' => $form, 'model' => $model]).
-                                $this->render('_submit', ['form' => $form, 'model' => $model]),
-                        ]);
+                        try {
+                            echo Card::widget([
+                                'title' => $this->title,
+                                'content' => $this->render('_update', ['form' => $form, 'model' => $model]) .
+                                    $this->render('_submit', ['form' => $form, 'model' => $model]),
+                            ]);
+                        } catch (Throwable $e) {
+                        }
                         break;
                     case UserForm::SCENARIO_PASSWORD:
-                        echo \app\widgets\Card::widget([
-                            'title' => $this->title,
-                            'content' => $this->render('_password', ['form' => $form, 'model' => $model]).
-                                $this->render('_submit', ['form' => $form, 'model' => $model]),
-                        ]);
+                        try {
+                            echo Card::widget([
+                                'title' => $this->title,
+                                'content' => $this->render('_password', ['form' => $form, 'model' => $model]) .
+                                    $this->render('_submit', ['form' => $form, 'model' => $model]),
+                            ]);
+                        } catch (Throwable $e) {
+                        }
                         break;
                 }
             ?>

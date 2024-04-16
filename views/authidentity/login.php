@@ -1,6 +1,7 @@
 <?php
 
 use app\components\MyUrl;
+use app\widgets\Card;
 
 /* @var yii\web\View $this */
 /* @var yii\bootstrap5\ActiveForm $form */
@@ -25,7 +26,7 @@ $this->registerCss("
                 <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
                     <a href="<?php echo MyUrl::to(['site/login/'.app\models\LoginForm::SCENARIO_PASSWORD]); ?>" class="nav-link <?= ($model->scenario === app\models\LoginForm::SCENARIO_PASSWORD) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'Password') ?></a>
                     <a href="<?php echo MyUrl::to(['site/login/'.app\models\LoginForm::SCENARIO_SMS_REQUEST]); ?>" class="nav-link <?= ($model->scenario === app\models\LoginForm::SCENARIO_SMS_REQUEST || $model->scenario === app\models\LoginForm::SCENARIO_SMS_VALIDATE) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'SMS') ?></a>
-                    <a href="<?php echo MyUrl::to(['site/login/'.app\models\LoginForm::SCENARIO_EMAIL_LINK]); ?>" class="nav-link <?= ($model->scenario === app\models\LoginForm::SCENARIO_EMAIL_LINK) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'Link') ?></a>
+                    <a href="<?php echo MyUrl::to(['site/login/'.app\models\LoginForm::SCENARIO_LINK]); ?>" class="nav-link <?= ($model->scenario === app\models\LoginForm::SCENARIO_LINK) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'Link') ?></a>
                     <a href="<?php echo MyUrl::to(['site/login/'.app\models\LoginForm::SCENARIO_OTHER]); ?>" class="nav-link <?= ($model->scenario === app\models\LoginForm::SCENARIO_OTHER) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'Other') ?></a>
                     <a href="<?php echo MyUrl::to(['user/register/']); ?>" class="nav-link" role="tab"><?= Yii::t('app', 'New User') ?></a>
                 </div>
@@ -33,34 +34,49 @@ $this->registerCss("
             <?php switch ($model->scenario) {
                 case app\models\LoginForm::SCENARIO_PASSWORD:
                 default:
-                    echo \app\widgets\Card::widget([
-                        'title' => Yii::t('app', 'Login with Password'),
-                        'content' => $this->render('_password', ['model' => $model]),
-                    ]);
+                    try {
+                        echo Card::widget([
+                            'title' => Yii::t('app', 'Login with Password'),
+                            'content' => $this->render('_password', ['model' => $model]),
+                        ]);
+                    } catch (Throwable $e) {
+                    }
                     break;
                 case app\models\LoginForm::SCENARIO_SMS_REQUEST:
-                    echo \app\widgets\Card::widget([
-                        'title' => Yii::t('app', 'Login with SMS'),
-                        'content' => $this->render('_sms_request', ['model' => $model]),
-                    ]);
+                    try {
+                        echo Card::widget([
+                            'title' => Yii::t('app', 'Login with SMS'),
+                            'content' => $this->render('_sms_request', ['model' => $model]),
+                        ]);
+                    } catch (Throwable $e) {
+                    }
                     break;
                 case app\models\LoginForm::SCENARIO_SMS_VALIDATE:
-                    echo \app\widgets\Card::widget([
-                        'title' => Yii::t('app', 'Login with SMS'),
-                        'content' => $this->render('_sms_validate', ['model' => $model]),
-                    ]);
+                    try {
+                        echo Card::widget([
+                            'title' => Yii::t('app', 'Login with SMS'),
+                            'content' => $this->render('_sms_validate', ['model' => $model]),
+                        ]);
+                    } catch (Throwable $e) {
+                    }
                     break;
-                case app\models\LoginForm::SCENARIO_EMAIL_LINK:
-                    echo \app\widgets\Card::widget([
-                        'title' => Yii::t('app', 'Login with Link'),
-                        'content' => $this->render('_email_link', ['model' => $model]),
-                    ]);
+                case app\models\LoginForm::SCENARIO_LINK:
+                    try {
+                        echo Card::widget([
+                            'title' => Yii::t('app', 'Login with Link'),
+                            'content' => $this->render('_link', ['model' => $model]),
+                        ]);
+                    } catch (Throwable $e) {
+                    }
                     break;
                 case app\models\LoginForm::SCENARIO_OTHER:
-                    echo \app\widgets\Card::widget([
-                        'title' => Yii::t('app', 'Other'),
-                        'content' => $this->render('_other', ['model' => $model]),
-                    ]);
+                    try {
+                        echo Card::widget([
+                            'title' => Yii::t('app', 'Other'),
+                            'content' => $this->render('_other', ['model' => $model]),
+                        ]);
+                    } catch (Throwable $e) {
+                    }
                     break;                        
             } ?>
         </div>

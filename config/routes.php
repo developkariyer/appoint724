@@ -1,5 +1,5 @@
 <?php
-
+/** @var array $params */
 $langPattern = implode('|', array_keys($params['supportedLanguages']));
 
 return [
@@ -11,7 +11,7 @@ return [
     "<lang:$langPattern>/<action>" => 'site/<action>',
 
     // URL with token parameter only, used for email verification and non-interactive link login
-    'verifyemail/<token>' => 'site/verifyemail',
+    'verify/<token>' => 'site/verify',
 
     // Login page scenarios
     "<lang:$langPattern>/site/login/<s>" => 'site/login',

@@ -2,8 +2,10 @@
 
 namespace app\models;
 
+use yii\db\ActiveQuery;
+
 /** @see User */
-class UserQuery extends \yii\db\ActiveQuery
+class UserQuery extends ActiveQuery
 {
     /*public function active()
     {

@@ -1,9 +1,5 @@
 <?php
 
-use yii\helpers\Html;
-use app\components\MyUrl;
-
-
 /** @var yii\web\View $this */
 
 $this->title = Yii::t('app', 'Appointment SAAS');

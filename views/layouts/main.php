@@ -6,7 +6,10 @@
 use app\assets\AppAsset;
 use app\widgets\Alert;
 use yii\bootstrap5\Html;
-use app\components\MyUrl;
+use yii\bootstrap5\NavBar;
+use yii\bootstrap5\Nav;
+use app\components\MyMenu;
+use app\widgets\Collapse;
 
 
 AppAsset::register($this);
@@ -19,19 +22,18 @@ $this->registerMetaTag(['name' => 'keywords', 'content' => $this->params['meta_k
 $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii::getAlias('@web/favicon.ico')]);
 
 $this->registerCss("
-    .langflags {
+    .langFlags {
         height: 20px;
         vertical-align: middle;
     }
-    .leftmenu {
+    .leftMenu {
         width: 200px;
         overflow-y: auto; 
         overflow-x: hidden;
     }
-    .rightcontent {
+    .rightContent {
         overflow-y: auto; 
         overflow-x: hidden; 
-        /*border-top-left-radius: 0.25rem;*/
         background-color: #ffffff;
     }
     .navbar-brand {
@@ -42,19 +44,18 @@ $this->registerCss("
     }
     body {
         padding-top: 40px;
-        background-color: #dc3545;
     }
     .accordion-header:hover, .list-group-item:hover  {
-        background-color: #f8d7da;
-        color: #721c24;
+        background-color: #dad7f8;
+        color: #241c72;
         cursor: pointer;
     }
     .submenu-item {
         padding-left: 2rem;
-    }
+    }/*
     .main-item {
         font-weight: bold;
-    }
+    }*/
 ");
 
 ?>
@@ -64,11 +65,11 @@ $this->registerCss("
 <head>
     <title><?php echo Html::encode($this->title); ?></title>
     <?php $this->head(); ?>
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="icon" type="image/png" sizes="32x32" href="/web/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/web/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/web/apple-touch-icon.png">
+    <link rel="manifest" href="/web/site.webmanifest">
+    <link rel="mask-icon" href="/web/safari-pinned-tab.svg" color="#5bbad5">
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 </head>
@@ -76,23 +77,63 @@ $this->registerCss("
 <?php $this->beginBody(); ?>
 
 <header id="header">
-    <?php
+<?php
 
-    echo \app\widgets\Navigation::widget([
-        'supportedLanguages' => Yii::$app->params['supportedLanguages'],
-        'currentPath' => Yii::$app->request->getPathInfo(),
+    NavBar::begin([
+        'brandLabel' => Yii::$app->name,
+        'brandUrl' => Yii::$app->homeUrl,
+        'options' => ['class' => 'navbar-expand-md navbar-dark bg-primary fixed-top p-0'],
+        'innerContainerOptions' => ['class' => ''],
+        'renderInnerContainer' => false,
     ]);
 
-    ?>
+    try {
+        echo Nav::widget([
+            'options' => ['class' => 'navbar-nav'],
+            'items' => MyMenu::getNavItems(), // menu items
+            'encodeLabels' => false,
+        ]);
+    } catch (Throwable $e) {
+    }
+
+    echo "<div class='ms-auto'>";
+    try {
+        echo Nav::widget([
+            'options' => ['class' => 'navbar-nav'],
+            'items' => [
+                MyMenu::getLangNavItems(), // language specific menu items
+                MyMenu::getLogNavItems(), // login/logout specific menu items
+            ],
+            'encodeLabels' => false,
+        ]);
+    } catch (Throwable $e) {
+    }
+    echo "</div>";
+
+    NavBar::end();
+
+?>
 </header>
 
 <main id="main" class="flex-shrink-0 h-100" role="main">
     <div class="container-fluid h-100">
         <div class="row h-100">
-            <?= $this->render('menu') ?>
-            <div class="col p-5 rightcontent h-100" id="main-content">
-                <?php echo Alert::widget(); ?>
-                <?php echo $content; ?>
+            <div class="leftMenu h-100 bg-secondary bg-gradient p-0">
+                <div class="list-group h-100 p-2">
+                <?php try {
+                    echo Collapse::widget([
+                        'items' => MyMenu::getLeftMenuItems(),
+                    ]);
+                } catch (Throwable $e) {
+                } ?>
+                </div>
+            </div>
+            <div class="col p-5 rightContent h-100" id="main-content">
+                <?php try {
+                    echo Alert::widget();
+                } catch (Throwable $e) {
+                } ?>
+                <?= $content ?>
             </div>
 
         </div>

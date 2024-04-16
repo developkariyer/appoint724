@@ -2,10 +2,13 @@
 
 namespace app\controllers;
 
+use app\components\LanguageBehavior;
+use Exception;
 use Yii;
 use app\models\User;
 use app\models\Authidentity;
 use app\models\UserForm;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\bootstrap5\ActiveForm;
 use yii\web\Response;
@@ -13,11 +16,11 @@ use app\components\MyUrl;
 
 class UserController extends Controller
 {
-    public function behaviors()
+    public function behaviors(): array
     {
         return [
             'access' => [
-                'class' => \yii\filters\AccessControl::class,
+                'class' => AccessControl::class,
                 'rules' => [
                     [
                         'actions' => ['register'],
@@ -39,20 +42,19 @@ class UserController extends Controller
                 },
             ],
             'languageBehavior' => [
-                'class' => \app\components\LanguageBehavior::class,
+                'class' => LanguageBehavior::class,
             ],
         ];
     }
 
-    public function actionRegister()
+    public function actionRegister(): Response|array|string
     {
         $model = new UserForm();
         $model->scenario = UserForm::SCENARIO_REGISTER;
 
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            $retval = ActiveForm::validate($model);
-            return $retval;
+            return ActiveForm::validate($model);
         }
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
@@ -79,7 +81,7 @@ class UserController extends Controller
                     $transaction->rollBack();
                     $model->addError('email', Yii::t('app', 'Unable to create User.'));                
                 }
-            } catch (\Exception $e) {
+            } catch (Exception) {
                 $transaction->rollBack();
                 $model->addError('email', Yii::t('app', 'An error occurred.'));
             }
@@ -89,7 +91,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function actionUpdate()
+    public function actionUpdate(): Response|array|string
     {
         $model = new UserForm();
         $model->scenario = UserForm::SCENARIO_UPDATE;
@@ -99,8 +101,7 @@ class UserController extends Controller
 
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            $retval = ActiveForm::validate($model);
-            return $retval;
+            return ActiveForm::validate($model);
         }
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
@@ -127,15 +128,17 @@ class UserController extends Controller
         ]);
     }
 
-    public function actionPassword()
+    /**
+     * @throws \yii\base\Exception
+     */
+    public function actionPassword(): Response|array|string
     {
         $model = new UserForm();
         $model->scenario = UserForm::SCENARIO_PASSWORD;
 
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            $retval = ActiveForm::validate($model);
-            return $retval;
+            return ActiveForm::validate($model);
         }
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {

@@ -3,22 +3,20 @@ namespace app\widgets;
 
 use yii\base\Widget;
 use yii\helpers\Html;
-use Yii;
 
 class Collapse extends Widget
 {
-    public $items = [];
-    public $options = [];
-    public $itemOptions = [];
-    public $headerOptions = [];
-    public $bodyOptions = [];
-    public $raw = false;
+    public array $items = [];
+    public array $options = [];
+    public array $itemOptions = [];
+    public array $headerOptions = [];
+    public array $bodyOptions = [];
+    public bool $raw = false;
 
-    public function run()
+    public function run(): string
     {
         $uuid = uniqid();
-        $output = Html::tag('h4', Yii::t('app', 'Businesses'), ['class' => 'text-center text-white text-decoration-underline bg-danger p-2 rounded-0 border-dark']);
-        $output .= Html::beginTag('div', array_merge(['class' => 'accordion p-1', 'id' => $uuid], $this->options));
+        $output = Html::beginTag('div', array_merge(['class' => 'accordion', 'id' => $uuid], $this->options));
 
         foreach ($this->items as $index => $item) {
             $isExpanded = isset($item['isExpanded']) && $item['isExpanded'];
@@ -33,8 +31,7 @@ class Collapse extends Widget
             $output .= Html::beginTag('h2', $headerHtmlOptions);
         
             $buttonOptions = [
-                'class' => 'accordion-button border fs-5 ' . ($isExpanded ? '' : ' collapsed'),
-                'type' => 'button',
+                'class' => 'accordion-button bg-primary text-white' . ($isExpanded ? '' : ' collapsed'),
                 'data-bs-toggle' => 'collapse',
                 'data-bs-target' => '#'.$uuid.'collapse'.$index,
                 'aria-expanded' => $isExpanded ? 'true' : 'false',
@@ -53,9 +50,9 @@ class Collapse extends Widget
             $output .= Html::beginTag('div', $bodyHtmlOptions);
         
             $output .= Html::beginTag('div', ['class'=>"accordion-body p-0"]);
-            $output .= Html::beginTag('ul', ['class' => 'list-group rounded-0']);
+            $output .= Html::beginTag('ul', ['class' => 'list-group list-group-flush']);
             foreach ($item['content'] as $contentItem) {
-                $output .= Html::a($contentItem['label'], $contentItem['url'], ['class' => 'list-group-item submenu-item']);
+                $output .= Html::a($contentItem['label'], $contentItem['url'], ['class' => 'submenu-item list-group-item']);
             }
             $output .= Html::endTag('ul');
             $output .= Html::endTag('div');
@@ -68,4 +65,3 @@ class Collapse extends Widget
         return $output;
     }
 }
-?>

@@ -3,6 +3,8 @@
 namespace app\models;
 
 use Yii;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 
 /**
  * @property int         $id
@@ -14,7 +16,7 @@ use Yii;
  * @property Appointment $appointment
  * @property User        $user
  */
-class AppointmentUser extends \yii\db\ActiveRecord
+class AppointmentUser extends ActiveRecord
 {
     use traits\SoftDeleteTrait;
 
@@ -47,12 +49,12 @@ class AppointmentUser extends \yii\db\ActiveRecord
         ];
     }
 
-    public function getAppointment(): \yii\db\ActiveQuery|AppointmentQuery
+    public function getAppointment(): ActiveQuery|AppointmentQuery
     {
         return $this->hasOne(Appointment::class, ['id' => 'appointment_id'])->inverseOf('appointmentUsers');
     }
 
-    public function getUser(): \yii\db\ActiveQuery|UserQuery
+    public function getUser(): ActiveQuery|UserQuery
     {
         return $this->hasOne(User::class, ['id' => 'user_id'])->inverseOf('appointmentUsers');
     }

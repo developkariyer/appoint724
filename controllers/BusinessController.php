@@ -2,8 +2,11 @@
 
 namespace app\controllers;
 
+use app\components\LanguageBehavior;
 use app\models\Business;
 use app\models\BusinessSearch;
+use Throwable;
+use yii\db\StaleObjectException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -17,19 +20,19 @@ class BusinessController extends Controller
     /**
      * @inheritDoc
      */
-    public function behaviors()
+    public function behaviors(): array
     {
         return array_merge(
             parent::behaviors(),
             [
                 'verbs' => [
-                    'class' => VerbFilter::className(),
+                    'class' => VerbFilter::class,
                     'actions' => [
                         'delete' => ['POST'],
                     ],
                 ],
                 'languageBehavior' => [
-                    'class' => \app\components\LanguageBehavior::class,
+                    'class' => LanguageBehavior::class,
                 ],
             ]
         );
@@ -40,7 +43,7 @@ class BusinessController extends Controller
      *
      * @return string
      */
-    public function actionIndex()
+    public function actionIndex(): string
     {
         $searchModel = new BusinessSearch();
         $dataProvider = $searchModel->search($this->request->queryParams);
@@ -57,19 +60,14 @@ class BusinessController extends Controller
      * @return string
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    public function actionView(int $id): string
     {
         return $this->render('view', [
             'model' => $this->findModel($id),
         ]);
     }
 
-    /**
-     * Creates a new Business model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return string|\yii\web\Response
-     */
-    public function actionCreate()
+    public function actionCreate(): yii\web\Response|string
     {
         $model = new Business();
 
@@ -87,13 +85,9 @@ class BusinessController extends Controller
     }
 
     /**
-     * Updates an existing Business model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param int $id ID
-     * @return string|\yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
+     * @throws NotFoundHttpException
      */
-    public function actionUpdate($id)
+    public function actionUpdate($id): yii\web\Response|string
     {
         $model = $this->findModel($id);
 
@@ -107,13 +101,11 @@ class BusinessController extends Controller
     }
 
     /**
-     * Deletes an existing Business model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param int $id ID
-     * @return \yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
+     * @throws StaleObjectException
+     * @throws Throwable
+     * @throws NotFoundHttpException
      */
-    public function actionDelete($id)
+    public function actionDelete($id): yii\web\Response
     {
         $this->findModel($id)->delete();
 
@@ -121,13 +113,9 @@ class BusinessController extends Controller
     }
 
     /**
-     * Finds the Business model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $id ID
-     * @return Business the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
+     * @throws NotFoundHttpException
      */
-    protected function findModel($id)
+    protected function findModel($id): ?Business
     {
         if (($model = Business::findOne(['id' => $id])) !== null) {
             return $model;

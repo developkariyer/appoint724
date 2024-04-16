@@ -1,14 +1,15 @@
 <?php
 
 use yii\helpers\Html;
+use yii\web\YiiAsset;
 use yii\widgets\DetailView;
 
 /* @var yii\web\View $this */
 /* @var app\models\Business $model */
 
-$this->title = Yii::t('app', 'Business')." : {$model->name}";
+$this->title = Yii::t('app', 'Business')." : $model->name";
 
-\yii\web\YiiAsset::register($this);
+YiiAsset::register($this);
 ?>
 <div class="business-view">
 
@@ -25,13 +26,16 @@ $this->title = Yii::t('app', 'Business')." : {$model->name}";
         ]); ?>
     </p>
 
-    <?php echo DetailView::widget([
-        'model' => $model,
-        'attributes' => [
-            'id',
-            'name',
-            'timezone',
-        ],
-    ]); ?>
+    <?php try {
+        echo DetailView::widget([
+            'model' => $model,
+            'attributes' => [
+                'id',
+                'name',
+                'timezone',
+            ],
+        ]);
+    } catch (Throwable $e) {
+    } ?>
 
 </div>

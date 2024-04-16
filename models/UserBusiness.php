@@ -3,6 +3,8 @@
 namespace app\models;
 
 use Yii;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 
 /**
  * @property int         $id
@@ -13,14 +15,14 @@ use Yii;
  * @property Business    $business
  * @property User        $user
  */
-class UserBusiness extends \yii\db\ActiveRecord
+class UserBusiness extends ActiveRecord
 {
     use traits\SoftDeleteTrait;
 
-    const ROLE_ADMIN = 'admin';
-    const ROLE_SECRETARY = 'secretary';
-    const ROLE_EXPERT = 'expert';
-    const ROLE_CUSTOMER = 'customer';
+    const string ROLE_ADMIN = 'admin';
+    const string ROLE_SECRETARY = 'secretary';
+    const string ROLE_EXPERT = 'expert';
+    const string ROLE_CUSTOMER = 'customer';
 
     public static function tableName(): string
     {
@@ -50,12 +52,12 @@ class UserBusiness extends \yii\db\ActiveRecord
         ];
     }
 
-    public function getBusiness(): \yii\db\ActiveQuery|BusinessQuery
+    public function getBusiness(): ActiveQuery|BusinessQuery
     {
         return $this->hasOne(Business::class, ['id' => 'business_id']);
     }
 
-    public function getUser(): \yii\db\ActiveQuery|UserQuery
+    public function getUser(): ActiveQuery|UserQuery
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);
     }

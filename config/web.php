@@ -1,5 +1,7 @@
 <?php
 
+use yii\symfonymailer\Mailer;
+
 $params = require __DIR__.'/params.php';
 $db = require __DIR__.'/db.php';
 
@@ -29,7 +31,7 @@ $config = [
             ],
         ],
         'request' => [
-            'cookieValidationKey' => '0YJTc1dgmiN5PM8tWAYVb1339QZVhFC5-D',
+            'cookieValidationKey' => '0YJTc1N5PM8tWAYVb1339QZVhFC5-D',
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -43,7 +45,7 @@ $config = [
             'errorAction' => 'site/error',
         ],
         'mailer' => [
-            'class' => \yii\symfonymailer\Mailer::class,
+            'class' => Mailer::class,
             'viewPath' => '@app/mail',
             // send all mails to a file by default.
             'useFileTransport' => true,

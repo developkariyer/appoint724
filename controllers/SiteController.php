@@ -2,15 +2,21 @@
 
 namespace app\controllers;
 
+use app\components\LanguageBehavior;
+use app\models\Authidentity;
 use app\models\ContactForm;
 use app\models\LoginForm;
+use Random\RandomException;
 use Yii;
+use yii\base\InvalidConfigException;
 use yii\bootstrap5\ActiveForm;
+use yii\db\Exception;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\Response;
 use app\components\MyUrl;
+use yii\helpers\Html;
 
 
 class SiteController extends Controller
@@ -18,7 +24,7 @@ class SiteController extends Controller
     /**
      * {@inheritdoc}
      */
-    public function behaviors()
+    public function behaviors(): array
     {
         return [
             'access' => [
@@ -39,7 +45,7 @@ class SiteController extends Controller
                 ],
             ],
             'languageBehavior' => [
-                'class' => \app\components\LanguageBehavior::class,
+                'class' => LanguageBehavior::class,
             ],
         ];
     }
@@ -47,7 +53,7 @@ class SiteController extends Controller
     /**
      * {@inheritdoc}
      */
-    public function actions()
+    public function actions(): array
     {
         return [
             'error' => [
@@ -64,16 +70,17 @@ class SiteController extends Controller
      * Fallback route function, tries to guess what user intents
      * @param mixed $path
      * @return Yii\web\Response
+     * @throws InvalidConfigException
      */
-    public function actionReroute($path)
+    public function actionReroute(mixed $path): Response
     {
         $pathInfo = Yii::$app->request->getPathInfo();
         $segments = explode('/', $pathInfo);
-        $controllerlist = ['business', 'user', 'site']; //manually fill this array with controllers
-        if (isset($segments[0]) && in_array($segments[0], $controllerlist)) {
+        $controllerList = ['business', 'user', 'site']; //manually fill this array with controllers
+        if (isset($segments[0]) && in_array($segments[0], $controllerList)) {
             return $this->redirect(MyUrl::to([implode('/', $segments)]));
         }
-        if (isset($segments[1]) && in_array($segments[1], $controllerlist)) {
+        if (isset($segments[1]) && in_array($segments[1], $controllerList)) {
             unset($segments[0]);
             return $this->redirect(MyUrl::to([implode('/', $segments)]));
         }
@@ -83,13 +90,14 @@ class SiteController extends Controller
     /**
      * Generate token for e-mail and send it to user
      * @return Yii\web\Response
+     * @throws \yii\base\Exception
      */
-    public function actionVerifymyemail()
+    public function actionVerifymyemail(): Response
     {
         if (!Yii::$app->user->isGuest) {
-            $email_token = \app\models\Authidentity::generateEmailToken(Yii::$app->user->identity->user->email);
+            $email_token = Authidentity::generateEmailToken(Yii::$app->user->identity->user->email);
             // This token will be sent to user via e-mail
-            Yii::$app->session->setFlash('info', "***********".\yii\helpers\Html::a($email_token, ['verifyemail/'.$email_token], ['class' => 'alert-link'])."************");
+            Yii::$app->session->setFlash('info', "***********".Html::a($email_token, ['verify/'.$email_token], ['class' => 'alert-link'])."************");
             if ($email_token !== false) {
                 Yii::$app->session->setFlash('error', Yii::t('app','Check your e-mail for a login link.'));
             } else {
@@ -106,9 +114,9 @@ class SiteController extends Controller
      * @param mixed $token
      * @return Yii\web\Response
      */
-    public function actionVerifyemail($token)
+    public function actionVerify(mixed $token): Response
     {
-        $authidentity = \app\models\Authidentity::findIdentityByEmailToken($token);
+        $authidentity = Authidentity::findIdentityByEmailToken($token);
         if ($authidentity) {
             $authidentity->expires = date('Y-m-d H:i:s', strtotime('+10 seconds'));
             $authidentity->save(false);
@@ -127,7 +135,7 @@ class SiteController extends Controller
      * Verify TC identity number from official government service
      * @return Yii\web\Response
      */
-    public function actionVerifytcno()
+    public function actionVerifytcno(): Response
     {
         if (Yii::$app->user->isGuest) {
             return $this->goBack();
@@ -141,10 +149,10 @@ class SiteController extends Controller
 <soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
   <soap12:Body>
     <TCKimlikNoDogrula xmlns="http://tckimlik.nvi.gov.tr/WS">
-      <TCKimlikNo>{$user->tcno}</TCKimlikNo>
-      <Ad>{$user->first_name}</Ad>
-      <Soyad>{$user->last_name}</Soyad>
-      <DogumYili>{$user->dogum_yili}</DogumYili>
+      <TCKimlikNo>$user->tcno</TCKimlikNo>
+      <Ad>$user->first_name</Ad>
+      <Soyad>$user->last_name</Soyad>
+      <DogumYili>$user->dogum_yili</DogumYili>
     </TCKimlikNoDogrula>
   </soap12:Body>
 </soap12:Envelope>
@@ -184,10 +192,10 @@ XML;
     }
 
     /**
-     * Generate an SMS for GSM verification and do the verification afterwards
-     * @return array|string|Yii\web\Response
+     * @throws \yii\base\Exception
+     * @throws RandomException
      */
-    public function actionVerifygsm()
+    public function actionVerifygsm(): Response|array|string
     {
         if (Yii::$app->user->isGuest) {
             return $this->goBack();
@@ -199,8 +207,7 @@ XML;
 
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            $retval = ActiveForm::validate($model);
-            return $retval;
+            return ActiveForm::validate($model);
         }
 
         if ($model->load(Yii::$app->request->post())) {
@@ -210,7 +217,7 @@ XML;
                 return $this->goHome();
             }
         } else {
-            $sms_otp = \app\models\Authidentity::generateSmsPin($model->gsm);
+            $sms_otp = Authidentity::generateSmsPin($model->gsm);
             // send sms_otp via SMS service API call
             Yii::$app->session->setFlash('info', "*********** $sms_otp ************");
         }
@@ -222,24 +229,24 @@ XML;
      * Default homepage, which will redirect or render user-specific homepage after setting common messages
      * @return string|Yii\web\Response
      */
-    public function actionIndex()
+    public function actionIndex(): Response|string
     {
         if (!Yii::$app->user->isGuest) {
             $authidentity = Yii::$app->user->identity;
     
             $messages = [];
             if (!$authidentity->user->tcnoverified) {   
-                $url = \yii\helpers\Html::a(Yii::t('app', 'Please update your profile.'), MyUrl::to(['user/update']), ['class' => 'alert-link']);
-                $url2 =  \yii\helpers\Html::a(Yii::t('app', 'Click here to verify.'), MyUrl::to(['site/verifytcno']), ['class' => 'alert-link']);
-                $messages[] = Yii::t('app', 'Your T.C. No is not verified.')." {$url} - {$url2}";
+                $url = Html::a(Yii::t('app', 'Please update your profile.'), MyUrl::to(['user/update']), ['class' => 'alert-link']);
+                $url2 = Html::a(Yii::t('app', 'Click here to verify.'), MyUrl::to(['site/verifytcno']), ['class' => 'alert-link']);
+                $messages[] = Yii::t('app', 'Your T.C. No is not verified.')." $url - $url2";
             }
             if (!$authidentity->user->gsmverified) {
-                $url = \yii\helpers\Html::a(Yii::t('app', 'Please verify your GSM number.'), MyUrl::to(['site/verifygsm']), ['class' => 'alert-link']);
-                $messages[] = Yii::t('app', "Your GSM number is not verified.")." {$url}";
+                $url = Html::a(Yii::t('app', 'Please verify your GSM number.'), MyUrl::to(['site/verifygsm']), ['class' => 'alert-link']);
+                $messages[] = Yii::t('app', "Your GSM number is not verified.")." $url";
             }
             if (!$authidentity->user->emailverified) {
-                $url = \yii\helpers\Html::a(Yii::t('app', 'Please verify your e-mail.'), MyUrl::to(['site/verifymyemail']), ['class' => 'alert-link']);
-                $messages[] = Yii::t('app', "Your e-mail address is not verified.")." {$url}";
+                $url = Html::a(Yii::t('app', 'Please verify your e-mail.'), MyUrl::to(['site/verifymyemail']), ['class' => 'alert-link']);
+                $messages[] = Yii::t('app', "Your e-mail address is not verified.")." $url";
             }
             if (count($messages)) Yii::$app->session->setFlash('warning', $messages);
         }
@@ -258,10 +265,10 @@ XML;
     }
 
     /**
-     * Login action.
-     * @return Response|string
+     * @throws \yii\base\Exception
+     * @throws RandomException
      */
-    public function actionLogin($s = null)
+    public function actionLogin($s = null): Response|array|string
     {
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
@@ -281,8 +288,7 @@ XML;
 
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            $retval = ActiveForm::validate($model);
-            return $retval;
+            return ActiveForm::validate($model);
         }
 
         if ($model->load(Yii::$app->request->post())) {
@@ -302,18 +308,18 @@ XML;
                         }
                         break;
                     case LoginForm::SCENARIO_SMS_REQUEST:
-                        $sms_otp = \app\models\Authidentity::generateSmsPin($model->gsm);
+                        $sms_otp = Authidentity::generateSmsPin($model->gsm);
                         Yii::$app->session->setFlash('info', "*********** $sms_otp ************");
                         if ($sms_otp !== false) {
-                            if ($sms_otp !==true ) { /* send sms via external api call, to be implemented */ }
+                            if ($sms_otp !==true ) { sleep(1); /* send sms via external api call, to be implemented */ }
                             $model->scenario=LoginForm::SCENARIO_SMS_VALIDATE;
                         } else {
                             $model->addError('gsm', Yii::t('app', 'Unable to send an SMS'));
                         }
                         break;
-                    case LoginForm::SCENARIO_EMAIL_LINK:
-                        $email_token = \app\models\Authidentity::generateEmailToken($model->emaillink);
-                        Yii::$app->session->setFlash('info', "***********".\yii\helpers\Html::a($email_token, ['verifyemail/'.$email_token], ['class' => 'alert-link'])."************");
+                    case LoginForm::SCENARIO_LINK:
+                        $email_token = Authidentity::generateEmailToken($model->emaillink);
+                        Yii::$app->session->setFlash('info', "***********".Html::a($email_token, ['verify/'.$email_token], ['class' => 'alert-link'])."************");
                         if ($email_token !== false) {
                             Yii::$app->session->setFlash('warning', Yii::t('app','Check your e-mail for a login link.'));
                             return $this->goHome();
@@ -337,7 +343,7 @@ XML;
      * Logout action.
      * @return Response
      */
-    public function actionLogout()
+    public function actionLogout(): Response
     {
         Yii::$app->user->logout();
         Yii::$app->session->setFlash('warning', Yii::t('app','Log out successful. See you soon.'));
@@ -348,7 +354,7 @@ XML;
      * Displays contact page.
      * @return Response|string
      */
-    public function actionContact()
+    public function actionContact(): Response|string
     {
         $model = new ContactForm();
         if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
@@ -366,17 +372,17 @@ XML;
      * Displays about page.
      * @return string
      */
-    public function actionAbout()
+    public function actionAbout(): string
     {
         return $this->render('about');
     }
 
     /**
      * Super Admin homepage
-     * @param mixed $businesId
-     * @return string|Yii\web\Response
+     * @param int|null $businessId
+     * @return string|Response
      */
-    public function actionSuperadmin($businesId = null)
+    public function actionSuperadmin(int $businessId = null): Response|string
     {
         if (Yii::$app->user->isGuest || !Yii::$app->user->identity->user->superadmin) {
             return $this->goHome();
@@ -388,8 +394,9 @@ XML;
     /**
      * Updates database. Only for development purposes!!!
      * @return void
+     * @throws Exception
      */
-    public function actionInit()
+    public function actionInit(): void
     {
         $sqlFilePath = __DIR__ . '/../config/randevusaas.sql';
         if (!file_exists($sqlFilePath)) {

@@ -15,7 +15,7 @@ use yii\widgets\ActiveForm;
 
     <?php echo $form->field($model, 'name')->textInput(['maxlength' => true]); ?>
 
-    <?php $timezones = DateTimeZone::listIdentifiers(DateTimeZone::ALL);
+    <?php $timezones = DateTimeZone::listIdentifiers();
     $timezoneItems = ArrayHelper::map($timezones, function ($tz) { return $tz; }, function ($tz) { return $tz; });
     echo $form->field($model, 'timezone')->dropDownList($timezoneItems, ['prompt' => 'Select Timezone']);
     ?>

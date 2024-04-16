@@ -9,9 +9,9 @@ class UserForm extends Model
 {
     use traits\UserTrait;
 
-    const SCENARIO_REGISTER = 'register';
-    const SCENARIO_PASSWORD = 'password';
-    const SCENARIO_UPDATE = 'update';
+    const string SCENARIO_REGISTER = 'register';
+    const string SCENARIO_PASSWORD = 'password';
+    const string SCENARIO_UPDATE = 'update';
     public $first_name;
     public $last_name;
     public $gsm;
@@ -47,7 +47,7 @@ class UserForm extends Model
         ]);
     }
     
-    public function validatePassword($attribute, $params)
+    public function validatePassword($attribute, $params): void
     {
         $user = Yii::$app->user;
         if (!$user || !$user->validatePassword($this->password_old)) {
@@ -55,9 +55,9 @@ class UserForm extends Model
         }
     }
 
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
-        $userModel = new \app\models\User();
+        $userModel = new User();
         return array_merge($userModel->attributeLabels(),[
             'password_old' => Yii::t('app', 'Old Password'),
             'password' => Yii::t('app', 'Password'),

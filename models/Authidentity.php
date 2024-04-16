@@ -2,7 +2,9 @@
 
 namespace app\models;
 
+use Random\RandomException;
 use Yii;
+use yii\base\Exception;
 
 /**
  * @property int         $id
@@ -150,6 +152,9 @@ class Authidentity extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
         return Yii::$app->security->validatePassword($password, $this->secret);
     }
 
+    /**
+     * @throws Exception
+     */
     public static function generateEmailToken($email): string|null
     {
         if ($user = User::findOne(['email' => $email])) {
@@ -165,13 +170,17 @@ class Authidentity extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
                 'authKey' => Yii::$app->security->generateRandomString(),
                 'expires' => date('Y-m-d H:i:s', strtotime('+10 minutes')),
             ]);
-            if ($authIdentity->save()) {
+            if ($authIdentity->save(false)) {
                 return $token;
             }
         }
-        return false; // failure
+        return 'X';
     }
 
+    /**
+     * @throws Exception
+     * @throws RandomException
+     */
     public static function generateSmsPin($gsm): string|bool
     {
         if ($user = User::findOne(['gsm' => $gsm])) {

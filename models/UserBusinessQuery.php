@@ -2,8 +2,10 @@
 
 namespace app\models;
 
+use yii\db\ActiveQuery;
+
 /** @see UserBusiness */
-class UserBusinessQuery extends \yii\db\ActiveQuery
+class UserBusinessQuery extends ActiveQuery
 {
     public function all($db = null): UserBusiness|array
     {

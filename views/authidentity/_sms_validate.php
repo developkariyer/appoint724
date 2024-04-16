@@ -1,4 +1,6 @@
-<?php 
+<?php
+/** @var \app\models\Authidentity $model */
+
 $form = yii\bootstrap5\ActiveForm::begin(['id' => 'login-form', 'enableAjaxValidation' => true]);
 
 echo $form->field($model, 'gsm')->hiddenInput()->label(false);

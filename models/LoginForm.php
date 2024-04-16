@@ -5,31 +5,32 @@ namespace app\models;
 use Yii;
 use yii\base\Model;
 
+/**
+ * @property mixed $scenariodesc
+ */
 class LoginForm extends Model
 {
     const SCENARIO_PASSWORD = 'password';
     const SCENARIO_SMS_REQUEST = 'sms_request';
     const SCENARIO_SMS_VALIDATE = 'sms_validate';
-    const SCENARIO_EMAIL_LINK = 'email_link';
+    const SCENARIO_LINK = 'link';
     const SCENARIO_OTHER = 'other';
 
     public $password;
     public $gsm;
     public $email;
     public $emaillink;
-    public $rememberMe = true;
-    public $smsform = false;
     public $smsotp;
 
     private $_user = null;
 
-    public function scenarios()
+    public function scenarios(): array
     {
         $scenarios = parent::scenarios();
         $scenarios[self::SCENARIO_PASSWORD] = ['email', 'password'];
         $scenarios[self::SCENARIO_SMS_REQUEST] = ['gsm'];
         $scenarios[self::SCENARIO_SMS_VALIDATE] = ['gsm', 'smsotp'];
-        $scenarios[self::SCENARIO_EMAIL_LINK] = ['emaillink'];
+        $scenarios[self::SCENARIO_LINK] = ['emaillink'];
         $scenarios[self::SCENARIO_OTHER] = [];
         return $scenarios;
     }
@@ -52,7 +53,7 @@ class LoginForm extends Model
             self::SCENARIO_PASSWORD => Yii::t('app', 'Login with Password'),
             self::SCENARIO_SMS_REQUEST => Yii::t('app', 'Request Login with SMS'),
             self::SCENARIO_SMS_VALIDATE => Yii::t('app', 'Login with SMS'),
-            self::SCENARIO_EMAIL_LINK => Yii::t('app', 'Login with Link'),
+            self::SCENARIO_LINK => Yii::t('app', 'Login with Link'),
             self::SCENARIO_OTHER => Yii::t('app', 'Other'),
         ];
         return $this->scenario ? $scenariodescs[$this->scenario] : $scenariodescs[self::SCENARIO_PASSWORD];
@@ -64,7 +65,7 @@ class LoginForm extends Model
             [['email', 'password'], 'required', 'on' => self::SCENARIO_PASSWORD],
             [['gsm'], 'required', 'on' => [self::SCENARIO_SMS_REQUEST, self::SCENARIO_SMS_VALIDATE]],
             [['smsotp'], 'required', 'on' => self::SCENARIO_SMS_VALIDATE],
-            [['emaillink'], 'required', 'on' => self::SCENARIO_EMAIL_LINK],
+            [['emaillink'], 'required', 'on' => self::SCENARIO_LINK],
             [['email', 'emaillink'], 'email'],
         ];
     }
@@ -109,7 +110,7 @@ class LoginForm extends Model
                     }
                     $this->addError('smsotp', 'Invalid OTP or GSM number.');
                     break;
-                case self::SCENARIO_EMAIL_LINK:
+                case self::SCENARIO_LINK:
                 case self::SCENARIO_SMS_REQUEST:
                     return false;
             }

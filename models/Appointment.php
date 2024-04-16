@@ -3,13 +3,16 @@
 namespace app\models;
 
 use Yii;
+use yii\base\InvalidConfigException;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 
 /**
  * @property int                   $id
  * @property int                   $business_id
  * @property string                $start_time            Always, UTC. So MySQL's date and time related functions cannot be used in queries!
  * @property string                $end_time
- * @property string                $status                'New': Customer created\\n'Approved': Customer created, business approved\\n'Set': Business created\\n'Business Cancelled': Business cancelled\\n'Customer Cancelled: Customer cancelled\\n'Customer Noshow': Customer did not come\\n'Rescheduled': Rescheduled by agreement
+ * @property string                $status
  * @property string|null           $created_at
  * @property string|null           $updated_at
  * @property string|null           $deleted_at
@@ -17,7 +20,7 @@ use Yii;
  * @property AppointmentUser[]     $appointmentsUsers
  * @property Business              $business
  */
-class Appointment extends \yii\db\ActiveRecord
+class Appointment extends ActiveRecord
 {
     use traits\SoftDeleteTrait;
 
@@ -51,19 +54,25 @@ class Appointment extends \yii\db\ActiveRecord
         ];
     }
 
-    public function getResources(): \yii\db\ActiveQuery|AppointmentResourceQuery
+    /**
+     * @throws InvalidConfigException
+     */
+    public function getResources(): ActiveQuery|AppointmentResourceQuery
     {
         return $this->hasMany(Resource::class, ['id' => 'resource_id'])
             ->viaTable(AppointmentResource::tableName(), ['appointment_id' => 'id']);
     }
 
-    public function getUsers(): \yii\db\ActiveQuery|AppointmentUserQuery
+    /**
+     * @throws InvalidConfigException
+     */
+    public function getUsers(): ActiveQuery|AppointmentUserQuery
     {
         return $this->hasMany(User::class, ['id' => 'user_id'])
             ->viaTable(AppointmentUser::tableName(), ['appointment_id' => 'id']);
     }
 
-    public function getBusiness(): \yii\db\ActiveQuery|BusinessQuery
+    public function getBusiness(): ActiveQuery|BusinessQuery
     {
         return $this->hasOne(Business::class, ['id' => 'business_id'])->inverseOf('appointments');
     }

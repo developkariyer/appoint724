@@ -7,16 +7,17 @@ use yii\helpers\Html;
 
 class Card extends Widget
 {
-    public $title;
-    public $content;
+    public string $title;
+    public string $content;
 
-    public function run()
+    public function run(): string
     {
-        echo Html::beginTag('div', ['class' => 'card shadow p-1 mb-5 bg-white rounded']);
-        echo Html::beginTag('div', ['class' => 'card-body']);
-        echo Html::tag('h1', $this->title, ['class' => 'p-3 text-center mb-3']);
-        echo $this->content;
-        echo Html::endTag('div');
-        echo Html::endTag('div');
+        $content = Html::beginTag('div', ['class' => 'card shadow p-1 mb-5 bg-white rounded']);
+        $content.= Html::beginTag('div', ['class' => 'card-body']);
+        $content.= Html::tag('h1', $this->title, ['class' => 'p-3 text-center mb-3']);
+        $content.= $this->content;
+        $content.= Html::endTag('div');
+        $content.= Html::endTag('div');
+        return $content;
     }
 }
