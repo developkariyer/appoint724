@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\web\YiiAsset;
 use yii\widgets\DetailView;
+use app\components\MyUrl;
 
 /* @var yii\web\View $this */
 /* @var app\models\Business $model */
@@ -16,7 +17,7 @@ YiiAsset::register($this);
     <h1><?php echo Html::encode($this->title); ?></h1>
 
     <p>
-        <?php echo Html::a(Yii::t('app', 'Update'), ['update', 'id' => $model->id], ['class' => 'btn btn-primary']); ?>
+        <?php echo Html::a(Yii::t('app', 'Update'), MyUrl::to(['business/update/'.$model->slug]), ['class' => 'btn btn-primary']); ?>
         <?php echo Html::a(Yii::t('app', 'Delete'), ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',
             'data' => [

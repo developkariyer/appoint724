@@ -14,7 +14,7 @@ class BusinessSearch extends Business
     {
         return [
             [['id'], 'integer'],
-            [['name', 'timezone', 'created_at', 'updated_at', 'deleted_at'], 'safe'],
+            [['name', 'slug', 'timezone', 'created_at', 'updated_at', 'deleted_at'], 'safe'],
         ];
     }
 

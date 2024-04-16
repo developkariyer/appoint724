@@ -56,14 +56,13 @@ class BusinessController extends Controller
 
     /**
      * Displays a single Business model.
-     * @param int $id ID
      * @return string
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView(int $id): string
+    public function actionView(string $slug): string
     {
         return $this->render('view', [
-            'model' => $this->findModel($id),
+            'model' => $this->findModel($slug),
         ]);
     }
 
@@ -87,17 +86,15 @@ class BusinessController extends Controller
     /**
      * @throws NotFoundHttpException
      */
-    public function actionUpdate($id): yii\web\Response|string
+    public function actionUpdate($slug): yii\web\Response|string
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($slug);
 
         if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
             return $this->goBack();
         }
 
-        return $this->render('update', [
-            'model' => $model,
-        ]);
+        return $this->render('update', ['model' => $model,]);
     }
 
     /**
@@ -115,9 +112,9 @@ class BusinessController extends Controller
     /**
      * @throws NotFoundHttpException
      */
-    protected function findModel($id): ?Business
+    protected function findModel($slug): ?Business
     {
-        if (($model = Business::findOne(['id' => $id])) !== null) {
+        if (($model = Business::findOne(['slug' => $slug])) !== null) {
             return $model;
         }
 

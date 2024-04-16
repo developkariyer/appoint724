@@ -152,19 +152,35 @@ class MyMenu extends Component
                     'content' => [
                         [
                             'label' => Yii::t('app', 'Business Details'),
-                            'url' => MyUrl::to(['business/view/'.$business->id])
+                            'url' => MyUrl::to(['business/view/'.$business->slug])
                         ],
                         [
                             'label' => Yii::t('app', 'Appointments'),
-                            'url' => MyUrl::to(['appointment/business/'.$business->id])
+                            'url' => MyUrl::to(['appointment/business/'.$business->slug])
                         ],
                         [
                             'label' => Yii::t('app','Admins'),
-                            'url' => MyUrl::to(['user/business/'.$business->id])
+                            'url' => MyUrl::to(['user/business/'.$business->slug])
+                        ],
+                        [
+                            'label' => Yii::t('app','Secretaries'),
+                            'url' => MyUrl::to(['user/business/'.$business->slug])
+                        ],
+                        [
+                            'label' => Yii::t('app','Experts'),
+                            'url' => MyUrl::to(['user/business/'.$business->slug])
+                        ],
+                        [
+                            'label' => Yii::t('app','Customers'),
+                            'url' => MyUrl::to(['user/business/'.$business->slug])
                         ],
                         [
                             'label' => Yii::t('app', 'Resources'),
-                            'url' => MyUrl::to(['resource/business/'.$business->id])
+                            'url' => MyUrl::to(['resource/business/'.$business->slug])
+                        ],
+                        [
+                            'label' => Yii::t('app', 'Rules'),
+                            'url' => MyUrl::to(['rule/business/'.$business->slug])
                         ],
                     ],
                     'bodyOptions' => ['class' => 'p-0'],

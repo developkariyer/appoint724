@@ -8,6 +8,7 @@ use Yii;
 /**
  * @property int           $id
  * @property string        $name
+ * @property string        $slug
  * @property string        $timezone
  * @property string|null   $created_at
  * @property string|null   $updated_at
@@ -21,6 +22,25 @@ use Yii;
 class Business extends \yii\db\ActiveRecord
 {
     use traits\SoftDeleteTrait;
+
+
+    // write an beforeSave method to update the slug attribute
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+            if ($this->isNewRecord) {
+                $slug = \yii\helpers\Inflector::slug($this->name);
+                // check if generated slug exists in Business table
+                $count = Business::find()->where(['slug' => $slug])->count();
+                if ($count > 0) {
+                    $slug = $slug . '-ins' . $count;
+                }
+                $this->slug = $slug;
+            }
+            return true;
+        }
+        return false;
+    }
 
     public static function tableName(): string
     {
@@ -36,6 +56,7 @@ class Business extends \yii\db\ActiveRecord
             [['timezone'], 'string', 'max' => 45],
             [['timezone'], 'validateTimezone'],
             [['name'], 'unique'],
+            [['slug'], 'unique'],
         ];
     }
 

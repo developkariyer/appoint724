@@ -17,7 +17,7 @@ return [
     "<lang:$langPattern>/site/login/<s>" => 'site/login',
 
     // Parameter configs for following controllers: Business, User
-    "<lang:$langPattern>/business/<action:\w+>/<id>" => 'business/<action>',
+    "<lang:$langPattern>/business/<action:\w+>/<slug>" => 'business/<action>',
     "<lang:$langPattern>/user/<action:\w+>/<id>" => 'user/<action>',
 
     // URL with language parameter, controller and action, valid for all situations
