@@ -39,10 +39,6 @@ class LogBehavior extends Behavior
 
     public function beforeDelete($event): bool
     {
-        if (!parent::beforeDelete()) {
-            return false;
-        }
-
         if (is_null($this->eventTypeDelete)) {
             return true;
         }
