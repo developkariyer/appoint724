@@ -191,7 +191,7 @@ CREATE TABLE IF NOT EXISTS `randevusaas`.`authidentities` (
   `updated_at` DATETIME NULL DEFAULT NULL,
   `authKey` VARCHAR(255) NULL,
   PRIMARY KEY (`id`),
-  INDEX `user_id` (`user_id` ASC) INVISIBLE,
+  INDEX `user_id` (`user_id` ASC) ,
   CONSTRAINT `authidentities_users_user_id_fk`
     FOREIGN KEY (`user_id`)
     REFERENCES `randevusaas`.`users` (`id`))
@@ -318,7 +318,7 @@ CREATE TABLE IF NOT EXISTS `randevusaas`.`users_businesses` (
   `deleted_at` DATETIME NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `users_businesses_business_id_fk_idx` (`business_id` ASC) VISIBLE,
-  INDEX `businesses_users_user_id_fk_idx` (`user_id` ASC) INVISIBLE,
+  INDEX `businesses_users_user_id_fk_idx` (`user_id` ASC) ,
   UNIQUE INDEX `users_businesses_unique` (`user_id` ASC, `business_id` ASC) VISIBLE,
   CONSTRAINT `businesses_users_user_id_fk`
     FOREIGN KEY (`user_id`)
@@ -348,8 +348,8 @@ CREATE TABLE IF NOT EXISTS `randevusaas`.`permissions` (
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `deleted_at` DATETIME NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  INDEX `permissions_users_user_id_fk_idx` (`user_id` ASC) INVISIBLE,
-  INDEX `permissions_businesses_business_id_fk_idx` (`business_id` ASC) INVISIBLE,
+  INDEX `permissions_users_user_id_fk_idx` (`user_id` ASC) ,
+  INDEX `permissions_businesses_business_id_fk_idx` (`business_id` ASC) ,
   CONSTRAINT `permissions_users_user_id_fk`
     FOREIGN KEY (`user_id`)
     REFERENCES `randevusaas`.`users` (`id`)
