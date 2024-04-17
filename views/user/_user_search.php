@@ -3,16 +3,19 @@
 use yii\bootstrap5\Html;
 use yii\grid\GridView;
 use app\components\MyUrl;
+use yii\bootstrap5\LinkPager;
 
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $role string */
 /* @var $slug string */
 
+$role = $role ?? 'customer';
+$slug = $slug ?? 'default';
+
 echo GridView::widget([
     'dataProvider' => $dataProvider,
     'columns' => [
-        'first_name',
-        'last_name',
+        'fullname',
         'email',
         'gsm',
         [
@@ -21,7 +24,6 @@ echo GridView::widget([
                 $url = MyUrl::to(["business/user/$role/$slug"]);
                 return Html::beginForm($url, 'post')
                     . Html::hiddenInput('id', $model->id)
-                    . Html::hiddenInput('action', '2')
                     . Html::submitButton('<i class="bi bi-person-fill-add"></i>', [
                         'class' => 'btn btn-primary btn-sm',
                         'data' => [
@@ -34,7 +36,7 @@ echo GridView::widget([
         ],
     ],
     'pager' => [
-        'class' => yii\bootstrap5\LinkPager::class,  // Use Bootstrap 5 LinkPager
+        'class' => LinkPager::class,  // Use Bootstrap 5 LinkPager
     ],
     'options' => [
         'tag' => 'div',

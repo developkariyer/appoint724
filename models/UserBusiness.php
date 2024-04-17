@@ -107,7 +107,7 @@ class UserBusiness extends ActiveRecord
         
         $userBusiness = static::findOne(['user_id' => $userId, 'business_id' => $businessId, 'deleted_at' => null]);
         if ($userBusiness) {
-            return $userBusiness->delete();
+            return $userBusiness->softDelete();
         }
         return false;
     }

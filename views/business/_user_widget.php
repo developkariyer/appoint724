@@ -27,19 +27,12 @@ try {
             'gsm',
             [
                 'class' => 'yii\grid\Column',
-                'header' => Yii::t('app', 'Remove'),
+                'header' => Yii::t('app', 'Role'),
                 'content' => function ($model, $key, $index, $column) use ($role, $slug) {
                     $url = MyUrl::to(["business/user/$role/$slug"]);
-                    return Html::beginForm($url, 'post')
+                    return Html::beginForm($url, 'post', ['onchange' => 'this.submit();'])
                         . Html::hiddenInput('id', $model->id)
-                        . Html::hiddenInput('action', '1')
-                        . Html::submitButton('<i class="bi bi-person-dash"></i>', [
-                            'class' => 'btn btn-primary btn-sm',
-                            'data' => [
-                                'confirm' => Yii::t('app', 'Are you sure you want to remove this user?'),
-                                'method' => 'post',
-                            ],
-                        ])
+                        . Html::dropDownList('role', $role, array_merge(['delete' => Yii::t('app', 'No Role')], Yii::$app->params['roles']), ['class' => 'form-control bg-primary text-white'])
                         . Html::endForm();
                 },
             ],

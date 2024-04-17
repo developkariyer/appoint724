@@ -66,7 +66,7 @@ class User extends ActiveRecord
         return array_merge($this->commonRules(), 
         [
             [['last_active', 'created_at', 'updated_at', 'deleted_at'], 'safe'],
-            [['first_name', 'last_name', 'gsm', 'email', 'tcno', 'dogum_yili'], 'required'],
+            [['first_name', 'last_name', 'gsm', 'email'], 'required'],
             [['first_name', 'last_name', 'gsm', 'email', 'tcno', 'dogum_yili', 'tcnoverified', 'gsmverified', 'emailverified'], 'safe'],
         ]);
     }

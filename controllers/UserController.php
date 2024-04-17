@@ -31,7 +31,7 @@ class UserController extends Controller
                         'roles' => ['?'], // Guest users
                     ],
                     [
-                        'actions' => ['update', 'password', 'search'],
+                        'actions' => ['update', 'password', 'search', 'add'],
                         'allow' => true,
                         'roles' => ['@'], // Authenticated users
                     ],
@@ -48,6 +48,47 @@ class UserController extends Controller
                 'class' => LanguageBehavior::class,
             ],
         ];
+    }
+
+    public function actionAdd()
+    {
+        if (!Yii::$app->request->get('slug') || !($business = Business::findOne(['slug' => Yii::$app->request->get('slug')]))) {
+            throw new Exception(Yii::t('app', 'Invalid business.'));
+        }
+        if (!Yii::$app->request->get('role') || !in_array(Yii::$app->request->get('role'), array_keys(Yii::$app->params['roles']))) {
+            throw new Exception(Yii::t('app', 'Invalid role.'));
+        }
+
+        $model = new UserForm();
+        $model->scenario = UserForm::SCENARIO_ADD;
+
+        if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
+        }
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            $user = new User();
+            $user->attributes = $model->attributes;
+            if ($user->save()) {
+                if (UserBusiness::addUserBusiness($user->id, $business->id, Yii::$app->request->get('role'))) {
+                    Yii::$app->session->setFlash('info', Yii::t('app', '{user} created and added to {business} {role} role.', ['user' => $user->fullname, 'business' => $business->name, 'role' => Yii::$app->request->get('role')]));
+                } else {
+                    Yii::$app->session->setFlash('error', Yii::t('app', 'Error adding {user} to {business}.', ['user' => $user->fullname, 'business' => $business->name]));
+                }
+            } else {
+                Yii::debug($user->getAttributes());
+                Yii::debug($user->getErrors());
+                Yii::$app->session->setFlash('error', Yii::t('app', 'Error creating {user}.', ['user' => $user->fullname]));
+            }
+            return $this->redirect(["business/user/".Yii::$app->request->get('role')."/".$business->slug]);
+        }
+
+        return $this->render('user', [
+            'model' => $model,
+            'slug' => Yii::$app->request->get('slug'),
+            'role' => Yii::$app->request->get('role'),
+        ]);
     }
 
     public function actionRegister(): Response|array|string
@@ -171,42 +212,30 @@ class UserController extends Controller
      */
     public function actionSearch()
     {
-        //Yii::$app->response->format = Response::FORMAT_JSON;
         $search = trim(Yii::$app->request->get('search'));
         $role = Yii::$app->request->get('role');
         $business_id = Yii::$app->request->get('business_id');
 
         if (!in_array($role, array_keys(Yii::$app->params['roles']))) {
-            throw new Exception('Invalid user type in actionSearch.');
+            throw new Exception('Invalid role.');
         }
 
-        $business = Business::findOne($business_id);
-
-        if (!$business) {
-            throw new Exception('Invalid business in actionSearch.');
+        if (!($business = Business::findOne($business_id))) {
+            throw new Exception('Invalid business.');
         }
 
-        if (strlen($search) < 3) {
+        if (strlen($search) < 1) {
             $query = $business->getUsers()->andWhere(['id' => 0]);
         } else {
             $query = $business->getAvailableUsers($role)->andWhere([
                 'or',
-                ['like', 'first_name', $search],
-                ['like', 'last_name', $search],
+                ['like', 'fullname', $search],
                 ['like', 'email', $search],
                 ['like', 'gsm', $search]
             ]);
         }
 
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
-            'pagination' => [
-                'pageSize' => 10,
-            ],
-        ]);
-
-        Yii::debug($role);
-        Yii::debug($business->slug);
+        $dataProvider = new ActiveDataProvider(['query' => $query,'pagination' => ['pageSize' => 10,],]);
 
         return $this->renderPartial('_user_search', [
             'dataProvider' => $dataProvider,

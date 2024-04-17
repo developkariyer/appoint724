@@ -23,6 +23,9 @@ return [
     // Parameter configs for Business with slug, 
     "<lang:$langPattern>/business/user/<role:$roles>/<slug>" => 'business/user',
 
+    // Parameter configs for User with business_id and role,
+    "<lang:$langPattern>/user/add/<role:$roles>/<slug>" => 'user/add',
+
     // Parameter configs for User with id,
     "<lang:$langPattern>/user/<action:\w+>/<id>" => 'user/<action>',
 

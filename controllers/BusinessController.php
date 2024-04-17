@@ -6,7 +6,6 @@ use app\components\LanguageBehavior;
 use app\models\Business;
 use app\models\User;
 use app\models\UserBusiness;
-use Exception;
 use Throwable;
 use yii\data\ActiveDataProvider;
 use yii\db\StaleObjectException;
@@ -81,7 +80,7 @@ class BusinessController extends Controller
      */
     public function actionDelete($id): yii\web\Response
     {
-        $this->findModel($id)->delete();
+        $this->findModel($id)->softDelete();
 
         return $this->goBack();
     }
@@ -98,39 +97,88 @@ class BusinessController extends Controller
         throw new NotFoundHttpException(Yii::t('app', 'The requested page does not exist.'));
     }
 
+    private function removeUserFromBusiness($model, $userBusiness, $user)
+    {
+        if (!$userBusiness) {
+            Yii::$app->session->setFlash('warning', Yii::t('app', '{user} not in {business}.', ['user' => $user->fullname, 'business' => $model->name]));
+            return;
+        }
+    
+        if ($userBusiness->softDelete()) {
+            Yii::$app->session->setFlash('info', Yii::t('app', '{user} removed from {business}.', ['user' => $user->fullname, 'business' => $model->name]));
+        } else {
+            Yii::$app->session->setFlash('error', Yii::t('app', 'Error removing {user} from {business}.', ['user' => $user->fullname, 'business' => $model->name]));
+        }        
+    }
+
+    private function assignUserToBusiness($model, $userBusiness, $user, $role)
+    {
+        if ($userBusiness && $userBusiness->role === $role) {
+            Yii::$app->session->setFlash('warning', Yii::t('app', '{user} already in {business} {role} role.', ['user' => $user->fullname, 'business' => $model->name, 'role' => $role]));
+            return;
+        }
+    
+        if (!$userBusiness) {
+            $userBusiness = new UserBusiness(['user_id' => $user->id, 'business_id' => $model->id, 'role' => $role]);
+        } else {
+            $userBusiness->role = $role;
+        }
+    
+        if ($userBusiness->save()) {
+            Yii::$app->session->setFlash('info', Yii::t('app', '{user} role changed to {role} in {business}.', ['user' => $user->fullname, 'role' => $role, 'business' => $model->name]));
+        } else {
+            Yii::$app->session->setFlash('error', Yii::t('app', 'Error changing {user} role in {business}.', ['user' => $user->fullname, 'business' => $model->name]));
+        }
+    }
+
+    private function changeUserRole($model, $userBusiness, $user, $postRole)
+    {
+        if (!in_array($postRole, array_keys(Yii::$app->params['roles']))) {
+            Yii::$app->session->setFlash('error', Yii::t('app', 'Invalid role.'));
+            return;
+        }
+
+        if (!$userBusiness) {
+            $userBusiness = new UserBusiness(['user_id' => $user->id, 'business_id' => $model->id, 'role' => $postRole]);
+        } else {
+            if ($userBusiness->role === $postRole) {
+                Yii::$app->session->setFlash('warning', Yii::t('app', '{user} already in {business} {role} role.', ['user' => $user->fullname, 'business' => $model->name, 'role' => $postRole]));
+                return;
+            }
+            $userBusiness->role = $postRole;
+        }
+    
+        if ($userBusiness->save()) {
+            Yii::$app->session->setFlash('info', Yii::t('app', '{user} role changed to {role} in {business}.', ['user' => $user->fullname, 'role' => $postRole, 'business' => $model->name]));
+        } else {
+            Yii::$app->session->setFlash('error', Yii::t('app', 'Error changing {user} role in {business}.', ['user' => $user->fullname, 'business' => $model->name]));
+        }
+    }
+
     private function handleBusinessUserChange($model, $role)
     {
-        if (!$this->request->post('id') || !$this->request->post('action')) {
+        $userId = $this->request->post('id');
+        if (!$userId) {
             throw new BadRequestHttpException(Yii::t('app', 'Posted values are missing.'));
         }
 
-        if (!($user = User::findOne($this->request->post('id')))) {
+        $user = User::findOne($userId);
+        if (!$user) {
             throw new NotFoundHttpException(Yii::t('app', 'User not found.'));
         }
 
-        $addUserBusiness = $this->request->post('action') == 2 ? true : false;
+        $postRole = $this->request->post('role') ?? '__addnew__';
+        $userBusiness = UserBusiness::findOne(['user_id' => $user->id, 'business_id' => $model->id]);
 
-        if ($addUserBusiness) {
-            if (UserBusiness::exists($model->id, $user->id)) {
-                Yii::$app->session->setFlash('warning', Yii::t('app', '{user} already in {business}.', ['user' => $user->fullname,'business' => $model->name,]));
-            } else {
-                if (UserBusiness::addUserBusiness($this->request->post('id'), $model->id, $role)) {
-                    Yii::$app->session->setFlash('info', Yii::t('app', '{user} added to {business} {role} role.', ['user' => $user->fullname,'business' => $model->name,'role' => $role,]));
-                } else {
-                    Yii::$app->session->setFlash('error', Yii::t('app', 'Error adding {user} to {business}.', ['user' => $user->fullname,'business' => $model->name,]));
-                }
-            }
-        } else {
-            if (UserBusiness::exists($model->id, $user->id)) {
-                if (UserBusiness::deleteUserBusiness($this->request->post('id'), $model->id)) {
-                    Yii::$app->session->setFlash('info', Yii::t('app', '{user} removed from {business}.', ['user' => $user->fullname,'business' => $model->name,]));
-                } else {
-                    Yii::$app->session->setFlash('error', Yii::t('app', 'Error removing {user} from {business}.', ['user' => $user->fullname,'business' => $model->name,]));
-                }
-            } else {
-                Yii::$app->session->setFlash('warning', Yii::t('app', '{user} not in {business}.', ['user' => $user->fullname,'business' => $model->name,]));
-            }
+        if ($postRole === 'delete') {
+            return $this->removeUserFromBusiness($model, $userBusiness, $user);
         }
+
+        if ($postRole === '__addnew__') {
+            return $this->assignUserToBusiness($model, $userBusiness, $user, $role);
+        }
+
+        return $this->changeUserRole($model, $userBusiness, $user, $postRole);
     }
 
     public function actionUser($role, $slug)

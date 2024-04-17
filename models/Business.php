@@ -153,7 +153,8 @@ class Business extends ActiveRecord
     {
         $linkedUserIds = UserBusiness::find()
             ->select('user_id')
-            ->where(['business_id' => $this->id, 'role' => $role]);
+//            ->where(['business_id' => $this->id, 'role' => $role]);
+            ->where(['business_id' => $this->id]);
 
         return User::find()
             ->where(['not in', 'id', $linkedUserIds])
