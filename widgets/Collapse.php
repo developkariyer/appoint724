@@ -31,7 +31,7 @@ class Collapse extends Widget
             $output .= Html::beginTag('h2', $headerHtmlOptions);
         
             $buttonOptions = [
-                'class' => 'accordion-button bg-primary text-white' . ($isExpanded ? '' : ' collapsed'),
+                'class' => 'accordion-button bg-primary text-white p-2' . ($isExpanded ? '' : ' collapsed'),
                 'data-bs-toggle' => 'collapse',
                 'data-bs-target' => '#'.$uuid.'collapse'.$index,
                 'aria-expanded' => $isExpanded ? 'true' : 'false',
@@ -52,7 +52,8 @@ class Collapse extends Widget
             $output .= Html::beginTag('div', ['class'=>"accordion-body p-0"]);
             $output .= Html::beginTag('ul', ['class' => 'list-group list-group-flush']);
             foreach ($item['content'] as $contentItem) {
-                $output .= Html::a($contentItem['label'], $contentItem['url'], ['class' => 'submenu-item list-group-item d-flex justify-content-between align-items-center']);
+                $class = $contentItem['class'] ?? '';
+                $output .= Html::a($contentItem['label'], $contentItem['url'], ['class' => 'list-group-item d-flex justify-content-between align-items-center '.$class]);
             }
             $output .= Html::endTag('ul');
             $output .= Html::endTag('div');

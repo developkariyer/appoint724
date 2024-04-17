@@ -21,8 +21,7 @@
         "hiqdev/yii2-mfa": "^0.1.0",
         "twbs/bootstrap-icons": "^1.11",
         "yiithings/yii2-dotenv": "~1.1.0",
-        "ext-curl": "*",
-        "kartik-v/yii2-widget-select2": "dev-master"
+        "ext-curl": "*"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",

@@ -92,6 +92,7 @@ class MyMenu extends Component
 
     public static function getNavItems(): array
     {
+        return [];
         if (Yii::$app->user->isGuest) return [
             [
                 'label' => Yii::t('app', 'Login'),
@@ -147,43 +148,57 @@ class MyMenu extends Component
             $businesses = Business::find()->orderBy('name')->all();
             $items = [];
             foreach ($businesses as $business) {
-                if ($business->slug == Yii::$app->request->get('slug')) $isExpanded = true; else $isExpanded = false;
+                $isExpanded = ($business->slug === Yii::$app->request->get('slug')) ? true : false;
+                if ($isExpanded && Yii::$app->controller->action->id) {
+                    if (Yii::$app->controller->action->id === 'user') {
+                        $highlightedAction = Yii::$app->request->get('userType');
+                    } else {
+                        $highlightedAction = Yii::$app->controller->action->id;
+                    }
+                } else {
+                    $highlightedAction = '';
+                }
+
+                $contents = [
+                    [
+                        'label' => Yii::t('app', 'Business Settings'), 
+                        'url' => MyUrl::to(['business/update/'.$business->slug]),
+                        'class' => $highlightedAction === 'update' ? 'list-group-item-info' : '',
+                    ],
+                    [
+                        'label' => Yii::t('app', 'Appointments').' <span class="badge text-black bg-success-subtle">'.$business->getAppointments()->count().'</span>',
+                        'url' => MyUrl::to(['business/appointment/'.$business->slug]),
+                        'class' => $highlightedAction === 'appointment' ? 'list-group-item-info' : '',
+                    ],
+                ];
+
+                foreach (Yii::$app->params['userTypes'] as $key=>$value) {
+                    $contents[] = [
+                        'label' => Yii::t('app', $value).' <span class="badge text-black bg-success-subtle">'.$business->getUsers($key)->count().'</span>',
+                        'url' => MyUrl::to(["business/user/$key/$business->slug"]),
+                        'class' => $highlightedAction === $key ? 'list-group-item-info' : '',
+                    ];
+                }
+
+                $contents[] = [
+                    'label' => Yii::t('app', 'Resources').' <span class="badge text-black bg-success-subtle">'.$business->getResources()->count().'</span>',
+                    'url' => MyUrl::to(['business/resource/'.$business->slug]),
+                    'class' => $highlightedAction === 'resource' ? 'list-group-item-info' : '',
+                ];
+                $contents[] = [
+                    'label' => Yii::t('app', 'Rules').' <span class="badge text-black bg-success-subtle">'.$business->getRules()->count().'</span>',
+                    'url' => MyUrl::to(['business/rule/'.$business->slug]),
+                    'class' => $highlightedAction === 'rule' ? 'list-group-item-info' : '',
+                ];
+                $contents[] = [
+                    'label' => Yii::t('app', 'Services').' <span class="badge text-black bg-success-subtle">'.$business->getServices()->count().'</span>',
+                    'url' => MyUrl::to(['business/service/'.$business->slug]),
+                    'class' => $highlightedAction === 'service' ? 'list-group-item-info' : '',
+                ];
+
                 $items[] = [
                     'label' => $business->name,
-                    'content' => [
-                        [
-                            'label' => Yii::t('app', 'Business Settings'), 
-                            'url' => MyUrl::to(['business/update/'.$business->slug])
-                        ],
-                        [
-                            'label' => Yii::t('app', 'Appointments').' <span class="badge text-black bg-success-subtle">'.$business->getAppointments()->count().'</span>',
-                            'url' => MyUrl::to(['appointment/business/'.$business->slug])
-                        ],
-                        [
-                            'label' => Yii::t('app','Admins').' <span class="badge text-black bg-success-subtle">'.$business->getUsers('admin')->count().'</span>',
-                            'url' => MyUrl::to(['business/user/admin/'.$business->slug])
-                        ],
-                        [
-                            'label' => Yii::t('app','Secretaries').' <span class="badge text-black bg-success-subtle">'.$business->getUsers('secretary')->count().'</span>',
-                            'url' => MyUrl::to(['business/user/secretary/'.$business->slug])
-                        ],
-                        [
-                            'label' => Yii::t('app','Experts').' <span class="badge text-black bg-success-subtle">'.$business->getUsers('expert')->count().'</span>',
-                            'url' => MyUrl::to(['business/user/expert/'.$business->slug])
-                        ],
-                        [
-                            'label' => Yii::t('app','Customers').' <span class="badge text-black bg-success-subtle">'.$business->getUsers('customer')->count().'</span>',
-                            'url' => MyUrl::to(['business/user/customer/'.$business->slug])
-                        ],
-                        [
-                            'label' => Yii::t('app', 'Resources').' <span class="badge text-black bg-success-subtle">'.$business->getResources()->count().'</span>',
-                            'url' => MyUrl::to(['resource/business/'.$business->slug])
-                        ],
-                        [
-                            'label' => Yii::t('app', 'Rules').' <span class="badge text-black bg-success-subtle">'.$business->getRules()->count().'</span>',
-                            'url' => MyUrl::to(['rule/business/'.$business->slug])
-                        ],
-                    ],
+                    'content' => $contents,
                     'bodyOptions' => ['class' => 'p-0'],
                     'options' => ['class' => 'p-0'],
                     'raw' => true,

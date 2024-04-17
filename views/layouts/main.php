@@ -50,17 +50,9 @@ $this->registerCss("
         color: #241c72;
         cursor: pointer;
     }
-    .submenu-item {
-        padding-left: 2rem;
-    }
     .accordion-collapse {
         transition: height 0.5s ease;
     }   
-    
-    /*
-    .main-item {
-        font-weight: bold;
-    }*/
 ");
 
 ?>

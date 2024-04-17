@@ -14,8 +14,6 @@ return array(
     'yii\\composer\\' => array($vendorDir . '/yiisoft/yii2-composer'),
     'yii\\bootstrap5\\' => array($vendorDir . '/yiisoft/yii2-bootstrap5/src'),
     'yii\\' => array($vendorDir . '/yiisoft/yii2'),
-    'kartik\\select2\\' => array($vendorDir . '/kartik-v/yii2-widget-select2/src'),
-    'kartik\\base\\' => array($vendorDir . '/kartik-v/yii2-krajee-base/src'),
     'hiqdev\\yii2\\mfa\\' => array($vendorDir . '/hiqdev/yii2-mfa/src'),
     'cebe\\markdown\\' => array($vendorDir . '/cebe/markdown'),
     'Symfony\\Polyfill\\Php80\\' => array($vendorDir . '/symfony/polyfill-php80'),

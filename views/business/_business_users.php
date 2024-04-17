@@ -3,16 +3,9 @@
 use app\widgets\Card;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
-use yii\helpers\Html;
+
 /** @var string $role */
 /** @var \app\models\Business $model */
-
-$userTitles = [
-    'admin' => Yii::t('app', 'Admins'),
-    'secretary' => Yii::t('app', 'Secretaries'),
-    'expert' => Yii::t('app', 'Experts'),
-    'customer' => Yii::t('app', 'Customers'),
-];
 
 echo '<div class="row justify-content-md-center "><div class="col-md-8 col-lg-6 ">';
 
@@ -38,9 +31,11 @@ try {
 }
 
 echo Card::widget([
-    'title' => $model->name.' '.$userTitles[$userType],
+    'title' => $model->name.' '.Yii::t('app', Yii::$app->params['userTypes'][$userType]),
     'content' => $content,
 ]);
+
+echo $this->render('_business_user_form');
 
 Pjax::end();
 

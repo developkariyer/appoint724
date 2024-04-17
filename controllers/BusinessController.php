@@ -102,7 +102,7 @@ class BusinessController extends Controller
             throw new Exception('Business not found.');
         }
 
-        if (!in_array($userType, Yii::$app->params['userTypes'])) {
+        if (!in_array($userType, array_keys(Yii::$app->params['userTypes']))) {
             throw new Exception('Invalid user type.');
         }
 

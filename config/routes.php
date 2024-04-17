@@ -1,7 +1,7 @@
 <?php
 /** @var array $params */
 $langPattern = implode('|', array_keys($params['supportedLanguages']));
-$userTypes = implode('|', $params['userTypes']);
+$userTypes = implode('|', array_keys($params['userTypes']));
 
 return [
 
