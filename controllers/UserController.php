@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\components\LanguageBehavior;
 use app\models\Business;
+use app\models\UserBusiness;
 use Exception;
 use Yii;
 use app\models\User;
@@ -30,7 +31,7 @@ class UserController extends Controller
                         'roles' => ['?'], // Guest users
                     ],
                     [
-                        'actions' => ['update', 'password', 'business'],
+                        'actions' => ['update', 'password', 'search'],
                         'allow' => true,
                         'roles' => ['@'], // Authenticated users
                     ],
@@ -161,6 +162,56 @@ class UserController extends Controller
 
         return $this->render('user', [
             'model' => $model,
+        ]);
+    }
+
+    /**
+     * Summary of actionSearch
+     * @return array|string
+     */
+    public function actionSearch()
+    {
+        //Yii::$app->response->format = Response::FORMAT_JSON;
+        $search = trim(Yii::$app->request->get('search'));
+        $role = Yii::$app->request->get('role');
+        $business_id = Yii::$app->request->get('business_id');
+
+        if (!in_array($role, array_keys(Yii::$app->params['roles']))) {
+            throw new Exception('Invalid user type in actionSearch.');
+        }
+
+        $business = Business::findOne($business_id);
+
+        if (!$business) {
+            throw new Exception('Invalid business in actionSearch.');
+        }
+
+        if (strlen($search) < 3) {
+            $query = $business->getUsers()->andWhere(['id' => 0]);
+        } else {
+            $query = $business->getAvailableUsers($role)->andWhere([
+                'or',
+                ['like', 'first_name', $search],
+                ['like', 'last_name', $search],
+                ['like', 'email', $search],
+                ['like', 'gsm', $search]
+            ]);
+        }
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => 10,
+            ],
+        ]);
+
+        Yii::debug($role);
+        Yii::debug($business->slug);
+
+        return $this->renderPartial('_user_search', [
+            'dataProvider' => $dataProvider,
+            'slug' => $business->slug,
+            'role' => $role,
         ]);
     }
 

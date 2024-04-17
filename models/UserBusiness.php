@@ -79,18 +79,36 @@ class UserBusiness extends ActiveRecord
         return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 
-    public static function addUserToBusiness($userId, $businessId, $role): bool
+    public static function addUserBusiness($userId, $businessId, $role): bool
     {
-        if (!static::findOne(['user_id' => $userId, 'business_id' => $businessId, 'deleted_at' => null])) {
-            $userBusiness = new UserBusiness([
-                'user_id' => $userId,
-                'business_id' => $businessId,
-                'role' => $role,
-            ]);
+        $userBusiness = static::findOne(['user_id' => $userId, 'business_id' => $businessId]);
 
-            return $userBusiness->save();
+        if ($userBusiness) {
+            if($userBusiness->deleted_at) {
+                $userBusiness->deleted_at = null;
+                return $userBusiness->save();
+            } else {
+                return false;
+            }
         }
+        $userBusiness = new UserBusiness([
+            'user_id' => $userId,
+            'business_id' => $businessId,
+            'role' => $role,
+        ]);
+        return $userBusiness->save();
+    }
 
+    public static function deleteUserBusiness($userId, $businessId): bool
+    {
+        if (!Yii::$app->user->identity->user->superadmin && Yii::$app->user->identity->user->id === $userId) {
+            return false;
+        }
+        
+        $userBusiness = static::findOne(['user_id' => $userId, 'business_id' => $businessId, 'deleted_at' => null]);
+        if ($userBusiness) {
+            return $userBusiness->delete();
+        }
         return false;
     }
 
@@ -98,4 +116,12 @@ class UserBusiness extends ActiveRecord
     {
         return new UserBusinessQuery(get_called_class());
     }
+
+    public static function exists($business_id, $user_id): bool
+    {
+        return static::find()
+            ->where(['business_id' => $business_id, 'user_id' => $user_id, 'deleted_at' => null])
+            ->exists();
+    }    
+
 }

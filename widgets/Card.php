@@ -15,7 +15,7 @@ class Card extends Widget
     {
         $content = Html::beginTag('div', ['class' => 'card shadow p-1 mb-5 bg-white rounded']);
         $content.= Html::beginTag('div', ['class' => 'card-body']);
-        $content.= Html::tag('h1', $this->title, ['class' => 'p-3 text-center mb-3']);
+        if (!empty($this->title)) $content.= Html::tag('h1', $this->title, ['class' => 'p-3 text-center mb-3']);
         $content.= $this->content;
         $content.= Html::endTag('div');
         $content.= Html::endTag('div');

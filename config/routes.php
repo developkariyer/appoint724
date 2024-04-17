@@ -1,7 +1,7 @@
 <?php
 /** @var array $params */
 $langPattern = implode('|', array_keys($params['supportedLanguages']));
-$userTypes = implode('|', array_keys($params['userTypes']));
+$roles = implode('|', array_keys($params['roles']));
 
 return [
 
@@ -21,7 +21,7 @@ return [
     "<lang:$langPattern>/business/<action:\w+>/<slug>" => 'business/<action>',
 
     // Parameter configs for Business with slug, 
-    "<lang:$langPattern>/business/user/<userType:$userTypes>/<slug>" => 'business/user',
+    "<lang:$langPattern>/business/user/<role:$roles>/<slug>" => 'business/user',
 
     // Parameter configs for User with id,
     "<lang:$langPattern>/user/<action:\w+>/<id>" => 'user/<action>',

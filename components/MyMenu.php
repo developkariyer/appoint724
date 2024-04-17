@@ -151,7 +151,7 @@ class MyMenu extends Component
                 $isExpanded = ($business->slug === Yii::$app->request->get('slug')) ? true : false;
                 if ($isExpanded && Yii::$app->controller->action->id) {
                     if (Yii::$app->controller->action->id === 'user') {
-                        $highlightedAction = Yii::$app->request->get('userType');
+                        $highlightedAction = Yii::$app->request->get('role');
                     } else {
                         $highlightedAction = Yii::$app->controller->action->id;
                     }
@@ -172,7 +172,7 @@ class MyMenu extends Component
                     ],
                 ];
 
-                foreach (Yii::$app->params['userTypes'] as $key=>$value) {
+                foreach (Yii::$app->params['roles'] as $key=>$value) {
                     $contents[] = [
                         'label' => Yii::t('app', $value).' <span class="badge text-black bg-success-subtle">'.$business->getUsers($key)->count().'</span>',
                         'url' => MyUrl::to(["business/user/$key/$business->slug"]),

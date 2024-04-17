@@ -31,6 +31,7 @@ use yii\db\ActiveRecord;
  * @property string|null      $tcno
  * @property string           $gsm
  * @property string           $language
+ * @property string           $fullname
  * @property int              $dogum_yili
  * @property Appointment[]    $appointments
  * @property Authidentity[]   $authidentities
@@ -125,10 +126,10 @@ class User extends ActiveRecord
     {
         return User::find()->where($condition)->one();
     }
-
+/*
     public function getFullname(): string
     {
         return $this->first_name.' '.$this->last_name;
     }
-
+*/
 }
