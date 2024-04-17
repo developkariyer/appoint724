@@ -4,8 +4,9 @@ namespace app\controllers;
 
 use app\components\LanguageBehavior;
 use app\models\Business;
-use app\models\query\BusinessSearch;
+use Exception;
 use Throwable;
+use yii\data\ActiveDataProvider;
 use yii\db\StaleObjectException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -38,33 +39,6 @@ class BusinessController extends Controller
         );
     }
 
-    /**
-     * Lists all Business models.
-     *
-     * @return string
-     */
-    public function actionIndex(): string
-    {
-        $searchModel = new BusinessSearch();
-        $dataProvider = $searchModel->search($this->request->queryParams);
-
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
-    }
-
-
-    /**
-     * @throws NotFoundHttpException
-     */
-    public function actionView(string $slug): string
-    {
-        return $this->render('view', [
-            'model' => $this->findModel($slug),
-        ]);
-    }
-
     public function actionCreate(): yii\web\Response|string
     {
         $model = new Business();
@@ -90,7 +64,8 @@ class BusinessController extends Controller
         $model = $this->findModel($slug);
 
         if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-            return $this->goBack();
+            Yii::$app->session->setFlash('info', Yii::t('app', 'Business updated'));
+            //return $this->goBack();
         }
 
         return $this->render('update', ['model' => $model,]);
@@ -119,4 +94,35 @@ class BusinessController extends Controller
 
         throw new NotFoundHttpException(Yii::t('app', 'The requested page does not exist.'));
     }
+
+    public function actionUser($userType, $slug)
+    {
+        $model = Business::find()->where(['slug' => $slug])->one();
+        if (!$model) {
+            throw new Exception('Business not found.');
+        }
+
+        if (!in_array($userType, Yii::$app->params['userTypes'])) {
+            throw new Exception('Invalid user type.');
+        }
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $model->getUsers($userType),
+            'pagination' => [
+                'pageSize' => 20, // Adjust as needed
+            ],
+            'sort' => [
+                'defaultOrder' => [
+                    'first_name' => SORT_ASC, // Adjust according to your User model attributes and needs
+                ]
+            ],
+        ]);
+
+        return $this->render('_business_users.php', [
+            'model' => $model,
+            'dataProvider' => $dataProvider,
+            'userType' => $userType,
+        ]);
+    }
+
 }

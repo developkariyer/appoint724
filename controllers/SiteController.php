@@ -364,11 +364,10 @@ XML;
     }
 
     /**
-     * Super Admin homepage
-     * @param int|null $businessId
-     * @return string|Response
+     * Displays contact page.
+     * @return string
      */
-    public function actionSuperadmin(int $businessId = null): Response|string
+    public function actionSuperadmin(): Response|string
     {
         if (Yii::$app->user->isGuest || !Yii::$app->user->identity->user->superadmin) {
             return $this->goHome();

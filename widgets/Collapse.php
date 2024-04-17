@@ -52,7 +52,7 @@ class Collapse extends Widget
             $output .= Html::beginTag('div', ['class'=>"accordion-body p-0"]);
             $output .= Html::beginTag('ul', ['class' => 'list-group list-group-flush']);
             foreach ($item['content'] as $contentItem) {
-                $output .= Html::a($contentItem['label'], $contentItem['url'], ['class' => 'submenu-item list-group-item']);
+                $output .= Html::a($contentItem['label'], $contentItem['url'], ['class' => 'submenu-item list-group-item d-flex justify-content-between align-items-center']);
             }
             $output .= Html::endTag('ul');
             $output .= Html::endTag('div');

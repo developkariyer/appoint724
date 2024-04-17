@@ -39,6 +39,11 @@ class ComposerStaticInit57d80f9aa167877adae80113530dffc3
             'yii\\bootstrap5\\' => 15,
             'yii\\' => 4,
         ),
+        'k' => 
+        array (
+            'kartik\\select2\\' => 15,
+            'kartik\\base\\' => 12,
+        ),
         'h' => 
         array (
             'hiqdev\\yii2\\mfa\\' => 16,
@@ -147,6 +152,14 @@ class ComposerStaticInit57d80f9aa167877adae80113530dffc3
         'yii\\' => 
         array (
             0 => __DIR__ . '/..' . '/yiisoft/yii2',
+        ),
+        'kartik\\select2\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/kartik-v/yii2-widget-select2/src',
+        ),
+        'kartik\\base\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/kartik-v/yii2-krajee-base/src',
         ),
         'hiqdev\\yii2\\mfa\\' => 
         array (

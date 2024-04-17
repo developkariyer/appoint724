@@ -1,23 +1,20 @@
 <?php
 
+use app\widgets\Card;
 use yii\helpers\Html;
 
 /** @var yii\web\View $this */
 /** @var app\models\Business $model */
 
-$this->title = Yii::t('app', 'Update Business: {name}', [
-    'name' => $model->name,
-]);
-$this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Businesses'), 'url' => ['index']];
-$this->params['breadcrumbs'][] = ['label' => $model->name, 'url' => ['view', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = Yii::t('app', 'Update');
-?>
-<div class="business-update">
+$this->title = $model->name;
 
-    <h1><?= Html::encode($this->title) ?></h1>
+echo '<div class="row justify-content-md-center "><div class="col-md-8 col-lg-6 ">';
 
-    <?= $this->render('_form', [
+echo Card::widget([
+    'title' => Html::encode($this->title),
+    'content' => $this->render('_form', [
         'model' => $model,
-    ]) ?>
+    ]),
+]);
 
-</div>
+echo '</div></div>';

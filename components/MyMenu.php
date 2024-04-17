@@ -152,35 +152,35 @@ class MyMenu extends Component
                     'label' => $business->name,
                     'content' => [
                         [
-                            'label' => Yii::t('app', 'Business Settings'),
-                            'url' => MyUrl::to(['business/view/'.$business->slug])
+                            'label' => Yii::t('app', 'Business Settings'), 
+                            'url' => MyUrl::to(['business/update/'.$business->slug])
                         ],
                         [
-                            'label' => Yii::t('app', 'Appointments'),
+                            'label' => Yii::t('app', 'Appointments').' <span class="badge text-black bg-success-subtle">'.$business->getAppointments()->count().'</span>',
                             'url' => MyUrl::to(['appointment/business/'.$business->slug])
                         ],
                         [
-                            'label' => Yii::t('app','Admins'),
-                            'url' => MyUrl::to(['user/business/admin/'.$business->slug])
+                            'label' => Yii::t('app','Admins').' <span class="badge text-black bg-success-subtle">'.$business->getUsers('admin')->count().'</span>',
+                            'url' => MyUrl::to(['business/user/admin/'.$business->slug])
                         ],
                         [
-                            'label' => Yii::t('app','Secretaries'),
-                            'url' => MyUrl::to(['user/business/secretary/'.$business->slug])
+                            'label' => Yii::t('app','Secretaries').' <span class="badge text-black bg-success-subtle">'.$business->getUsers('secretary')->count().'</span>',
+                            'url' => MyUrl::to(['business/user/secretary/'.$business->slug])
                         ],
                         [
-                            'label' => Yii::t('app','Experts'),
-                            'url' => MyUrl::to(['user/business/expert/'.$business->slug])
+                            'label' => Yii::t('app','Experts').' <span class="badge text-black bg-success-subtle">'.$business->getUsers('expert')->count().'</span>',
+                            'url' => MyUrl::to(['business/user/expert/'.$business->slug])
                         ],
                         [
-                            'label' => Yii::t('app','Customers'),
-                            'url' => MyUrl::to(['user/business/customer/'.$business->slug])
+                            'label' => Yii::t('app','Customers').' <span class="badge text-black bg-success-subtle">'.$business->getUsers('customer')->count().'</span>',
+                            'url' => MyUrl::to(['business/user/customer/'.$business->slug])
                         ],
                         [
-                            'label' => Yii::t('app', 'Resources'),
+                            'label' => Yii::t('app', 'Resources').' <span class="badge text-black bg-success-subtle">'.$business->getResources()->count().'</span>',
                             'url' => MyUrl::to(['resource/business/'.$business->slug])
                         ],
                         [
-                            'label' => Yii::t('app', 'Rules'),
+                            'label' => Yii::t('app', 'Rules').' <span class="badge text-black bg-success-subtle">'.$business->getRules()->count().'</span>',
                             'url' => MyUrl::to(['rule/business/'.$business->slug])
                         ],
                     ],

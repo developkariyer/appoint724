@@ -3,11 +3,13 @@
 namespace app\controllers;
 
 use app\components\LanguageBehavior;
+use app\models\Business;
 use Exception;
 use Yii;
 use app\models\User;
 use app\models\Authidentity;
 use app\models\form\UserForm;
+use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\bootstrap5\ActiveForm;
@@ -28,7 +30,7 @@ class UserController extends Controller
                         'roles' => ['?'], // Guest users
                     ],
                     [
-                        'actions' => ['update', 'password'],
+                        'actions' => ['update', 'password', 'business'],
                         'allow' => true,
                         'roles' => ['@'], // Authenticated users
                     ],
@@ -161,4 +163,5 @@ class UserController extends Controller
             'model' => $model,
         ]);
     }
+
 }

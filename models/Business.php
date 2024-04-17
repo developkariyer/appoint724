@@ -138,7 +138,7 @@ class Business extends ActiveRecord
     
         return $query;
     }
-    
+
     public static function find(): BusinessQuery
     {
         return new BusinessQuery(get_called_class());

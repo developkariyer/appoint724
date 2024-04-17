@@ -9,6 +9,7 @@ class Card extends Widget
 {
     public string $title;
     public string $content;
+    public string $options = "";
 
     public function run(): string
     {
