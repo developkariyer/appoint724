@@ -10,6 +10,7 @@ use Yii;
 use app\models\User;
 use app\models\Authidentity;
 use app\models\form\UserForm;
+use yii\base\InvalidConfigException;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -50,7 +51,10 @@ class UserController extends Controller
         ];
     }
 
-    public function actionAdd()
+    /**
+     * @throws Exception
+     */
+    public function actionAdd(): Response|array|string
     {
         if (!Yii::$app->request->get('slug') || !($business = Business::findOne(['slug' => Yii::$app->request->get('slug')]))) {
             throw new Exception(Yii::t('app', 'Invalid business.'));
@@ -207,10 +211,10 @@ class UserController extends Controller
     }
 
     /**
-     * Summary of actionSearch
-     * @return array|string
+     * @throws InvalidConfigException
+     * @throws Exception
      */
-    public function actionSearch()
+    public function actionSearch(): string
     {
         $search = trim(Yii::$app->request->get('search'));
         $role = Yii::$app->request->get('role');

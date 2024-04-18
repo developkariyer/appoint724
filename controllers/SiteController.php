@@ -397,7 +397,6 @@ XML;
 
     /**
      * Displays contact page.
-     * @return string
      */
     public function actionSuperadmin(): Response|string
     {

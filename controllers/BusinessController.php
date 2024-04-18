@@ -7,8 +7,8 @@ use app\models\Business;
 use app\models\User;
 use app\models\UserBusiness;
 use Throwable;
+use yii\base\InvalidConfigException;
 use yii\data\ActiveDataProvider;
-use yii\db\StaleObjectException;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -74,7 +74,6 @@ class BusinessController extends Controller
     }
 
     /**
-     * @throws StaleObjectException
      * @throws Throwable
      * @throws NotFoundHttpException
      */
@@ -97,25 +96,38 @@ class BusinessController extends Controller
         throw new NotFoundHttpException(Yii::t('app', 'The requested page does not exist.'));
     }
 
-    private function removeUserFromBusiness($model, $userBusiness, $user)
+    private function saveUserBusiness($model, $userBusiness, $user, $role): bool
+    {
+        if ($userBusiness->save()) {
+            Yii::$app->session->setFlash('info', Yii::t('app', '{user} role changed to {role} in {business}.', ['user' => $user->fullname, 'role' => $role, 'business' => $model->name]));
+            return true;
+        } else {
+            Yii::$app->session->setFlash('error', Yii::t('app', 'Error changing {user} role in {business}.', ['user' => $user->fullname, 'business' => $model->name]));
+            return false;
+        }
+    }
+
+    private function removeUserFromBusiness($model, $userBusiness, $user): bool
     {
         if (!$userBusiness) {
             Yii::$app->session->setFlash('warning', Yii::t('app', '{user} not in {business}.', ['user' => $user->fullname, 'business' => $model->name]));
-            return;
+            return false;
         }
     
         if ($userBusiness->softDelete()) {
             Yii::$app->session->setFlash('info', Yii::t('app', '{user} removed from {business}.', ['user' => $user->fullname, 'business' => $model->name]));
+            return true;
         } else {
             Yii::$app->session->setFlash('error', Yii::t('app', 'Error removing {user} from {business}.', ['user' => $user->fullname, 'business' => $model->name]));
+            return false;
         }        
     }
 
-    private function assignUserToBusiness($model, $userBusiness, $user, $role)
+    private function assignUserToBusiness($model, $userBusiness, $user, $role): bool
     {
         if ($userBusiness && $userBusiness->role === $role) {
             Yii::$app->session->setFlash('warning', Yii::t('app', '{user} already in {business} {role} role.', ['user' => $user->fullname, 'business' => $model->name, 'role' => $role]));
-            return;
+            return false;
         }
     
         if (!$userBusiness) {
@@ -123,19 +135,15 @@ class BusinessController extends Controller
         } else {
             $userBusiness->role = $role;
         }
-    
-        if ($userBusiness->save()) {
-            Yii::$app->session->setFlash('info', Yii::t('app', '{user} role changed to {role} in {business}.', ['user' => $user->fullname, 'role' => $role, 'business' => $model->name]));
-        } else {
-            Yii::$app->session->setFlash('error', Yii::t('app', 'Error changing {user} role in {business}.', ['user' => $user->fullname, 'business' => $model->name]));
-        }
+
+        return $this->saveUserBusiness($model, $userBusiness, $user, $role);
     }
 
-    private function changeUserRole($model, $userBusiness, $user, $postRole)
+    private function changeUserRole($model, $userBusiness, $user, $postRole): bool
     {
         if (!in_array($postRole, array_keys(Yii::$app->params['roles']))) {
             Yii::$app->session->setFlash('error', Yii::t('app', 'Invalid role.'));
-            return;
+            return false;
         }
 
         if (!$userBusiness) {
@@ -143,19 +151,19 @@ class BusinessController extends Controller
         } else {
             if ($userBusiness->role === $postRole) {
                 Yii::$app->session->setFlash('warning', Yii::t('app', '{user} already in {business} {role} role.', ['user' => $user->fullname, 'business' => $model->name, 'role' => $postRole]));
-                return;
+                return false;
             }
             $userBusiness->role = $postRole;
         }
-    
-        if ($userBusiness->save()) {
-            Yii::$app->session->setFlash('info', Yii::t('app', '{user} role changed to {role} in {business}.', ['user' => $user->fullname, 'role' => $postRole, 'business' => $model->name]));
-        } else {
-            Yii::$app->session->setFlash('error', Yii::t('app', 'Error changing {user} role in {business}.', ['user' => $user->fullname, 'business' => $model->name]));
-        }
+
+        return $this->saveUserBusiness($model, $userBusiness, $user, $postRole);
     }
 
-    private function handleBusinessUserChange($model, $role)
+    /**
+     * @throws NotFoundHttpException
+     * @throws BadRequestHttpException
+     */
+    private function handleBusinessUserChange($model, $role): bool
     {
         $userId = $this->request->post('id');
         if (!$userId) {
@@ -181,7 +189,12 @@ class BusinessController extends Controller
         return $this->changeUserRole($model, $userBusiness, $user, $postRole);
     }
 
-    public function actionUser($role, $slug)
+    /**
+     * @throws InvalidConfigException
+     * @throws NotFoundHttpException
+     * @throws BadRequestHttpException
+     */
+    public function actionUser($role, $slug): string
     {
         if (!($model = Business::find()->where(['slug' => $slug])->one())) {
             throw new NotFoundHttpException(Yii::t('app', 'Business not found.'));

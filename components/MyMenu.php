@@ -92,18 +92,7 @@ class MyMenu extends Component
 
     public static function getNavItems(): array
     {
-        return [];
-        if (Yii::$app->user->isGuest) return [
-            [
-                'label' => Yii::t('app', 'Login'),
-                'url' => MyUrl::to(['/site/login']),
-            ],
-            [
-                'label' => Yii::t('app', 'New User'),
-                'url' => MyUrl::to(['/user/register']),
-            ],
-        ];
-
+        /*
         if (Yii::$app->user->identity->user->superadmin) return [
             [
                 'label' => Yii::t('app', 'Businesses'),
@@ -137,6 +126,7 @@ class MyMenu extends Component
                 ],
             ],
         ];
+        */
         return [];
     }
 
