@@ -36,7 +36,7 @@ $config = [
         //'cache' => [
         //    'class' => 'yii\caching\FileCache',
         //],
-        'cache' => [
+        'cache' => (env('CACHE_TYPE')==='memcache') ? [
             'class' => 'yii\caching\MemCache',
             'servers' => [
                 [
@@ -45,6 +45,8 @@ $config = [
                     'weight' => 100,
                 ],
             ],
+        ] : [
+            'class' => 'yii\caching\FileCache',
         ],
         'user' => [
             'identityClass' => 'app\models\Authidentity',
