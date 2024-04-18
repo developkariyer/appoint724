@@ -90,3 +90,35 @@ a.desc:after {
 .lang-nav-bar .dropdown-menu {
     min-width: 1rem; /* Override the default min-width */
 }
+
+.langFlags {
+    height: 20px;
+    vertical-align: middle;
+}
+.leftMenu {
+    width: 200px;
+    overflow-y: auto; 
+    overflow-x: hidden;
+}
+.rightContent {
+    overflow-y: auto; 
+    overflow-x: hidden; 
+    background-color: #ffffff;
+}
+.navbar-brand {
+    width: 200px;  
+    white-space: nowrap;  
+    overflow: hidden;  
+    text-overflow: ellipsis;  
+}
+body {
+    padding-top: 40px;
+}
+.accordion-header:hover, .list-group-item:hover  {
+    background-color: #dad7f8;
+    color: #241c72;
+    cursor: pointer;
+}
+.accordion-collapse {
+    transition: height 0.5s ease;
+}   

@@ -149,7 +149,7 @@ class Business extends ActiveRecord
         return $this->hasMany(Permission::class, ['business_id' => 'id'])->inverseOf('business');
     }
 
-    public function getAvailableUsers($role)
+    public function getAvailableUsers($role): query\UserQuery
     {
         $linkedUserIds = UserBusiness::find()
             ->select('user_id')

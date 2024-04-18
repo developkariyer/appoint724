@@ -29,7 +29,7 @@ $this->registerCss("
                     <a href="<?php echo MyUrl::to(['site/login/'.LoginForm::SCENARIO_SMS_REQUEST]); ?>" class="nav-link <?= ($model->scenario === LoginForm::SCENARIO_SMS_REQUEST || $model->scenario === LoginForm::SCENARIO_SMS_VALIDATE) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'SMS') ?></a>
                     <a href="<?php echo MyUrl::to(['site/login/'.LoginForm::SCENARIO_LINK]); ?>" class="nav-link <?= ($model->scenario === LoginForm::SCENARIO_LINK) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'Link') ?></a>
                     <a href="<?php echo MyUrl::to(['site/login/'.LoginForm::SCENARIO_OTHER]); ?>" class="nav-link <?= ($model->scenario === LoginForm::SCENARIO_OTHER) ? 'active':'' ?>" role="tab"><?= Yii::t('app', 'Other') ?></a>
-                    <a href="<?php echo MyUrl::to(['user/register/']); ?>" class="nav-link" role="tab"><?= Yii::t('app', 'New User') ?></a>
+                    <a href="<?php echo MyUrl::to(['user/register/']); ?>" class="nav-link link-danger" role="tab"><?= Yii::t('app', 'New User') ?></a>
                 </div>
             </nav>
             <?php switch ($model->scenario) {
@@ -62,6 +62,16 @@ $this->registerCss("
                 ]);
             } catch (Throwable $e) {
             } ?>
+            <div class="row">
+                <div class="col-6">
+                    <p><h3><?= Yii::t('text', 'I forgot my password.') ?></h3></p>
+                    <p><?= Yii::t('text', 'You do not need a password to login. You can use SMS, Link or Other methods. If you want, you can easily set a password after logging in.') ?></p>
+                </div>
+                <div class="col-6">
+                    <p><h3><?= Yii::t('text', 'My GSM not accepted.') ?></h3></p>
+                    <p><?= Yii::t('text', 'For the moment, only GSM numbers from Turkey are accepted. You have to enter your GSM number in this format: (555) 123 45 67') ?></p>
+                </div>
+            </div>
         </div>
     </div>
 </div>

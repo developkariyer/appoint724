@@ -96,7 +96,13 @@ class UserBusiness extends ActiveRecord
             'business_id' => $businessId,
             'role' => $role,
         ]);
-        return $userBusiness->save();
+        if ($userBusiness->save()) {
+            $cacheKey = 'business_'.$userBusiness->business_id.'_stats';
+            Yii::$app->cache->delete($cacheKey);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public static function deleteUserBusiness($userId, $businessId): bool
@@ -107,7 +113,11 @@ class UserBusiness extends ActiveRecord
         
         $userBusiness = static::findOne(['user_id' => $userId, 'business_id' => $businessId, 'deleted_at' => null]);
         if ($userBusiness) {
-            return $userBusiness->softDelete();
+            if ($userBusiness->softDelete()) {
+                $cacheKey = 'business_'.$userBusiness->business_id.'_stats';
+                Yii::$app->cache->delete($cacheKey);
+                return true;            
+            }
         }
         return false;
     }

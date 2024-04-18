@@ -21,54 +21,13 @@ $this->registerMetaTag(['name' => 'description', 'content' => $this->params['met
 $this->registerMetaTag(['name' => 'keywords', 'content' => $this->params['meta_keywords'] ?? '']);
 $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii::getAlias('@web/favicon.ico')]);
 
-$this->registerCss("
-    .langFlags {
-        height: 20px;
-        vertical-align: middle;
-    }
-    .leftMenu {
-        width: 200px;
-        overflow-y: auto; 
-        overflow-x: hidden;
-    }
-    .rightContent {
-        overflow-y: auto; 
-        overflow-x: hidden; 
-        background-color: #ffffff;
-    }
-    .navbar-brand {
-        width: 200px;  
-        white-space: nowrap;  
-        overflow: hidden;  
-        text-overflow: ellipsis;  
-    }
-    body {
-        padding-top: 40px;
-    }
-    .accordion-header:hover, .list-group-item:hover  {
-        background-color: #dad7f8;
-        color: #241c72;
-        cursor: pointer;
-    }
-    .accordion-collapse {
-        transition: height 0.5s ease;
-    }   
-");
-
 ?>
 <?php $this->beginPage(); ?>
 <!DOCTYPE html>
 <html lang="<?php echo Yii::$app->language; ?>" class="h-100">
 <head>
     <title><?php echo Html::encode($this->title); ?></title>
-    <?php $this->head(); ?><?php /*
-    <link rel="icon" type="image/png" sizes="32x32" href="/web/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/web/favicon-16x16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/web/apple-touch-icon.png">
-    <link rel="manifest" href="/web/site.webmanifest">
-    <link rel="mask-icon" href="/web/safari-pinned-tab.svg" color="#5bbad5">
-    <meta name="msapplication-TileColor" content="#da532c">
-    <meta name="theme-color" content="#ffffff"> */ ?>
+    <?php $this->head(); ?>
 </head>
 <body class="d-flex flex-column h-100">
 <?php $this->beginBody(); ?>
@@ -87,13 +46,13 @@ $this->registerCss("
     try {
         echo Nav::widget([
             'options' => ['class' => 'navbar-nav'],
-            'items' => MyMenu::getNavItems(), // menu items
+            'items' => MyMenu::getNavItems(), // left aligned nav menu items, currently empty
             'encodeLabels' => false,
         ]);
     } catch (Throwable $e) {
     }
 
-    echo "<div class='ms-auto'>";
+    echo "<div class='ms-auto'>"; // right aligned nav menu
     try {
         echo Nav::widget([
             'options' => ['class' => 'navbar-nav'],
@@ -115,16 +74,18 @@ $this->registerCss("
 <main id="main" class="flex-shrink-0 h-100" role="main">
     <div class="container-fluid h-100">
         <div class="row h-100">
+
             <div class="leftMenu h-100 bg-secondary bg-gradient p-0">
                 <div class="list-group h-100 p-2">
                 <?php try {
                     echo Collapse::widget([
-                        'items' => MyMenu::getLeftMenuItems(),
+                        'items' => MyMenu::getLeftMenuItems(), // left menu items
                     ]);
                 } catch (Throwable $e) {
                 } ?>
                 </div>
             </div>
+
             <div class="col p-5 rightContent h-100" id="main-content">
                 <?php try {
                     echo Alert::widget();
