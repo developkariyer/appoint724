@@ -1,4 +1,5 @@
 <?php
+use yii\bootstrap5\Html;
 
 /** @var yii\web\View $this */
 
@@ -38,12 +39,20 @@ $this->title = Yii::t('app', 'Super Admin');
             </div>
             <div class="col-lg-4">
                 <h2><?= Yii::t('app', 'Latest Changes') ?></h2>
-                <p>
-                    <li><?= Yii::t('app', 'Logging support for all changes in base models.') ?></li>
-                    <li><?= Yii::t('app', 'Full language support for all pages.') ?></li>
-                    <li><?= Yii::t('app', 'Server/service timezone independent solid global date/time.') ?></li>
-                    <li><?= Yii::t('app', 'Preparation for user access level support.') ?></li>
-                </p>
+                (<?= Yii::t('app', 'Logs automatically retrieved every 5 minutes') ?>)
+                <?php if (!empty($commits)): ?>
+                    <ul>
+                        <?php foreach ($commits as $commit): ?>
+                            <li>
+                                <?= Html::encode($commit['commit']['message']) ?>
+                                <br>
+                                <small><?= Html::encode($commit['commit']['author']['name']) ?>, <?= Html::encode($commit['commit']['author']['date']) ?></small>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else: ?>
+                    <p>No commits found.</p>
+                <?php endif; ?>
             </div>
         </div>
     </div>

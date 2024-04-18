@@ -17,6 +17,7 @@ use app\components\LanguageBehavior;
 use app\models\Authidentity;
 use app\models\form\LoginForm;
 use app\models\Login;
+use yii\httpclient\Client;
 
 class SiteController extends Controller
 {
@@ -363,6 +364,37 @@ XML;
         return $this->render('about');
     }
 
+    private function gitHubCommits(): array
+    {
+        $commitCheck = Yii::$app->cache->get('github_commit_check');
+        if ($commitCheck) {
+            $commits = Yii::$app->cache->get('github_commits');
+            if ($commits) {
+                return $commits;
+            }
+        }
+
+        $client = new Client();
+        try {
+            $response = $client->createRequest()
+                ->setMethod('GET')
+                ->setUrl('https://api.github.com/repos/developkariyer/yii2/commits')
+                ->addHeaders(['user-agent' => 'Yii2-GitHub-API'])
+                ->send();
+    
+            if ($response->isOk) {
+                $commits = $response->data;
+                Yii::$app->cache->set('github_commits', $commits, 86400);
+                Yii::$app->cache->set('github_commit_check', true, 300);
+            } else {
+                $commits = Yii::$app->cache->get('github_commits');
+            }
+        } catch (\Exception $e) {
+            $commits = Yii::$app->cache->get('github_commits');
+        }
+        return $commits;
+    }
+
     /**
      * Displays contact page.
      * @return string
@@ -373,7 +405,7 @@ XML;
             return $this->goHome();
         }
 
-        return $this->render('superadmin');
+        return $this->render('superadmin', ['commits' => $this->gitHubCommits()]);
     }
 
     /**
