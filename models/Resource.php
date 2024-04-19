@@ -5,7 +5,6 @@ namespace app\models;
 use Yii;
 use app\models\query\AppointmentQuery;
 use app\models\query\BusinessQuery;
-use app\models\query\ResourceQuery;
 use app\components\LogBehavior;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
@@ -26,6 +25,7 @@ use yii\db\ActiveRecord;
 class Resource extends ActiveRecord
 {
     use traits\SoftDeleteTrait;
+    use traits\BusinessCacheTrait;
 
     public static function tableName(): string
     {
@@ -84,8 +84,4 @@ class Resource extends ActiveRecord
         return $this->hasOne(Business::class, ['id' => 'business_id'])->inverseOf('resources');
     }
 
-    public static function find(): ResourceQuery
-    {
-        return new ResourceQuery(get_called_class());
-    }
 }

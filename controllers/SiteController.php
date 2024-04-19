@@ -235,7 +235,7 @@ XML;
     public function actionIndex(): Response|string
     {
         if (!Yii::$app->user->isGuest) {
-            $authidentity = Yii::$app->user->identity;
+            $authidentity = Yii::$app->user->identity; 
     
             $messages = [];
             if (!$authidentity->user->tcnoverified) {   
@@ -314,7 +314,7 @@ XML;
                         $sms_otp = Authidentity::generateSmsPin($model->gsm);
                         Yii::$app->session->setFlash('info', "*********** $sms_otp ************");
                         if ($sms_otp !== false) {
-                            if ($sms_otp !==true ) { sleep(1); /* send sms via external api call, to be implemented */ }
+                            if ($sms_otp !==true ) { sleep(0); /* send sms via external api call, to be implemented */ }
                             $model->scenario=LoginForm::SCENARIO_SMS_VALIDATE;
                         } else {
                             $model->addError('gsm', Yii::t('app', 'Unable to send an SMS'));

@@ -5,9 +5,8 @@ namespace app\models;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
-use app\models\query\AppointmentQuery;
-use app\models\query\AppointmentUserQuery;
-use app\models\query\UserQuery;
+use app\models\queries\AppointmentQuery;
+use app\models\queries\UserQuery;
 use app\components\LogBehavior;
 
 
@@ -75,8 +74,4 @@ class AppointmentUser extends ActiveRecord
         return $this->hasOne(User::class, ['id' => 'user_id'])->inverseOf('appointmentUsers');
     }
 
-    public static function find(): AppointmentUserQuery
-    {
-        return new AppointmentUserQuery(get_called_class());
-    }
 }

@@ -68,13 +68,9 @@ class AppointmentResource extends ActiveRecord
         return $this->hasOne(Appointment::class, ['id' => 'appointment_id'])->inverseOf('appointmentResources');
     }
 
-    public function getResource(): ActiveQuery|ResourceQuery
+    public function getResource(): ActiveQuery
     {
         return $this->hasOne(Resource::class, ['id' => 'resource_id'])->inverseOf('appointmentResources');
     }
 
-    public static function find(): AppointmentResourceQuery
-    {
-        return new AppointmentResourceQuery(get_called_class());
-    }
 }

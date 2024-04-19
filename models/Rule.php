@@ -3,8 +3,7 @@
 namespace app\models;
 
 use Yii;
-use app\models\query\RuleQuery;
-use app\models\query\BusinessQuery;
+use app\models\queries\BusinessQuery;
 use app\components\LogBehavior;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -22,6 +21,7 @@ use yii\db\ActiveRecord;
 class Rule extends ActiveRecord
 {
     use traits\SoftDeleteTrait;
+    use traits\BusinessCacheTrait;
 
     public static function tableName(): string
     {
@@ -69,8 +69,4 @@ class Rule extends ActiveRecord
         return $this->hasOne(Business::class, ['id' => 'business_id'])->inverseOf('rules');
     }
 
-    public static function find(): RuleQuery
-    {
-        return new RuleQuery(get_called_class());
-    }
 }

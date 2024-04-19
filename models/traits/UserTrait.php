@@ -13,7 +13,7 @@ trait UserTrait
             [['gsmverified', 'emailverified', 'tcnoverified'], 'boolean'],
             [['status', 'status_message'], 'string', 'max' => 255],
             [['first_name', 'last_name'], 'string', 'max' => 100],
-            [['tcno'], 'string', 'max' => 11, 'min' => 11],
+            [['tcno'], 'string', 'max' => 11],
 //            [['gsm'], 'string', 'max' => 10, 'min' => 10],
             [['email'], 'email'],        
             [['email'], 'unique', 'targetClass' => '\app\models\User', 'message' => 'This email has already been taken.', 
@@ -30,7 +30,6 @@ trait UserTrait
                                 $query->andWhere(['<>', 'id', $id]);
                             }
                         }],
-
         ];
     }
 

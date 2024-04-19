@@ -42,6 +42,7 @@ class LanguageBehavior extends Behavior
         Yii::$app->session->set('lang', $language);
         Yii::$app->language = $language;
 
+        // inite taşınacak
         foreach(Yii::$app->params['roles'] as $role => $roleDesc) {
             Yii::$app->params['roles'][$role] = Yii::t('app', $roleDesc);
         }

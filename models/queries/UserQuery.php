@@ -1,18 +1,19 @@
 <?php
 
-namespace app\models\query;
+namespace app\models\queries;
 
+use InvalidArgumentException;
+use Yii;
 use yii\db\ActiveQuery;
 use app\models\User;
+use app\models\traits\SoftDeleteQueryTrait;
+use yii\db\Expression;
 
 /** @see User */
 class UserQuery extends ActiveQuery
 {
-    /*public function active()
-    {
-        return $this->andWhere('[[status]]=1');
-    }*/
-
+    use SoftDeleteQueryTrait;
+        
     public function all($db = null): User|array
     {
         return parent::all($db);
@@ -22,4 +23,5 @@ class UserQuery extends ActiveQuery
     {
         return parent::one($db);
     }
+
 }

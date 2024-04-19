@@ -2,14 +2,11 @@
 
 namespace app\models;
 
+use app\models\queries\UserQuery;
 use DateTimeZone;
 use Yii;
-use app\models\query\AppointmentQuery;
-use app\models\query\BusinessQuery;
-use app\models\query\PermissionQuery;
-use app\models\query\ResourceQuery;
-use app\models\query\RuleQuery;
-use app\models\query\ServiceQuery;
+use app\models\queries\AppointmentQuery;
+use app\models\queries\BusinessQuery;
 use app\components\LogBehavior;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
@@ -106,35 +103,50 @@ class Business extends ActiveRecord
         return $this->hasMany(Appointment::class, ['business_id' => 'id'])->inverseOf('business');
     }
 
-    public function getResources(): ActiveQuery|ResourceQuery
+    public function getResources(): ActiveQuery
     {
         return $this->hasMany(Resource::class, ['business_id' => 'id'])->inverseOf('business');
     }
 
-    public function getRules(): ActiveQuery|RuleQuery
+    public function getRules(): ActiveQuery
     {
         return $this->hasMany(Rule::class, ['business_id' => 'id'])->inverseOf('business');
     }
 
-    public function getServices(): ActiveQuery|ServiceQuery
+    public function getServices(): ActiveQuery
     {
         return $this->hasMany(Service::class, ['business_id' => 'id'])->inverseOf('business');
     }
 
-    /**
-     * @throws InvalidConfigException
-     */
-    public function getUsers($role = null): ActiveQuery
+    public function getUserBusinesses(): ActiveQuery
     {
-        $query = $this->hasMany(User::class, ['id' => 'user_id'])
+        return $this->hasMany(UserBusiness::class, ['business_id' => 'id'])->inverseOf('business');
+    }
+
+    public function getUsers()
+    {
+        return $this->hasMany(User::class, ['id' => 'user_id'])
             ->viaTable(UserBusiness::tableName(), ['business_id' => 'id']);
     
-        if ($role !== null) {
-            $userIDs = UserBusiness::find()
-                ->select('user_id')
-                ->where(['role' => $role, 'business_id' => $this->id]);
-            $query->andWhere(['id' => $userIDs]);
+    }
+
+    public function getUsersByRole($role)
+    {
+        if (!array_key_exists($role, Yii::$app->params['roles'])) {
+            throw new InvalidConfigException('Invalid role');
         }
+
+        $query = $this->getUsers();
+
+        $userIDs = UserBusiness::find()
+            ->select('user_id')
+            ->where([
+                'role' => $role, 
+                'business_id' => $this->id
+            ])
+            ->asArray()->column();
+
+        $query->andWhere(['id' => $userIDs]);
     
         return $query;
     }
@@ -144,17 +156,18 @@ class Business extends ActiveRecord
         return new BusinessQuery(get_called_class());
     }
 
-    public function getPermissions(): ActiveQuery|PermissionQuery
+    public function getPermissions(): ActiveQuery
     {
         return $this->hasMany(Permission::class, ['business_id' => 'id'])->inverseOf('business');
     }
 
-    public function getAvailableUsers($role): query\UserQuery
+    public function getAvailableUsers($role)
     {
         $linkedUserIds = UserBusiness::find()
             ->select('user_id')
-//            ->where(['business_id' => $this->id, 'role' => $role]);
-            ->where(['business_id' => $this->id]);
+            ->where(['business_id' => $this->id])
+            ->asArray()
+            ->column();
 
         return User::find()
             ->where(['not in', 'id', $linkedUserIds])

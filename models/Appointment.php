@@ -6,10 +6,8 @@ use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
-use app\models\query\AppointmentQuery;
-use app\models\query\AppointmentResourceQuery;
-use app\models\query\AppointmentUserQuery;
-use app\models\query\BusinessQuery;
+use app\models\queries\AppointmentQuery;
+use app\models\queries\BusinessQuery;
 use app\components\LogBehavior;
 
 /**
@@ -28,6 +26,7 @@ use app\components\LogBehavior;
 class Appointment extends ActiveRecord
 {
     use traits\SoftDeleteTrait;
+    use traits\BusinessCacheTrait;
 
     public static function tableName(): string
     {
@@ -74,7 +73,7 @@ class Appointment extends ActiveRecord
     /**
      * @throws InvalidConfigException
      */
-    public function getResources(): ActiveQuery|AppointmentResourceQuery
+    public function getResources(): ActiveQuery
     {
         return $this->hasMany(Resource::class, ['id' => 'resource_id'])
             ->viaTable(AppointmentResource::tableName(), ['appointment_id' => 'id']);
@@ -83,7 +82,7 @@ class Appointment extends ActiveRecord
     /**
      * @throws InvalidConfigException
      */
-    public function getUsers(): ActiveQuery|AppointmentUserQuery
+    public function getUsers(): ActiveQuery
     {
         return $this->hasMany(User::class, ['id' => 'user_id'])
             ->viaTable(AppointmentUser::tableName(), ['appointment_id' => 'id']);

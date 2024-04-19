@@ -3,7 +3,6 @@
 namespace app\models;
 
 use Yii;
-use app\models\query\LogBaseQuery;
 use yii\db\ActiveRecord;
 
 /**
@@ -125,15 +124,6 @@ class LogBase extends ActiveRecord
         $log->event = json_encode($data, JSON_INVALID_UTF8_IGNORE | JSON_PARTIAL_OUTPUT_ON_ERROR);
         $log->user_id = Yii::$app->user->identity->user->id ?? 0;
         $log->save();
-    }
-
-    /**
-     * {@inheritdoc}
-     * @return LogBaseQuery the active query used by this AR class.
-     */
-    public static function find(): LogBaseQuery
-    {
-        return new LogBaseQuery(get_called_class());
     }
 
 }

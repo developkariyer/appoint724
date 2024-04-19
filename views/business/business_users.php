@@ -4,7 +4,6 @@ use yii\bootstrap5\Html;
 
 /** @var \app\models\Business $model */
 /** @var \yii\data\ActiveDataProvider $dataProvider */
-/** @var string $role */
 
 $this->title = Html::encode($model->name).' '.Yii::t('app', Yii::$app->params['roles'][$role]);
 ?>

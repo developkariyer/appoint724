@@ -57,11 +57,6 @@ class Login extends ActiveRecord
         return $this->hasOne(User::class, ['id' => 'user_id'])->inverseOf('logins');
     }
 
-    public static function find(): LoginQuery
-    {
-        return new LoginQuery(get_called_class());
-    }
-
     public static function log($id_type, $identifier, $success): void
     {
         $login = new self();

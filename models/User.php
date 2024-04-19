@@ -3,12 +3,8 @@
 namespace app\models;
 
 use Yii;
-use app\models\query\UserQuery;
-use app\models\query\AuthidentityQuery;
-use app\models\query\LoginQuery;
-use app\models\query\BusinessQuery;
-use app\models\query\PermissionQuery;
-use app\models\query\AppointmentUserQuery;
+use app\models\queries\UserQuery;
+use app\models\queries\BusinessQuery;
 use app\components\LogBehavior;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
@@ -88,18 +84,18 @@ class User extends ActiveRecord
     /**
      * @throws InvalidConfigException
      */
-    public function getAppointments(): ActiveQuery|AppointmentUserQuery
+    public function getAppointments(): ActiveQuery
     {
         return $this->hasMany(Appointment::class, ['id' => 'appointment_id'])
             ->viaTable(AppointmentUser::tableName(), ['user_id' => 'id']);
     }
 
-    public function getAuthidentities(): ActiveQuery|AuthidentityQuery
+    public function getAuthidentities(): ActiveQuery
     {
         return $this->hasMany(Authidentity::class, ['user_id' => 'id'])->inverseOf('user');
     }
 
-    public function getLogins(): ActiveQuery|LoginQuery
+    public function getLogins(): ActiveQuery
     {
         return $this->hasMany(Login::class, ['user_id' => 'id'])->inverseOf('user');
     }
@@ -113,7 +109,7 @@ class User extends ActiveRecord
             ->viaTable(UserBusiness::tableName(), ['user_id' => 'id']);
     }
 
-    public function getPermissions(): ActiveQuery|PermissionQuery
+    public function getPermissions(): ActiveQuery
     {
         return $this->hasMany(Permission::class, ['user_id' => 'id'])->inverseOf('user');
     }

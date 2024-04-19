@@ -9,8 +9,7 @@ use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
 use yii\web\IdentityInterface;
-use app\models\query\AuthidentityQuery;
-use app\models\query\UserQuery;
+use app\models\queries\UserQuery;
 use app\components\LogBehavior;
 
 
@@ -86,11 +85,6 @@ class Authidentity extends ActiveRecord implements IdentityInterface
     public function getUser(): ActiveQuery|UserQuery
     {
         return $this->hasOne(User::class, ['id' => 'user_id'])->inverseOf('authidentities');
-    }
-
-    public static function find(): AuthidentityQuery
-    {
-        return new AuthidentityQuery(get_called_class());
     }
 
     public static function findIdentityByAccessToken($token, $type = null): Authidentity|null
@@ -173,7 +167,7 @@ class Authidentity extends ActiveRecord implements IdentityInterface
      */
     public static function generateEmailToken($email): string|null
     {
-        if ($user = User::findOne(['email' => $email])) {
+        if ($user = User::find()->where(['email' => $email])->active()->one()) {
             if (self::getActiveTokenCount($user->id, self::AUTHTYPE_EMAIL_TOKEN) > 2) {
                 return true;
             }
@@ -199,7 +193,7 @@ class Authidentity extends ActiveRecord implements IdentityInterface
      */
     public static function generateSmsPin($gsm): string|bool
     {
-        if ($user = User::findOne(['gsm' => $gsm])) {
+        if ($user = User::find()->where(['gsm' => $gsm])->active()->one()) {
             if (self::getActiveTokenCount($user->id, self::AUTHTYPE_SMS_OTP)) {
                 return true;
             }

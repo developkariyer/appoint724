@@ -3,7 +3,6 @@
 namespace app\models;
 
 use Yii;
-use app\models\query\ServiceQuery;
 use app\models\query\BusinessQuery;
 use app\components\LogBehavior;
 use yii\db\ActiveQuery;
@@ -25,6 +24,8 @@ use yii\db\ActiveRecord;
 class Service extends ActiveRecord
 {
     use traits\SoftDeleteTrait;
+    use traits\BusinessCacheTrait;
+
 
     public static function tableName(): string
     {
@@ -48,7 +49,7 @@ class Service extends ActiveRecord
         return [
             'id' => Yii::t('app', 'ID'),
             'business_id' => Yii::t('app', 'Business ID'),
-            'name' => Yii::t('app', 'Name'),
+            'name' => Yii::t('app', 'Service Name'),
             'resource_type' => Yii::t('app', 'Resource Type'),
             'expert_type' => Yii::t('app', 'Expert Type'),
             'duration' => Yii::t('app', 'Duration'),
@@ -75,8 +76,4 @@ class Service extends ActiveRecord
         return $this->hasOne(Business::class, ['id' => 'business_id'])->inverseOf('services');
     }
 
-    public static function find(): ServiceQuery
-    {
-        return new ServiceQuery(get_called_class());
-    }
 }

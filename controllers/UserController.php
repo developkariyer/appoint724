@@ -56,7 +56,7 @@ class UserController extends Controller
      */
     public function actionAdd(): Response|array|string
     {
-        if (!Yii::$app->request->get('slug') || !($business = Business::findOne(['slug' => Yii::$app->request->get('slug')]))) {
+        if (!Yii::$app->request->get('slug') || !($business = Business::find()->where(['slug' => Yii::$app->request->get('slug')])->active()->one())) {
             throw new Exception(Yii::t('app', 'Invalid business.'));
         }
         if (!Yii::$app->request->get('role') || !in_array(Yii::$app->request->get('role'), array_keys(Yii::$app->params['roles']))) {
@@ -149,7 +149,7 @@ class UserController extends Controller
             Yii::$app->session->set('oldUrl', Yii::$app->request->referrer);
         }
 
-        if (!($user = User::findOne($id))) {
+        if (!($user = User::find()->where(['id'=>$id])->active()->one())) {
             throw new Exception(Yii::t('app', 'User not found.'));
         }
 
@@ -235,7 +235,7 @@ class UserController extends Controller
             throw new Exception('Invalid role.');
         }
 
-        if (!($business = Business::findOne($business_id))) {
+        if (!($business = Business::find()->where(['id'=>$business_id])->active()->one())) {
             throw new Exception('Invalid business.');
         }
 

@@ -3,7 +3,6 @@
 namespace app\models;
 
 use Yii;
-use app\models\query\PermissionQuery;
 use app\models\query\UserQuery;
 use app\models\query\BusinessQuery;
 use yii\db\ActiveQuery;
@@ -64,8 +63,4 @@ class Permission extends ActiveRecord
         return self::find()->where(['user_id' => $userId, 'permission' => $permission])->exists();
     }
 
-    public static function find(): PermissionQuery
-    {
-        return new PermissionQuery(get_called_class());
-    }
 }
