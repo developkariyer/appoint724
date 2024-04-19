@@ -120,5 +120,5 @@ body {
     cursor: pointer;
 }
 .accordion-collapse {
-    transition: height 0.5s ease;
+    transition: height 0.2s ease;
 }   

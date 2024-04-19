@@ -139,11 +139,19 @@ class UserController extends Controller
         ]);
     }
 
-    public function actionUpdate(): Response|array|string
+    public function actionUpdate($id = null): Response|array|string
     {
         $model = new UserForm();
         $model->scenario = UserForm::SCENARIO_UPDATE;
-        $user = User::findOne(Yii::$app->user->identity->user->id);
+        $id = $id ?? Yii::$app->user->identity->user->id;
+        
+        if (!Yii::$app->session->has('oldUrl')) {
+            Yii::$app->session->set('oldUrl', Yii::$app->request->referrer);
+        }
+
+        if (!($user = User::findOne($id))) {
+            throw new Exception(Yii::t('app', 'User not found.'));
+        }
 
         $model->attributes = $user->attributes;
 
@@ -165,7 +173,10 @@ class UserController extends Controller
                 $user->emailverified = 0;
             }
             if ($user->save()) {
-                return $this->goHome();
+                Yii::$app->session->setFlash('success', Yii::t('app', '{user} has been updated successfully.', ['user' => $user->fullname]));
+                $oldUrl = Yii::$app->session->get('oldUrl');
+                Yii::$app->session->remove('oldUrl');
+                return $this->redirect($oldUrl);
             } else {
                 Yii::error($user->getErrors(), __METHOD__);
             }

@@ -63,7 +63,7 @@ class UserBusiness extends ActiveRecord
             'logBehavior' => [
                 'class' => LogBehavior::class,
                 'eventTypeCreate' => LogBase::EVENT_USER_BUSINESS_ADDED,
-                'eventTypeUpdate' => null,
+                'eventTypeUpdate' => LogBase::EVENT_USER_BUSINESS_UPDATED,
                 'eventTypeDelete' => LogBase::EVENT_USER_BUSINESS_DELETED,
             ],
         ];

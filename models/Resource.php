@@ -14,6 +14,7 @@ use yii\db\ActiveRecord;
 
 /**
  * @property int                   $id
+ * @property string                $name
  * @property int                   $business_id
  * @property string|null           $resource_type
  * @property string                $created_at
@@ -34,9 +35,11 @@ class Resource extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['business_id'], 'required'],
+            [['name', 'resource_type'], 'safe'],
+            [['business_id', 'name'], 'required'],
             [['business_id'], 'integer'],
             [['created_at', 'updated_at', 'deleted_at'], 'safe'],
+            [['name'], 'string', 'max' => 255],
             [['resource_type'], 'string', 'max' => 45],
             [['business_id'], 'exist', 'skipOnError' => true, 'targetClass' => Business::class, 'targetAttribute' => ['business_id' => 'id']],
         ];
@@ -46,6 +49,7 @@ class Resource extends ActiveRecord
     {
         return [
             'id' => Yii::t('app', 'ID'),
+            'name' => Yii::t('app', 'Resource'),
             'business_id' => Yii::t('app', 'Business ID'),
             'resource_type' => Yii::t('app', 'Resource Type'),
             'created_at' => Yii::t('app', 'Created At'),

@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\components\LanguageBehavior;
+use app\components\MyUrl;
 use app\models\Business;
 use app\models\User;
 use app\models\UserBusiness;
@@ -47,7 +48,9 @@ class BusinessController extends Controller
 
         if ($this->request->isPost) {
             if ($model->load($this->request->post()) && $model->save()) {
-                return $this->goBack();
+                UserBusiness::addUserBusiness(Yii::$app->user->identity->user->id, $model->id, UserBusiness::ROLE_ADMIN);
+                Yii::$app->session->setFlash('info', Yii::t('app', 'Business created'));
+                return $this->redirect(MyUrl::to(['business/user/admin/'.$model->slug]));
             }
         } else {
             $model->loadDefaultValues();
@@ -207,17 +210,80 @@ class BusinessController extends Controller
         }
         $dataProvider = new ActiveDataProvider([
             'query' => $model->getUsers($role),
-            'pagination' => ['pageSize' => 20],
+            'pagination' => ['pageSize' => 10],
             'sort' => [
                 'defaultOrder' => [
                     'first_name' => SORT_ASC, // Adjust according to your User model attributes and needs
                 ]
             ],
         ]);
-        return $this->render('business_users.php', [
+        return $this->render('business_users', [
             'model' => $model,
             'dataProvider' => $dataProvider,
             'role' => $role,
+        ]);
+    }
+
+    public function actionResource($slug): string
+    {
+        if (!($model = Business::find()->where(['slug' => $slug])->one())) {
+            throw new NotFoundHttpException(Yii::t('app', 'Business not found.'));
+        }
+        
+        $dataProvider = new ActiveDataProvider([
+            'query' => $model->getResources(),
+            'pagination' => ['pageSize' => 10],
+            'sort' => [
+                'defaultOrder' => [
+                    'name' => SORT_ASC, // Adjust according to your Resource model attributes and needs
+                ]
+            ],
+        ]);
+        return $this->render('business_resources', [
+            'model' => $model,
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+
+    public function actionRule($slug): string
+    {
+        if (!($model = Business::find()->where(['slug' => $slug])->one())) {
+            throw new NotFoundHttpException(Yii::t('app', 'Business not found.'));
+        }
+        
+        $dataProvider = new ActiveDataProvider([
+            'query' => $model->getRules(),
+            'pagination' => ['pageSize' => 10],
+            'sort' => [
+                'defaultOrder' => [
+                    'name' => SORT_ASC, // Adjust according to your Resource model attributes and needs
+                ]
+            ],
+        ]);
+        return $this->render('business_rules', [
+            'model' => $model,
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+
+    public function actionService($slug): string
+    {
+        if (!($model = Business::find()->where(['slug' => $slug])->one())) {
+            throw new NotFoundHttpException(Yii::t('app', 'Business not found.'));
+        }
+        
+        $dataProvider = new ActiveDataProvider([
+            'query' => $model->getServices(),
+            'pagination' => ['pageSize' => 10],
+            'sort' => [
+                'defaultOrder' => [
+                    'name' => SORT_ASC, // Adjust according to your Resource model attributes and needs
+                ]
+            ],
+        ]);
+        return $this->render('business_services', [
+            'model' => $model,
+            'dataProvider' => $dataProvider,
         ]);
     }
 

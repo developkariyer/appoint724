@@ -4,6 +4,7 @@
 /* @var string $content */
 
 use app\assets\AppAsset;
+use app\components\MyUrl;
 use app\widgets\Alert;
 use yii\bootstrap5\Html;
 use yii\bootstrap5\NavBar;
@@ -83,6 +84,8 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                     ]);
                 } catch (Throwable $e) {
                 } ?>
+                <br />
+                <?= Html::a(Yii::t('app', 'Create Business'), MyUrl::to(['business/create']), ['class' => 'btn btn-primary btn-outline-light']) ?>
                 </div>
             </div>
 

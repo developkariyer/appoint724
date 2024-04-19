@@ -1,20 +1,21 @@
 <?php
 
-use yii\helpers\Html;
+use app\widgets\Card;
 
 /** @var yii\web\View $this */
 /** @var app\models\Business $model */
 
 $this->title = Yii::t('app', 'Create Business');
-$this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Businesses'), 'url' => ['index']];
-$this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="business-create">
-
-    <h1><?= Html::encode($this->title) ?></h1>
-
-    <?= $this->render('_form', [
-        'model' => $model,
-    ]) ?>
-
+    <div class="row justify-content-md-center">
+        <div class="col-md-8 col-lg-6">
+            <?= Card::widget([
+                'title' => $this->title,
+                'content' => $this->render('_form', [
+                    'model' => $model,
+                ]),
+            ]) ?>
+        </div>
+    </div>
 </div>

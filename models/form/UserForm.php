@@ -43,8 +43,7 @@ class UserForm extends Model
     {
         return array_merge($this->commonRules(), 
         [
-            [['first_name', 'last_name', 'gsm', 'email', 'tcno', 'dogum_yili'], 'required', 'on' => [self::SCENARIO_REGISTER, self::SCENARIO_UPDATE]],
-            [['first_name', 'last_name', 'gsm', 'email'], 'required', 'on' => [self::SCENARIO_ADD]],
+            [['first_name', 'last_name', 'gsm', 'email'], 'required', 'on' => [self::SCENARIO_REGISTER, self::SCENARIO_UPDATE, self::SCENARIO_ADD]],
             [['password', 'password_repeat'], 'string', 'min' => 8],
             [['password', 'password_repeat'], 'required', 'on' => [self::SCENARIO_REGISTER, self::SCENARIO_PASSWORD]],
             [['password_repeat'], 'compare', 'compareAttribute' => 'password', 'message' => Yii::t('app', 'Passwords do not match.'), 'on' => [self::SCENARIO_REGISTER, self::SCENARIO_PASSWORD]],

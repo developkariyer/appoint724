@@ -27,14 +27,22 @@ class LogBehavior extends Behavior
             return;
         }
         
-        $eventType = $event->name === BaseActiveRecord::EVENT_AFTER_INSERT ? $this->eventTypeCreate : $this->eventTypeUpdate;
-        LogBase::log(
-            $eventType,
-            [
+        if ($event->name === BaseActiveRecord::EVENT_AFTER_INSERT) {
+            $eventType = $this->eventTypeCreate;
+            $data = [
                 'id' => $this->owner->id,
-                'changed' => $event->name === BaseActiveRecord::EVENT_AFTER_INSERT ? $this->owner->getAttributes() : $event->changedAttributes,
-            ]
-        );
+                'inserted' => $this->owner->getAttributes(),
+            ];
+        } else {
+            $eventType = $this->eventTypeUpdate;
+            $data = [
+                'id' => $this->owner->id,
+                'updated' => $this->owner->getAttributes(),
+                'deleted' => $event->changedAttributes,
+            ];
+        }
+
+        LogBase::log($eventType, $data);
     }
 
     public function beforeDelete($event): bool
@@ -47,7 +55,7 @@ class LogBehavior extends Behavior
             $this->eventTypeDelete,
             [
                 'id' => $this->owner->id,
-                'changed' => $this->owner->getAttributes(),
+                'deleted' => $this->owner->getAttributes(),
             ]
         );
         return true;

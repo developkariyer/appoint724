@@ -81,6 +81,7 @@ class User extends ActiveRecord
             'first_name' => Yii::t('app', 'First Name'),
             'last_name' => Yii::t('app', 'Last Name'),
             'fullname' => Yii::t('app', 'Full Name'),
+            'myGsm' => Yii::t('app', 'GSM Number'),
         ];
     }
 
@@ -126,10 +127,9 @@ class User extends ActiveRecord
     {
         return User::find()->where($condition)->one();
     }
-/*
-    public function getFullname(): string
+
+    public function getMyGsm(): string
     {
-        return $this->first_name.' '.$this->last_name;
+        return preg_replace("/^(\d{3})(\d{3})(\d{4})$/", "($1) $2 $3", $this->gsm);
     }
-*/
 }

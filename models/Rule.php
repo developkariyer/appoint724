@@ -11,6 +11,8 @@ use yii\db\ActiveRecord;
 
 /**
  * @property int         $id
+ * @property string      $name
+ * @property string      $ruleset
  * @property int         $business_id
  * @property string      $created_at
  * @property string|null $updated_at
@@ -29,9 +31,10 @@ class Rule extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['business_id'], 'required'],
             [['business_id'], 'integer'],
-            [['created_at', 'updated_at', 'deleted_at'], 'safe'],
+            [['name', 'ruleset', 'business_id'], 'required'],
+            [['name'], 'string', 'max' => 100],
+            [['name', 'ruleset', 'business_id', 'created_at', 'updated_at', 'deleted_at'], 'safe'],
             [['business_id'], 'exist', 'skipOnError' => true, 'targetClass' => Business::class, 'targetAttribute' => ['business_id' => 'id']],
         ];
     }
@@ -39,7 +42,9 @@ class Rule extends ActiveRecord
     public function attributeLabels(): array
     {
         return [
-            'id' => Yii::t('app', 'ID'),
+            'id' => Yii::t('app', 'ID'),	       
+            'name' => Yii::t('app', 'Rule Name'), 
+            'ruleset' => Yii::t('app', 'Rule Set'), 
             'business_id' => Yii::t('app', 'Business ID'),
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),

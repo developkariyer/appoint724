@@ -8,6 +8,7 @@ use yii\db\ActiveRecord;
 
 /**
  * @property int $id
+ * @property int $user_id
  * @property string $event_type
  * @property string $event
  * @property string $created_at
@@ -65,7 +66,8 @@ class LogBase extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['event_type', 'event'], 'required'],
+            [['event_type', 'event', 'user_id'], 'required'],
+            [['user_id'], 'integer'],
             [['event_type'], 'string'],
             [['event', 'created_at'], 'safe'],
             [
@@ -121,6 +123,7 @@ class LogBase extends ActiveRecord
         $log = new static();
         $log->event_type = $event_type;
         $log->event = json_encode($data, JSON_INVALID_UTF8_IGNORE | JSON_PARTIAL_OUTPUT_ON_ERROR);
+        $log->user_id = Yii::$app->user->identity->user->id ?? 0;
         $log->save();
     }
 
