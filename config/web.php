@@ -32,6 +32,8 @@ $config = [
         ],
         'request' => [
             'cookieValidationKey' => '0YJTc1N5PM8tWAYVb1339QZVhFC5-D',
+            'enableCsrfValidation' => true, // Enable CSRF Validation
+            'enableCookieValidation' => true, // Enable Cookie Validation
         ],
         //'cache' => [
         //    'class' => 'yii\caching\FileCache',

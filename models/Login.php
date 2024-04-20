@@ -3,8 +3,7 @@
 namespace app\models;
 
 use Yii;
-use app\models\query\LoginQuery;
-use app\models\query\UserQuery;
+use app\models\queries\UserQuery;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 

@@ -9,7 +9,7 @@ use yii\widgets\ActiveForm;
 
 $form = ActiveForm::begin();
 $content = $form->field($relationModel, 'name')->textInput(['maxlength' => true]);
-$content .= $form->field($relationModel, 'ruleset')->textInput(['maxlength' => true]);
+$content .= $form->field($relationModel, 'ruleset')->textInput(['maxlength' => true]); // TODO predefined rulesets and custom ruleset builder will be implemented
 $content .= Html::submitButton(
     $relationModel->isNewRecord ? Yii::t('app', 'Create') : Yii::t('app', 'Update'),
     ['class' => 'btn btn-primary']

@@ -144,6 +144,9 @@ class UserController extends Controller
         $model = new UserForm();
         $model->scenario = UserForm::SCENARIO_UPDATE;
         $id = $id ?? Yii::$app->user->identity->user->id;
+
+        $restricted = (Yii::$app->user->identity->user->superadmin || ($id === Yii::$app->user->identity->user->id) )? false : true;
+        $restricted = (($id == Yii::$app->user->identity->user->id) )? false : true;
         
         if (!Yii::$app->session->has('oldUrl')) {
             Yii::$app->session->set('oldUrl', Yii::$app->request->referrer);
@@ -184,6 +187,7 @@ class UserController extends Controller
 
         return $this->render('user', [
             'model' => $model,
+            'restricted' => $restricted,
         ]);
     }
 

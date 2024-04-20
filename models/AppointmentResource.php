@@ -5,9 +5,7 @@ namespace app\models;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
-use app\models\query\AppointmentQuery;
-use app\models\query\AppointmentResourceQuery;
-use app\models\query\ResourceQuery;
+use app\models\queries\AppointmentQuery;
 use app\components\LogBehavior;
 
 

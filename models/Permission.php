@@ -3,8 +3,8 @@
 namespace app\models;
 
 use Yii;
-use app\models\query\UserQuery;
-use app\models\query\BusinessQuery;
+use app\models\queries\UserQuery;
+use app\models\queries\BusinessQuery;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 

@@ -76,18 +76,20 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
     <div class="container-fluid h-100">
         <div class="row h-100">
 
+        <?php if ($leftMenuItems = MyMenu::getLeftMenuItems()) : ?>
             <div class="leftMenu h-100 bg-secondary bg-gradient p-0">
                 <div class="list-group h-100 p-2">
                 <?php try {
                     echo Collapse::widget([
-                        'items' => MyMenu::getLeftMenuItems(), // left menu items
+                        'items' => $leftMenuItems,
                     ]);
                 } catch (Throwable $e) {
                 } ?>
                 <br />
-                <?= Html::a(Yii::t('app', 'Create Business'), MyUrl::to(['business/create']), ['class' => 'btn btn-primary btn-outline-light']) ?>
+                <?= Yii::$app->user->identity->user->superadmin ? Html::a(Yii::t('app', 'Create Business'), MyUrl::to(['business/create']), ['class' => 'btn btn-primary btn-outline-light']) : '' ?>
                 </div>
             </div>
+        <?php endif; ?>
 
             <div class="col p-5 rightContent h-100" id="main-content">
                 <?php try {

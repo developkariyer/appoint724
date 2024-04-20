@@ -17,16 +17,16 @@ use app\models\form\UserForm;
                 switch ($model->scenario) {
                     case UserForm::SCENARIO_REGISTER:
                         $this->title = Yii::t('app', 'New User');
-                        $content =  $this->render('_update', ['form' => $form, 'model' => $model]) .
+                        $content =  $this->render('_update', ['form' => $form, 'model' => $model, 'restricted' => false]) .
                                     $this->render('_password', ['form' => $form, 'model' => $model]);
                         break;
                     case UserForm::SCENARIO_UPDATE:
                         $this->title = Yii::t('app', 'Update User');
-                        $content =  $this->render('_update', ['form' => $form, 'model' => $model]);
+                        $content =  $this->render('_update', ['form' => $form, 'model' => $model, 'restricted' => $restricted ?? true ]);
                         break;
                     case UserForm::SCENARIO_ADD:
                         $this->title = Yii::t('app', 'Add User');
-                        $content =  $this->render('_update', ['form' => $form, 'model' => $model]);
+                        $content =  $this->render('_update', ['form' => $form, 'model' => $model, 'restricted' => false]);
                         break;
                     case UserForm::SCENARIO_PASSWORD:
                         $this->title = Yii::t('app', 'Change Password');

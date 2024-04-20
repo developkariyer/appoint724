@@ -96,9 +96,9 @@ class SiteController extends Controller
     {
         if (!Yii::$app->user->isGuest) {
             $email_token = Authidentity::generateEmailToken(Yii::$app->user->identity->user->email);
-            // This token will be sent to user via e-mail
-            Yii::$app->session->setFlash('info', "***********".Html::a($email_token, ['verify/'.$email_token], ['class' => 'alert-link'])."************");
             if ($email_token !== false) {
+                Yii::$app->session->setFlash('info', "***********".Html::a($email_token, ['verify/'.$email_token], ['class' => 'alert-link'])."************");
+                // EXTERNAL send e-mail via external api call, to be implemented
                 Yii::$app->session->setFlash('error', Yii::t('app','Check your e-mail for a login link.'));
             } else {
                 Yii::$app->session->setFlash('error', Yii::t('app','Unable to e-mail a login link.'));
@@ -221,7 +221,7 @@ XML;
             }
         } else {
             $sms_otp = Authidentity::generateSmsPin($model->gsm);
-            // send sms_otp via SMS service API call
+            // EXTERNAL send sms_otp via SMS service API call
             Yii::$app->session->setFlash('info', "*********** $sms_otp ************");
         }
 

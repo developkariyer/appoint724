@@ -1,6 +1,7 @@
 <?php
 /** @var \yii\bootstrap5\ActiveForm $form */
 /** @var \app\models\form\LoginForm $model */
+/** @var bool $restricted */
 
 use yii\widgets\MaskedInput;
 
@@ -11,6 +12,7 @@ try {
         'mask' => '(###) ### ## ##',
         'options' => [
             'placeholder' => '(___) ___ __ __',
+            'readonly' => $restricted,
         ],
         'clientOptions' => [
             'removeMaskOnSubmit' => true,
@@ -22,6 +24,9 @@ try {
     echo $form->field($model, 'email')->widget(MaskedInput::class, [
         'clientOptions' => [
             'alias' => 'email',
+        ],
+        'options' => [
+            'readonly' => $restricted,
         ],
     ]);
 } catch (Exception $e) {

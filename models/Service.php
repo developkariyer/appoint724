@@ -3,7 +3,7 @@
 namespace app\models;
 
 use Yii;
-use app\models\query\BusinessQuery;
+use app\models\queries\BusinessQuery;
 use app\components\LogBehavior;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -38,8 +38,8 @@ class Service extends ActiveRecord
             [['business_id', 'duration'], 'required'],
             [['business_id', 'duration'], 'integer'],
             [['created_at', 'updated_at', 'deleted_at'], 'safe'],
-            [['name', 'resource_type', 'expert_type'], 'string', 'max' => 45],
-            [['name'], 'unique'],
+            [['name', 'resource_type', 'expert_type'], 'string', 'max' => 255],
+            [['name', 'business_id', 'deleted_at'], 'unique', 'targetAttribute' => ['name', 'business_id', 'deleted_at'], 'message' => Yii::t('app', 'Service Name must be unique.')],
             [['business_id'], 'exist', 'skipOnError' => true, 'targetClass' => Business::class, 'targetAttribute' => ['business_id' => 'id']],
         ];
     }

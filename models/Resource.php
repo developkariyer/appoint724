@@ -3,8 +3,8 @@
 namespace app\models;
 
 use Yii;
-use app\models\query\AppointmentQuery;
-use app\models\query\BusinessQuery;
+use app\models\queries\AppointmentQuery;
+use app\models\queries\BusinessQuery;
 use app\components\LogBehavior;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
@@ -39,8 +39,7 @@ class Resource extends ActiveRecord
             [['business_id', 'name'], 'required'],
             [['business_id'], 'integer'],
             [['created_at', 'updated_at', 'deleted_at'], 'safe'],
-            [['name'], 'string', 'max' => 255],
-            [['resource_type'], 'string', 'max' => 45],
+            [['name', 'resource_type'], 'string', 'max' => 255],
             [['business_id'], 'exist', 'skipOnError' => true, 'targetClass' => Business::class, 'targetAttribute' => ['business_id' => 'id']],
         ];
     }

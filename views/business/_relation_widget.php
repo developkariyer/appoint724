@@ -15,7 +15,7 @@ Pjax::begin([
     'id' => "ResourceGrid".$model->id,
     'timeout' => 10000,
     'enablePushState' => false,
-    'clientOptions' => ['method' => 'POST']
+    'clientOptions' => ['method' => 'GET']
 ]);
 
 $slug = $model->slug;
@@ -40,7 +40,7 @@ try {
                     $deleteButton = Html::a(Yii::t('app', 'Delete'), $deleteUrl, [
                         'class' => 'btn btn-danger btn-sm mb-1 ml-2',
                         'data' => [
-                            'confirm' => Yii::t('app', 'Are you sure you want to delete this resource?'),
+                            'confirm' => Yii::t('app', 'Are you sure you want to delete this?'),
                             'method' => 'post',
                             'pjax' => 0,
                         ],

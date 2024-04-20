@@ -132,6 +132,10 @@ class MyMenu extends Component
 
     public static function getLeftMenuItems(): array
     {
+        if (Yii::$app->user->isGuest) {
+            return [];
+        }
+        
         if (Yii::$app->user->identity->user->superadmin) {
             $businesses = Business::find()->active()->orderBy('name')->all();
             $items = [];
@@ -209,7 +213,8 @@ class MyMenu extends Component
                     'raw' => true,
                     'isExpanded' => $isExpanded,
                 ];
-            }
+            } 
+
             return $items;
         }
         return [];

@@ -13,7 +13,7 @@ Pjax::begin([
     'id' => "UsersGrid".$model->id,
     'timeout' => 10000,
     'enablePushState' => false,
-    'clientOptions' => ['method' => 'POST']
+    'clientOptions' => ['method' => 'GET']
 ]);
 
 $slug = $model->slug;
@@ -24,7 +24,7 @@ try {
         'columns' => [
             'fullname',
             'email',
-            'myGsm',
+            'myGsm', // EXPERT_TYPE view\business\_user_widget
             [
                 'class' => 'yii\grid\Column',
                 'content' => function ($model, $key, $index, $column) use ($role, $slug) {

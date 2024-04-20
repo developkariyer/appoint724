@@ -326,7 +326,7 @@ class BusinessController extends Controller
             'relationModel' => $service,
             'relationTitle' => Yii::t('app', 'Services'),
             'relationCreateTitle' => Yii::t('app', 'Create Service'),
-            'relationColumns' => ['name', 'resource_type', 'expert_type', 'duration'],
+            'relationColumns' => ['name', 'resource_type', 'duration'], // EXPERT_TYPE controllers\BusinessController 
         ]);
     }
 

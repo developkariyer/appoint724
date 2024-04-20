@@ -14,22 +14,30 @@ $resourceTypes = ArrayHelper::map($model->getResources()->andWhere(['deleted_at'
 
 $form = ActiveForm::begin();
 $content = $form->field($relationModel, 'name')->textInput(['maxlength' => true]);
-//$content .= $form->field($relationModel, 'resource_type')->textInput(['maxlength' => true]);
-$content .= $form->field($relationModel, 'resource_type')->dropDownList($resourceTypes, ['prompt' => Yii::t('app', 'Select Resource Type')]);
-$content .= $form->field($relationModel, 'expert_type')->textInput(['maxlength' => true]);
-//$content .= $form->field($relationModel, 'duration')->textInput(['maxlength' => true]);
-//$content .= '<input type="range" class="form-range" min="5" max="600" step="1" id="customRange3">';
+$content .= $form->field($relationModel, 'resource_type')->dropDownList($resourceTypes, ['prompt' => Yii::t('app', 'No Resource Required')]);
+//$content .= $form->field($relationModel, 'expert_type')->textInput(['maxlength' => true]); // EXPERT_TYPE view\business\_service_form
 
-// Add a Bootstrap 5 range slider for duration
+$content .= '<div class="row">';
+$content .= '<div class="col-md-9">';
 $content .= $form->field($relationModel, 'duration')->input('range', [
+    'id' => 'duration-slider',
     'min' => 5,
     'max' => 300,
     'step' => 1,
-    'oninput' => 'updateDurationValue(this.value)',
-    'class' => 'form-range'
+    'class' => 'form-range',
+    'oninput' => 'updateDurationValueDisplay(this.value);'
 ]);
-// Display the current value of the slider
-$content .= '<div id="duration-value-display">' . Html::encode($relationModel->duration ?: 5) . '</div>';
+$content .= '</div><div class="col-md-3 d-flex align-items-center justify-content-center h-100">';
+
+$content .= $form->field($relationModel, 'duration', [
+    'template' => "{input}\n{error}",  // Customizing to show only input and error, no labels
+])->textInput([
+    'id' => 'duration-input',
+    'class' => 'form-control',
+    'oninput' => 'updateDurationSlider(this.value);'
+]);
+
+$content .= '</div></div>';  // Close the row and column divs
 
 $content .= Html::submitButton(
     $relationModel->isNewRecord ? Yii::t('app', 'Create') : Yii::t('app', 'Update'),
@@ -40,9 +48,35 @@ echo Card::widget([
     'content' => $content,
 ]);
 ActiveForm::end();
-// Include JavaScript to update the display as the slider value changes
+
 $this->registerJs("
-    function updateDurationValue(value) {
-        document.getElementById('duration-value-display').textContent = value;
-    }
-", \yii\web\View::POS_HEAD);
+function updateDurationValueDisplay(value) {
+    document.getElementById('duration-input').value = value; // Update the input box when slider changes
+}
+
+function updateDurationSlider(value) {
+    var slider = document.getElementById('duration-slider');
+    var max = parseInt(slider.max, 10);
+    var min = parseInt(slider.min, 10);
+    value = parseInt(value, 10) || min; // Ensure we have a number, default to min if not
+    value = Math.max(min, Math.min(max, value)); // Constrain the value between min and max
+    slider.value = value; // Update the slider
+    document.getElementById('duration-input').value = value; // Ensure input box matches constrained value
+}
+", \yii\web\View::POS_END);
+
+
+/*
+$content .= '<div class="row"><div class="col-md-9">';
+$content .= $form->field($relationModel, 'duration')->input('range', [
+    'min' => 5,
+    'max' => 300,
+    'step' => 1,
+    'oninput' => 'updateDurationValue(this.value)',
+    'class' => 'form-range'
+]);
+$content .= '</div><div class="col-md-3">';
+
+$content .= '<div class="d-flex align-items-center justify-content-center h-100"><span id="duration-value-display">' . Html::encode($relationModel->duration ?: 5) .'</span></div>';
+$content .= '</div></div>';
+*/
