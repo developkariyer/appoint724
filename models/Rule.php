@@ -69,4 +69,9 @@ class Rule extends ActiveRecord
         return $this->hasOne(Business::class, ['id' => 'business_id'])->inverseOf('rules');
     }
 
+    public static function businessColumns(): array
+    {
+        return ['name', 'ruleset'];
+    }
+
 }

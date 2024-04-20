@@ -43,7 +43,7 @@ The minimum requirement by this project that your Web server supports PHP 8.1.
 TODO
 ----
 ### Short Term
-- Establish access control system 
++ Establish access control system 
 - Log user Login/Logout/Register/Session activities to 'logins' table
 - Check if all models honour LogBehavior
 - Convert delete() to softDelete() for SoftDeleteTrait enabled models

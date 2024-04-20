@@ -83,4 +83,12 @@ class Resource extends ActiveRecord
         return $this->hasOne(Business::class, ['id' => 'business_id'])->inverseOf('resources');
     }
 
+    public static function businessColumns(): array
+    {
+        return [
+            'name',
+            'resource_type',
+        ];
+    }
+
 }

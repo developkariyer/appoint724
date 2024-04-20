@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\components\ACL;
 use app\components\LanguageBehavior;
 use app\components\MyUrl;
 use app\models\Business;
@@ -13,9 +14,11 @@ use app\models\UserBusiness;
 use Exception;
 use Throwable;
 use yii\base\InvalidConfigException;
+use yii\base\UserException;
 use yii\data\ActiveDataProvider;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii;
@@ -62,8 +65,8 @@ class BusinessController extends Controller
 
     public function actionCreate(): yii\web\Response|string
     {
-        if (!Yii::$app->user->identity->user->superadmin && !Yii::$app->user->identity->user->remainingBusinessCount) {
-            throw new BadRequestHttpException(Yii::t('app', 'You have no remaining business slots.'));
+        if (!ACL::canBusinessCreate()) {
+            throw new BadRequestHttpException(Yii::t('app', 'You are not allowed to create a business.'));
         }
         
         $model = new Business();
@@ -89,9 +92,11 @@ class BusinessController extends Controller
     public function actionUpdate($slug): yii\web\Response|string
     {
         $model = $this->findModel(slug:$slug);
-        if (!$model) {
-            throw new NotFoundHttpException(Yii::t('app','Business not found.'));
+
+        if (!ACL::canBusinessUpdateDelete($model->id)) {
+            throw new BadRequestHttpException(Yii::t('app', 'You are not allowed to update this business.'));
         }
+
         if ($this->request->isPost && $model->load($this->request->post())) {
             if ($model->save()) {
                 Yii::$app->session->setFlash('info', Yii::t('app', 'Business updated'));
@@ -128,19 +133,21 @@ class BusinessController extends Controller
     public function actionDelete($id): yii\web\Response
     {
         $model = $this->findModel(id:$id);
-        if (!$model) {
-            throw new NotFoundHttpException(Yii::t('app','Business not found.'));
+        
+        if (!ACL::canBusinessUpdateDelete($model->id)) {
+            throw new ForbiddenHttpException(Yii::t('app', 'You are not allowed to delete this business.'));
         }
+
         $transaction = Yii::$app->db->beginTransaction();
         try {
             if ($model->appointments->active()->count() > 0) {
-                throw new Exception(Yii::t('app', 'Cannot delete business with active appointments.'));
+                throw new UserException(Yii::t('app', 'Cannot delete business with active appointments.'));
             }
             if (!$this->softDeleteRelations($model)) {
-                throw new Exception(Yii::t('app', 'Error deleting related entities.'));
+                throw new UserException(Yii::t('app', 'Error deleting related entities.'));
             }
             if (!$model->softDelete()) {
-                throw new Exception(Yii::t('app', 'Error deleting business.'));
+                throw new UserException(Yii::t('app', 'Error deleting business.'));
             }
             $transaction->commit();
             Yii::$app->session->setFlash('info', Yii::t('app', 'Business deleted'));
@@ -166,12 +173,17 @@ class BusinessController extends Controller
         if (!$user) {
             throw new NotFoundHttpException(Yii::t('app', 'User not found.'));
         }
-        if (!Yii::$app->user->identity->user->superadmin && Yii::$app->user->identity->user->id === $user->id) {
+
+        if (!ACL::isSuperAdmin() && ACL::isUserLoggedIn($user->id)) {
             throw new BadRequestHttpException(Yii::t('app', 'You cannot change your own business role.'));
         }
 
-        $postRole = $this->request->post('role') ?? '__addnew__';
+        $postRole = $this->request->post('role', '__addnew__');
         $userBusiness = UserBusiness::find()->where(['user_id' => $user->id, 'business_id' => $model->id])->one();
+
+        if ($userBusiness && !ACL::canBusinessUserChange($model->id, $user->id)) {
+            throw new ForbiddenHttpException(Yii::t('app', 'You are not allowed to modify this user in this business.'));
+        }
 
         if ($postRole === 'delete') {
             return $userBusiness ? $userBusiness->delete() : false;
@@ -195,13 +207,16 @@ class BusinessController extends Controller
      */
     public function actionUser($role, $slug)
     {
-        $model = Business::find()->where(['slug' => $slug])->one();
-        if (!$model) {
-            throw new NotFoundHttpException(Yii::t('app', 'Business not found.'));
-        }
+        $model = $this->findModel(slug:$slug);
+
         if (!array_key_exists($role, Yii::$app->params['roles'])) {
             throw new BadRequestHttpException(Yii::t('app', 'Invalid role.'));
         }
+
+        if (!ACL::canBusiness($model->id)) {
+            throw new ForbiddenHttpException(Yii::t('app', 'You are not allowed to change user roles.'));
+        }
+
         if ($this->request->isPost) {
             try {
                 $this->handleBusinessUserChange($model, $role);
@@ -223,118 +238,85 @@ class BusinessController extends Controller
 
     }
 
-    private function handleDeleteRelation($slug, $id, $relatedModel, $relation)
+    private function getRelationData($model, $relation) {
+        $getter = 'get' . ucfirst($relation) . 's';
+        if (method_exists($model, $getter)) {
+            return $model->$getter()->andWhere(['deleted_at' => null]);
+        } else {
+            throw new BadRequestHttpException("Invalid relation method: {$getter}");
+        }
+    }
+
+    private function handleModifyRelation($slug, $id, $relatedModel, $relation)
     {
         if ($this->request->get('delete')) {
             if ($this->request->get('delete')!==$id) {
-                throw new BadRequestHttpException(Yii::t('app', 'Posted values are missing.'));
+                throw new BadRequestHttpException(Yii::t('app', 'Invalid request.'));
             }
             if ($relatedModel->isNewRecord) {
                 throw new NotFoundHttpException(Yii::t('app', 'Relation not found.'));
             }
             if ($relatedModel->softDelete()) {
                 Yii::$app->session->setFlash('info', Yii::t('app', 'Relation deleted.'));
-                return $this->redirect(MyUrl::to(["business/$relation/$slug"]));
+            } else {
+                Yii::$app->session->setFlash('error', Yii::t('app', 'Error deleting relation.').implode(' ', $relatedModel->getErrorSummary(true)));
             }
-            Yii::$app->session->setFlash('error', Yii::t('app', 'Error deleting relation.').implode(' ', $relatedModel->getErrorSummary(true)));
+            return $this->redirect(MyUrl::to(["business/$relation/$slug"]));
         } else {
-            $relatedModel->load(Yii::$app->request->post());
-            if ($relatedModel->validate() && $relatedModel->save()) {
+            if ($relatedModel->load(Yii::$app->request->post()) && $relatedModel->save()) {
                 Yii::$app->session->setFlash('info', Yii::t('app', 'Relation saved.'));
-                return $this->redirect(MyUrl::to(["business/$relation/$slug"]));
-            }            
-            Yii::$app->session->setFlash('error', Yii::t('app', 'Error saving relation.').implode(' ', $relatedModel->getErrorSummary(true)));
+            } else {
+                Yii::$app->session->setFlash('error', Yii::t('app', 'Error saving relation.').implode(' ', $relatedModel->getErrorSummary(true)));
+            }
+            return $this->redirect(MyUrl::to(["business/$relation/$slug"]));
         }
+    }
+
+    public function handleActionRelation($slug, $id = null, $modelRelation, $relation)
+    {
+        $model=$this->findModel(slug:$slug);
+
+        if (!ACL::canBusiness($model->id)) {
+            throw new ForbiddenHttpException(Yii::t('app', 'You are not allowed to view this page.'));
+        }
+
+        $relationModel = $modelRelation::find()->where(['id' => $id])->one() ?? new $modelRelation(['business_id' => $model->id]);
+
+        if ($id && $relationModel->isNewRecord) {
+            Yii::$app->session->setFlash('warning', Yii::t('app', 'URL inconsistency detected. Are you trying to load a bookmarked page?'));
+        }
+
+        if ($this->request->isPost) {
+            $this->handleModifyRelation($slug, $id, $relationModel, $relation);
+        }
+
+        return $this->render('business_relations', [
+            'model' => $model,
+            'dataProvider' => new ActiveDataProvider([
+                'query' => $this->getRelationData($model, $relation),
+                'pagination' => ['pageSize' => 10],
+            ]),
+            'relation' => $relation,
+            'relationModel' => $relationModel,
+            'relationTitle' => Yii::t('app', ucfirst($relation).'s'),
+            'relationCreateTitle' => Yii::t('app', 'Create New'),
+            'relationColumns' => $relationModel->businessColumns(),
+        ]);
     }
 
     public function actionResource($slug, $id = null)
     {
-        if (!($model = Business::find()->where(['slug' => $slug])->one())) {
-            throw new NotFoundHttpException(Yii::t('app', 'Business not found.'));
-        }
-
-        $resource = Resource::find()->where(['id' => $id])->one() ?? new Resource(['business_id' => $model->id]);
-
-        if ($id && $resource->isNewRecord) {
-            Yii::$app->session->setFlash('warning', Yii::t('app', 'URL inconsistency detected. Are you trying to load a bookmarked page?'));
-        }
-
-        if ($this->request->isPost) {
-            $this->handleDeleteRelation($slug, $id, $resource, 'resource');
-        }
-
-        return $this->render('business_relations', [
-            'model' => $model,
-            'dataProvider' => new ActiveDataProvider([
-                'query' => $model->getResources()->andWhere(['deleted_at' => null]),
-                'pagination' => ['pageSize' => 10],
-            ]),
-            'relation' => 'resource',
-            'relationModel' => $resource,
-            'relationTitle' => Yii::t('app', 'Resources'),
-            'relationCreateTitle' => Yii::t('app', 'Create Resource'),
-            'relationColumns' => ['name', 'resource_type'],
-        ]);
+        return $this->handleActionRelation($slug, $id, Resource::class, 'resource');
     }
 
     public function actionRule($slug, $id = null)
     {
-        if (!($model = Business::find()->where(['slug' => $slug])->one())) {
-            throw new NotFoundHttpException(Yii::t('app', 'Business not found.'));
-        }
-        
-        $rule = Rule::find()->where(['id' => $id])->one() ?? new Rule(['business_id' => $model->id]);
-
-        if ($id && $rule->isNewRecord) {
-            Yii::$app->session->setFlash('warning', Yii::t('app', 'URL inconsistency detected. Are you trying to load a bookmarked page?'));
-        }
-
-        if ($this->request->isPost) {
-            $this->handleDeleteRelation($slug, $id, $rule, 'rule');
-        }
-
-        return $this->render('business_relations', [
-            'model' => $model,
-            'dataProvider' => new ActiveDataProvider([
-                'query' => $model->getRules()->andWhere(['deleted_at' => null]),
-                'pagination' => ['pageSize' => 10],
-            ]),
-            'relation' => 'rule',
-            'relationModel' => $rule,
-            'relationTitle' => Yii::t('app', 'Rules'),
-            'relationCreateTitle' => Yii::t('app', 'Create Rule'),
-            'relationColumns' => ['name', 'ruleset'],
-        ]);
+        return $this->handleActionRelation($slug, $id, Rule::class, 'rule');
     }
 
     public function actionService($slug, $id = null)
     {
-        if (!($model = Business::find()->where(['slug' => $slug])->one())) {
-            throw new NotFoundHttpException(Yii::t('app', 'Business not found.'));
-        }
-        
-        $service = Service::find()->where(['id' => $id])->one() ?? new Service(['business_id' => $model->id]);
-
-        if ($id && $service->isNewRecord) {
-            Yii::$app->session->setFlash('warning', Yii::t('app', 'URL inconsistency detected. Are you trying to load a bookmarked page?'));
-        }
-
-        if ($this->request->isPost) {
-            $this->handleDeleteRelation($slug, $id, $service, 'service');
-        }
-
-        return $this->render('business_relations', [
-            'model' => $model,
-            'dataProvider' => new ActiveDataProvider([
-                'query' => $model->getServices()->andWhere(['deleted_at' => null]),
-                'pagination' => ['pageSize' => 10],
-            ]),
-            'relation' => 'service',
-            'relationModel' => $service,
-            'relationTitle' => Yii::t('app', 'Services'),
-            'relationCreateTitle' => Yii::t('app', 'Create Service'),
-            'relationColumns' => ['name', 'resource_type', 'duration'], // EXPERT_TYPE controllers\BusinessController 
-        ]);
+        return $this->handleActionRelation($slug, $id, Service::class, 'service');
     }
 
 }

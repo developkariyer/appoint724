@@ -2,11 +2,11 @@
 
 namespace app\controllers;
 
+use app\components\ACL;
 use Random\RandomException;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\bootstrap5\ActiveForm;
-use yii\db\Exception;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\helpers\Html;
@@ -94,7 +94,7 @@ class SiteController extends Controller
      */
     public function actionVerifymyemail(): Response
     {
-        if (!Yii::$app->user->isGuest) {
+        if (!ACL::isGuest()) {
             $email_token = Authidentity::generateEmailToken(Yii::$app->user->identity->user->email);
             if ($email_token !== false) {
                 Yii::$app->session->setFlash('info', "***********".Html::a($email_token, ['verify/'.$email_token], ['class' => 'alert-link'])."************");
@@ -116,22 +116,30 @@ class SiteController extends Controller
      */
     public function actionVerify(mixed $token): Response
     {
+        // TODO: log will be implemented
         $authidentity = Authidentity::findIdentityByEmailToken($token);
         if ($authidentity) {
-            $authidentity->expires = date('Y-m-d H:i:s', strtotime('+10 seconds'));
-            $authidentity->save(false);
+            if (!ACL::isUserLoggedIn($authidentity->user->id)) {
+                Yii::$app->session->setFlash('error', Yii::t('app', 'You are already logged in with a different user. Please logout first.'));
+                return $this->goHome();
+            }
             if (!$authidentity->user->emailverified) {
                 $authidentity->user->emailverified = 1;
-                $authidentity->user->save(false);
+                $authidentity->user->save(false, ['emailverified']);
             }
-            Yii::$app->user->login($authidentity, 3600 * 24 * 30);
-            Yii::$app->session->setFlash('info', Yii::t('app','Login/verification successful.'));
-            Login::log('Token', $token, 1);
-            return $this->goHome();
+            if (!ACL::isGuest()) {
+                Yii::$app->session->setFlash('info', Yii::t('app','E-mail verification successful.'));
+                return $this->goHome();
+            }
+            if (Yii::$app->user->login($authidentity, 3600 * 24 * 30)) {
+                $authidentity->expires = date('Y-m-d H:i:s', strtotime('+10 seconds'));
+                $authidentity->save(false, ['expires']);
+                Yii::$app->session->setFlash('info', Yii::t('app','Login and verification successful.'));
+                return $this->goHome();
+            }
         }
         Yii::$app->session->setFlash('error', Yii::t('app', 'Token invalid or expired.'));
-        Login::log('Token', $token, 0);
-        return $this->goHome();
+        return $this->redirect(MyURl::to(['site/login/link']));
     }
 
     /**
@@ -140,11 +148,12 @@ class SiteController extends Controller
      */
     public function actionVerifytcno(): Response
     {
-        if (Yii::$app->user->isGuest) {
+        if (ACL::isGuest()) {
             return $this->goBack();
         }
         $user = Yii::$app->user->identity->user;
         if (!$user) {
+            Yii::$app->session->setFlash('error', Yii::t('app', 'User not found.'));
             return $this->goBack();
         }
         $soapRequest = <<<XML
@@ -200,7 +209,7 @@ XML;
      */
     public function actionVerifygsm(): Response|array|string
     {
-        if (Yii::$app->user->isGuest) {
+        if (ACL::isGuest()) {
             return $this->goBack();
         }
 
@@ -215,7 +224,6 @@ XML;
 
         if ($model->load(Yii::$app->request->post())) {
             if ($model->validate() && $model->login()) {
-                // no need to do anything, login automatically verifies GSM if successful
                 Yii::$app->session->setFlash('info', Yii::t('app','Login/verification successful.'));
                 return $this->goHome();
             }
@@ -234,9 +242,9 @@ XML;
      */
     public function actionIndex(): Response|string
     {
-        if (!Yii::$app->user->isGuest) {
+        if (!ACL::isGuest()) {
             $authidentity = Yii::$app->user->identity; 
-    
+
             $messages = [];
             if (!$authidentity->user->tcnoverified) {   
                 $url = Html::a(Yii::t('app', 'Please update your profile.'), MyUrl::to(['user/update']), ['class' => 'alert-link']);
@@ -252,18 +260,14 @@ XML;
                 $messages[] = Yii::t('app', "Your e-mail address is not verified.")." $url";
             }
             if (count($messages)) Yii::$app->session->setFlash('warning', $messages);
+        } else {
+            return $this->redirect(MyUrl::to(['site/login']));
         }
             
-        if (Yii::$app->user->isGuest) {
-            return $this->redirect(MyUrl::to(['site/login']));
+        if (ACL::isSuperAdmin()) {
+            return $this->redirect(MyUrl::to(['site/superadmin']));
         } else {
-            if (Yii::$app->user->identity->user->superadmin) {
-                return $this->redirect(MyUrl::to(['site/superadmin']));
-            } else {
-                // later, business logic will be implemented here *****
-                //return $this->redirect(MyUrl::to(['site/index']));
-                return $this->render('index');
-            }
+            return $this->render('index');
         }
     }
 
@@ -273,7 +277,7 @@ XML;
      */
     public function actionLogin($s = null): Response|array|string
     {
-        if (!Yii::$app->user->isGuest) {
+        if (!ACL::isGuest()) {
             return $this->goHome();
         }
 
@@ -348,20 +352,12 @@ XML;
      */
     public function actionLogout(): Response
     {
-        Login::log('Logout', '', 1);
-        Yii::$app->user->logout();
-        Yii::$app->session->setFlash('warning', Yii::t('app','Log out successful. See you soon.'));
+        if (!ACL::isGuest()) {
+            Login::log('Logout', '', 1);
+            Yii::$app->user->logout();
+            Yii::$app->session->setFlash('warning', Yii::t('app','Log out successful. See you soon.'));
+        }
         return $this->goHome();
-    }
-
-
-    /**
-     * Displays about page.
-     * @return string
-     */
-    public function actionAbout(): string
-    {
-        return $this->render('about');
     }
 
     private function gitHubCommits(): array
@@ -400,31 +396,11 @@ XML;
      */
     public function actionSuperadmin(): Response|string
     {
-        if (Yii::$app->user->isGuest || !Yii::$app->user->identity->user->superadmin) {
+        if (!ACL::isSuperAdmin()) {
             return $this->goHome();
         }
 
         return $this->render('superadmin', ['commits' => $this->gitHubCommits()]);
-    }
-
-    /**
-     * Updates database. Only for development purposes!!!
-     * @return void
-     * @throws Exception
-     */
-    public function actionInit(): void
-    {
-        $sqlFilePath = __DIR__ . '/../config/randevusaas.sql';
-        if (!file_exists($sqlFilePath)) {
-            die("SQL file not found.");
-        }
-
-        $db = Yii::$app->db;
-        $command = $db->createCommand(file_get_contents($sqlFilePath));
-        $command->execute();
-
-        echo "SQL file executed successfully.";
-
     }
 
 }

@@ -76,4 +76,9 @@ class Service extends ActiveRecord
         return $this->hasOne(Business::class, ['id' => 'business_id'])->inverseOf('services');
     }
 
+    public static function businessColumns(): array
+    {
+        return ['name', 'resource_type', 'duration'];
+    }
+
 }

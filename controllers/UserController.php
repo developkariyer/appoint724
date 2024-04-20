@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\components\ACL;
 use app\components\LanguageBehavior;
 use app\models\Business;
 use app\models\UserBusiness;
@@ -13,8 +14,11 @@ use app\models\form\UserForm;
 use yii\base\InvalidConfigException;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
+use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\bootstrap5\ActiveForm;
+use yii\web\ForbiddenHttpException;
+use yii\web\NotFoundHttpException;
 use yii\web\Response;
 use app\components\MyUrl;
 
@@ -56,11 +60,20 @@ class UserController extends Controller
      */
     public function actionAdd(): Response|array|string
     {
+        if (ACL::isGuest()) {
+            return $this->goHome();
+        }
+
         if (!Yii::$app->request->get('slug') || !($business = Business::find()->where(['slug' => Yii::$app->request->get('slug')])->active()->one())) {
             throw new Exception(Yii::t('app', 'Invalid business.'));
         }
+
         if (!Yii::$app->request->get('role') || !in_array(Yii::$app->request->get('role'), array_keys(Yii::$app->params['roles']))) {
             throw new Exception(Yii::t('app', 'Invalid role.'));
+        }
+
+        if (!ACL::canUserAdd($business->id)) {
+            throw new Exception(Yii::t('app', 'You are not authorized to perform this action.'));
         }
 
         $model = new UserForm();
@@ -97,6 +110,10 @@ class UserController extends Controller
 
     public function actionRegister(): Response|array|string
     {
+        if (!ACL::isGuest()) {
+            return $this->goHome();
+        }
+        
         $model = new UserForm();
         $model->scenario = UserForm::SCENARIO_REGISTER;
 
@@ -142,19 +159,26 @@ class UserController extends Controller
 
     public function actionUpdate($id = null): Response|array|string
     {
-        $model = new UserForm();
-        $model->scenario = UserForm::SCENARIO_UPDATE;
+        if (ACL::isGuest()) {
+            return $this->goHome();
+        }
+
         $id = $id ?? Yii::$app->user->identity->user->id;
 
-        $restricted = (Yii::$app->user->identity->user->superadmin || ($id === Yii::$app->user->identity->user->id) )? false : true;
-        $restricted = (($id == Yii::$app->user->identity->user->id) )? false : true;
-        
+        if (!ACL::canUserUpdate($id)) {
+            throw new ForbiddenHttpException(Yii::t('app', 'You are not authorized to perform this action.'));
+        }
+        $restricted = (ACL::isSuperAdmin() || ACL::isUserLoggedIn($id)) ? false : true;
+
+        $model = new UserForm();
+        $model->scenario = UserForm::SCENARIO_UPDATE;
+
         if (!Yii::$app->session->has('oldUrl')) {
             Yii::$app->session->set('oldUrl', Yii::$app->request->referrer);
         }
 
         if (!($user = User::find()->where(['id'=>$id])->active()->one())) {
-            throw new Exception(Yii::t('app', 'User not found.'));
+            throw new NotFoundHttpException(Yii::t('app', 'User not found.'));
         }
 
         $model->attributes = $user->attributes;
@@ -166,7 +190,6 @@ class UserController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             $user->attributes = $model->attributes;
-            // if tcno, gsm or email attributes changed in update form, set tcnoverified, gsmverified an emailverified to false respectively
             if ($user->isAttributeChanged('tcno')) {
                 $user->tcnoverified = 0;
             }
@@ -182,6 +205,7 @@ class UserController extends Controller
                 Yii::$app->session->remove('oldUrl');
                 return $this->redirect($oldUrl);
             } else {
+                Yii::$app->session->setFlash('error', Yii::t('app', 'Unable to update {user}.', ['user' => $user->fullname]));
                 Yii::error($user->getErrors(), __METHOD__);
             }
         }
@@ -197,6 +221,10 @@ class UserController extends Controller
      */
     public function actionPassword(): Response|array|string
     {
+        if (ACL::isGuest()) {
+            return $this->goHome();
+        }
+
         $model = new UserForm();
         $model->scenario = UserForm::SCENARIO_PASSWORD;
 
@@ -230,18 +258,21 @@ class UserController extends Controller
      * @throws InvalidConfigException
      * @throws Exception
      */
-    public function actionSearch(): string
+    public function actionSearch()
     {
+        if (ACL::isGuest()) {
+            throw new ForbiddenHttpException(Yii::t('app', 'You are not authorized to perform this action.'));
+        }
         $search = trim(Yii::$app->request->get('search'));
         $role = Yii::$app->request->get('role');
         $business_id = Yii::$app->request->get('business_id');
 
         if (!in_array($role, array_keys(Yii::$app->params['roles']))) {
-            throw new Exception('Invalid role.');
+            throw new BadRequestHttpException('Invalid role.');
         }
 
         if (!($business = Business::find()->where(['id'=>$business_id])->active()->one())) {
-            throw new Exception('Invalid business.');
+            throw new NotFoundHttpException('Invalid business.'); // NotFoundHttpException is more specific
         }
 
         if (strlen($search) < 1) {
@@ -255,10 +286,13 @@ class UserController extends Controller
             ]);
         }
 
-        $dataProvider = new ActiveDataProvider(['query' => $query,'pagination' => ['pageSize' => 10,],]);
-
         return $this->renderPartial('_user_search', [
-            'dataProvider' => $dataProvider,
+            'dataProvider' => new ActiveDataProvider([
+                'query' => $query,
+                'pagination' => [
+                    'pageSize' => 10,
+                ],
+            ]),
             'slug' => $business->slug,
             'role' => $role,
         ]);

@@ -58,7 +58,7 @@ try {
 }
 
 echo Card::widget([
-    'title' => $relationTitle,
+    'title' => $model->name.' '.$relationTitle,
     'content' => $content,
 ]);
 

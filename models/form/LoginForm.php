@@ -2,6 +2,7 @@
 
 namespace app\models\form;
 
+use app\components\ACL;
 use Yii;
 use yii\base\Model;
 use app\models\Authidentity;
@@ -111,7 +112,7 @@ class LoginForm extends Model
                             $authidentity->user->gsmverified = 1;
                             $authidentity->user->save(false);
                         }
-                        $retval = Yii::$app->user->login($authidentity, 3600 * 24 * 30);
+                        $retval = ACL::isguest() ? Yii::$app->user->login($authidentity, 3600 * 24 * 30) : true;
                         Login::log($this->scenario, $this->gsm, 1);
                         return $retval;
                     }

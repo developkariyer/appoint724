@@ -179,4 +179,10 @@ class Business extends ActiveRecord
             ->orderBy(['first_name' => 'ASC']);
     }
 
+    public static function slugToId($slug)
+    {
+        $business = Business::find()->where(['slug' => $slug])->one();
+        return $business ? $business->id : null;
+    }
+
 }
