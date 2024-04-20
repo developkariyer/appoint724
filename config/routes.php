@@ -3,7 +3,7 @@
 $langPattern = implode('|', array_keys($params['supportedLanguages']));
 $roles = implode('|', array_keys($params['roles']));
 
-$businessActions = 'update|user|resource|rule|service';
+$businessActions = 'update|user|resource|rule|service|delete';
 
 return [
 

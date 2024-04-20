@@ -33,7 +33,6 @@ class BusinessQuery extends ActiveQuery
         $this->innerJoin("$userBusinessTable AS ub", "{$businessTable}.id = ub.business_id")
             ->andWhere(['ub.user_id' => $userId])
             ->andWhere(['ub.role' => $roles])
-            ->andWhere(['ub.deleted_at' => null])
             ->andWhere(["{$businessTable}.deleted_at" => null]);
 
         return $this;

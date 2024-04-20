@@ -1,5 +1,6 @@
 <?php
 
+use app\components\MyUrl;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
@@ -22,6 +23,13 @@ use yii\widgets\ActiveForm;
     
     <div class="form-group">
         <?php echo Html::submitButton(Yii::t('app', 'Save'), ['class' => 'btn btn-primary']); ?>
+        <?php echo Html::a(Yii::t('app', 'Delete'), MyUrl::to(["business/delete/$model->slug", 'id' => $model->id]), [
+            'class' => 'btn btn-danger',
+            'data' => [
+                'confirm' => Yii::t('app', 'Are you sure you want to delete this item?'),
+                'method' => 'post',
+            ],
+        ]); ?>
     </div>
 
     <?php ActiveForm::end(); ?>

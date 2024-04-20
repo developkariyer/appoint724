@@ -111,13 +111,13 @@ class BusinessController extends Controller
     private function softDeleteRelations($model)
     {
         foreach (['resources', 'services', 'rules'] as $relation) {
-            foreach ($model->$relation() as $related) {
+            foreach ($model->$relation as $related) {
                 if (!$related->softDelete()) {
                     return false;
                 }
             }
         }
-        $userBusinesses = UserBusiness::find()->where(['business_id' => $model->id]);
+        $userBusinesses = UserBusiness::find()->where(['business_id' => $model->id])->all();
         foreach ($userBusinesses as $userBusiness) {
             if (!$userBusiness->delete()) {
                 return false;
@@ -130,9 +130,13 @@ class BusinessController extends Controller
      * @throws Throwable
      * @throws NotFoundHttpException
      */
-    public function actionDelete($id): yii\web\Response
+    public function actionDelete($slug): yii\web\Response
     {
-        $model = $this->findModel(id:$id);
+        $model = $this->findModel(slug:$slug);
+
+        if ($model->id != $this->request->get('id')) {
+            throw new BadRequestHttpException(Yii::t('app', 'Invalid request.'. $model->id . ' ' . $this->request->get('id') .''));
+        }
         
         if (!ACL::canBusinessUpdateDelete($model->id)) {
             throw new ForbiddenHttpException(Yii::t('app', 'You are not allowed to delete this business.'));
@@ -140,13 +144,13 @@ class BusinessController extends Controller
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            if ($model->appointments->active()->count() > 0) {
+            if ($model->getAppointments()->active()->count() > 0) {
                 throw new UserException(Yii::t('app', 'Cannot delete business with active appointments.'));
             }
             if (!$this->softDeleteRelations($model)) {
                 throw new UserException(Yii::t('app', 'Error deleting related entities.'));
             }
-            if (!$model->softDelete()) {
+            if (!$model->delete()) {
                 throw new UserException(Yii::t('app', 'Error deleting business.'));
             }
             $transaction->commit();
@@ -256,7 +260,7 @@ class BusinessController extends Controller
             if ($relatedModel->isNewRecord) {
                 throw new NotFoundHttpException(Yii::t('app', 'Relation not found.'));
             }
-            if ($relatedModel->softDelete()) {
+            if ($relatedModel->delete()) {
                 Yii::$app->session->setFlash('info', Yii::t('app', 'Relation deleted.'));
             } else {
                 Yii::$app->session->setFlash('error', Yii::t('app', 'Error deleting relation.').implode(' ', $relatedModel->getErrorSummary(true)));
