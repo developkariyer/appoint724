@@ -6,6 +6,7 @@
 use app\assets\AppAsset;
 use app\components\MyUrl;
 use app\widgets\Alert;
+use app\widgets\Card;
 use yii\bootstrap5\Html;
 use yii\bootstrap5\NavBar;
 use yii\bootstrap5\Nav;
@@ -76,17 +77,18 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
     <div class="container-fluid h-100">
         <div class="row h-100">
 
-        <?php if ($leftMenuItems = MyMenu::getLeftMenuItems()) : ?>
+        <?php if (!Yii::$app->user->isGuest) : ?>
             <div class="leftMenu h-100 bg-secondary bg-gradient p-0">
                 <div class="list-group h-100 p-2">
                 <?php try {
                     echo Collapse::widget([
-                        'items' => $leftMenuItems,
+                        'items' => MyMenu::getLeftMenuItems(),
                     ]);
                 } catch (Throwable $e) {
                 } ?>
                 <br />
-                <?= Yii::$app->user->identity->user->superadmin ? Html::a(Yii::t('app', 'Create Business'), MyUrl::to(['business/create']), ['class' => 'btn btn-primary btn-outline-light']) : '' ?>
+                <?= Yii::$app->user->identity->user->superadmin || Yii::$app->user->identity->user->remainingBusinessCount ? Html::a(Yii::t('app', 'Create Business'), MyUrl::to(['business/create']), ['class' => 'btn btn-primary btn-outline-light']) : '' ?>
+                <?= !Yii::$app->user->identity->user->superadmin && !Yii::$app->user->identity->user->remainingBusinessCount ? Html::a(Yii::t('app', 'Buy Business Slot'), MyUrl::to(['business/slot']), ['class' => 'btn btn-primary btn-outline-light']) : '' ?>
                 </div>
             </div>
         <?php endif; ?>
@@ -97,6 +99,13 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                 } catch (Throwable $e) {
                 } ?>
                 <?= $content ?>
+                <br />
+                <?php /* echo
+                    Card::widget([
+                        'title' => Yii::t('app', 'Debugging'),
+                        'content' => '<pre>'.print_r(Yii::$app->user->identity->user->getBusinesses()->active()->orderBy('name')->all(), true).'</pre>',
+                    ]);*/
+                ?>
             </div>
 
         </div>

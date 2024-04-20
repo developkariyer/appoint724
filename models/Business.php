@@ -126,8 +126,7 @@ class Business extends ActiveRecord
     public function getUsers()
     {
         return $this->hasMany(User::class, ['id' => 'user_id'])
-            ->viaTable(UserBusiness::tableName(), ['business_id' => 'id']);
-    
+            ->viaTable(UserBusiness::tableName(), ['business_id' => 'id']);    
     }
 
     public function getUsersByRole($role)
@@ -151,6 +150,12 @@ class Business extends ActiveRecord
         return $query;
     }
 
+    public function getAdmins()
+    {
+        return $this->hasMany(User::class, ['id' => 'user_id'])
+            ->viaTable(UserBusiness::tableName(), ['business_id' => 'id', function($query) { $query->andWhere(['role' => 'admin']); }]);    
+    }
+
     public static function find(): BusinessQuery
     {
         return new BusinessQuery(get_called_class());
@@ -161,7 +166,7 @@ class Business extends ActiveRecord
         return $this->hasMany(Permission::class, ['business_id' => 'id'])->inverseOf('business');
     }
 
-    public function getAvailableUsers($role)
+    public function getAvailableUsers()
     {
         $linkedUserIds = UserBusiness::find()
             ->select('user_id')
@@ -173,4 +178,5 @@ class Business extends ActiveRecord
             ->where(['not in', 'id', $linkedUserIds])
             ->orderBy(['first_name' => 'ASC']);
     }
+
 }

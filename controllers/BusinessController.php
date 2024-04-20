@@ -19,7 +19,6 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii;
-use yii\helpers\Inflector;
 
 
 /**
@@ -63,10 +62,18 @@ class BusinessController extends Controller
 
     public function actionCreate(): yii\web\Response|string
     {
+        if (!Yii::$app->user->identity->user->superadmin && !Yii::$app->user->identity->user->remainingBusinessCount) {
+            throw new BadRequestHttpException(Yii::t('app', 'You have no remaining business slots.'));
+        }
+        
         $model = new Business();
         if ($this->request->isPost) {
             if ($model->load($this->request->post()) && $model->save()) {
                 UserBusiness::addUserBusiness(Yii::$app->user->identity->user->id, $model->id, UserBusiness::ROLE_ADMIN);
+                if (!Yii::$app->user->identity->user->superadmin) {
+                    Yii::$app->user->identity->user->remainingBusinessCount -= 1;
+                    Yii::$app->user->identity->user->save(false, ['remainingBusinessCount']);
+                }
                 Yii::$app->session->setFlash('info', Yii::t('app', 'Business created'));
                 return $this->redirect(MyUrl::to(['business/user/admin/'.$model->slug]));
             }

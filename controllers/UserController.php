@@ -110,6 +110,7 @@ class UserController extends Controller
 
             $user = new User();
             $user->attributes = $model->attributes;
+            $user->remainingBusinessCount = 1;
             try {
                 if ($user->save()) {
                     $authidentity = new Authidentity();
@@ -246,7 +247,7 @@ class UserController extends Controller
         if (strlen($search) < 1) {
             $query = $business->getUsers()->andWhere(['id' => 0]);
         } else {
-            $query = $business->getAvailableUsers($role)->andWhere([
+            $query = $business->getAvailableUsers()->andWhere([
                 'or',
                 ['like', 'fullname', $search],
                 ['like', 'email', $search],

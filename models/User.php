@@ -34,6 +34,7 @@ use yii\db\ActiveRecord;
  * @property Login[]          $logins
  * @property Business[]       $businesses
  * @property Permission[]     $permissions
+ * @property int              $remainingBusinessCount
  */
 class User extends ActiveRecord
 {
@@ -107,6 +108,21 @@ class User extends ActiveRecord
     {
         return $this->hasMany(Business::class, ['id' => 'business_id'])
             ->viaTable(UserBusiness::tableName(), ['user_id' => 'id']);
+    }
+
+    public function getUserBusiness(): ActiveQuery
+    {
+        return $this->hasMany(UserBusiness::class, ['user_id' => 'id']);
+    }
+
+    public function getBusinessesByRole($role): ActiveQuery|BusinessQuery
+    {
+        return $this->hasMany(Business::class, ['id' => 'business_id'])
+            ->viaTable(UserBusiness::tableName(), [
+                'user_id' => 'id',
+                function($query) use ($role) { $query->andWhere(['role' => $role]); }
+            ]
+        );
     }
 
     public function getPermissions(): ActiveQuery

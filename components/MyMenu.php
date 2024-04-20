@@ -136,88 +136,89 @@ class MyMenu extends Component
             return [];
         }
         
-        if (Yii::$app->user->identity->user->superadmin) {
-            $businesses = Business::find()->active()->orderBy('name')->all();
-            $items = [];
-            foreach ($businesses as $business) {
-                $isExpanded = ($business->slug === Yii::$app->request->get('slug')) ? true : false;
-                if ($isExpanded && Yii::$app->controller->action->id) {
-                    if (Yii::$app->controller->action->id === 'user') {
-                        $highlightedAction = Yii::$app->request->get('role');
-                    } else {
-                        $highlightedAction = Yii::$app->controller->action->id;
-                    }
+        $businesses = Yii::$app->user->identity->user->superadmin ?
+            Business::find()->active()->orderBy('name')->all() :
+            Business::find()->byUserRoles(Yii::$app->user->identity->user->id, ['admin', 'secretary'])->orderBy('name')->all();
+
+        $businessCount = count($businesses);
+
+        $items = [];
+        foreach ($businesses as $business) {
+            $isExpanded = ($businessCount == 1) || ($business->slug === Yii::$app->request->get('slug')) ? true : false;
+            if ($isExpanded && Yii::$app->controller->action->id) {
+                if (Yii::$app->controller->action->id === 'user') {
+                    $highlightedAction = Yii::$app->request->get('role');
                 } else {
-                    $highlightedAction = '';
+                    $highlightedAction = Yii::$app->controller->action->id;
                 }
+            } else {
+                $highlightedAction = '';
+            }
 
-                // Cache business stats
-                $cacheKey = 'business_'.$business->id.'_stats';
-                $businessStats = Yii::$app->cache->get($cacheKey);
-                if ($businessStats === false) {
-                    $businessStats = [
-                        'appointments' => $business->getAppointments()->active()->count(),
-                        'resources' => $business->getResources()->andWhere(['deleted_at' => null])->count(),
-                        'rules' => $business->getRules()->andWhere(['deleted_at' => null])->count(),
-                        'services' => $business->getServices()->andWhere(['deleted_at' => null])->count(),
-                        'users' => [],
-                    ];
-                    foreach (Yii::$app->params['roles'] as $key=>$value) {
-                        $businessStats['users'][$key] = $business->getUsersByRole($key)->count();
-                    }
-                    Yii::$app->cache->set($cacheKey, $businessStats, 86400);
-                }
-
-                $contents = [
-                    [
-                        'label' => Yii::t('app', 'Business Settings'), 
-                        'url' => MyUrl::to(['business/update/'.$business->slug]),
-                        'class' => $highlightedAction === 'update' ? 'list-group-item-info' : '',
-                    ],
-                    [
-                        'label' => Yii::t('app', 'Appointments').' <span class="badge text-black bg-success-subtle">'.$businessStats['appointments'].'</span>',
-                        'url' => MyUrl::to(['appointment/view/'.$business->slug]),
-                        'class' => $highlightedAction === 'appointment' ? 'list-group-item-info' : '',
-                    ],
+            $cacheKey = 'business_'.$business->id.'_stats';
+            $businessStats = Yii::$app->cache->get($cacheKey);
+            if ($businessStats === false) {
+                $businessStats = [
+                    'appointments' => $business->getAppointments()->active()->count(),
+                    'resources' => $business->getResources()->andWhere(['deleted_at' => null])->count(),
+                    'rules' => $business->getRules()->andWhere(['deleted_at' => null])->count(),
+                    'services' => $business->getServices()->andWhere(['deleted_at' => null])->count(),
+                    'users' => [],
                 ];
-
                 foreach (Yii::$app->params['roles'] as $key=>$value) {
-                    $contents[] = [
-                        'label' => Yii::t('app', $value).' <span class="badge text-black bg-success-subtle">'.$businessStats['users'][$key].'</span>',
-                        'url' => MyUrl::to(["business/user/$key/$business->slug"]),
-                        'class' => $highlightedAction === $key ? 'list-group-item-info' : '',
-                    ];
+                    $businessStats['users'][$key] = $business->getUsersByRole($key)->count();
                 }
+                Yii::$app->cache->set($cacheKey, $businessStats, 86400);
+            }
 
-                $contents[] = [
-                    'label' => Yii::t('app', 'Resources').' <span class="badge text-black bg-success-subtle">'.$businessStats['resources'].'</span>',
-                    'url' => MyUrl::to(['business/resource/'.$business->slug]),
-                    'class' => $highlightedAction === 'resource' ? 'list-group-item-info' : '',
-                ];
-                $contents[] = [
-                    'label' => Yii::t('app', 'Rules').' <span class="badge text-black bg-success-subtle">'.$businessStats['rules'].'</span>',
-                    'url' => MyUrl::to(['business/rule/'.$business->slug]),
-                    'class' => $highlightedAction === 'rule' ? 'list-group-item-info' : '',
-                ];
-                $contents[] = [
-                    'label' => Yii::t('app', 'Services').' <span class="badge text-black bg-success-subtle">'.$businessStats['services'].'</span>',
-                    'url' => MyUrl::to(['business/service/'.$business->slug]),
-                    'class' => $highlightedAction === 'service' ? 'list-group-item-info' : '',
-                ];
+            $contents = [
+                [
+                    'label' => Yii::t('app', 'Business Settings'), 
+                    'url' => MyUrl::to(['business/update/'.$business->slug]),
+                    'class' => $highlightedAction === 'update' ? 'list-group-item-info' : '',
+                ],
+                [
+                    'label' => Yii::t('app', 'Appointments').' <span class="badge text-black bg-success-subtle">'.$businessStats['appointments'].'</span>',
+                    'url' => MyUrl::to(['appointment/view/'.$business->slug]),
+                    'class' => $highlightedAction === 'appointment' ? 'list-group-item-info' : '',
+                ],
+            ];
 
-                $items[] = [
-                    'label' => $business->name,
-                    'content' => $contents,
-                    'bodyOptions' => ['class' => 'p-0'],
-                    'options' => ['class' => 'p-0'],
-                    'raw' => true,
-                    'isExpanded' => $isExpanded,
+            foreach (Yii::$app->params['roles'] as $key=>$value) {
+                $contents[] = [
+                    'label' => Yii::t('app', $value).' <span class="badge text-black bg-success-subtle">'.$businessStats['users'][$key].'</span>',
+                    'url' => MyUrl::to(["business/user/$key/$business->slug"]),
+                    'class' => $highlightedAction === $key ? 'list-group-item-info' : '',
                 ];
-            } 
+            }
 
-            return $items;
-        }
-        return [];
+            $contents[] = [
+                'label' => Yii::t('app', 'Resources').' <span class="badge text-black bg-success-subtle">'.$businessStats['resources'].'</span>',
+                'url' => MyUrl::to(['business/resource/'.$business->slug]),
+                'class' => $highlightedAction === 'resource' ? 'list-group-item-info' : '',
+            ];
+            $contents[] = [
+                'label' => Yii::t('app', 'Rules').' <span class="badge text-black bg-success-subtle">'.$businessStats['rules'].'</span>',
+                'url' => MyUrl::to(['business/rule/'.$business->slug]),
+                'class' => $highlightedAction === 'rule' ? 'list-group-item-info' : '',
+            ];
+            $contents[] = [
+                'label' => Yii::t('app', 'Services').' <span class="badge text-black bg-success-subtle">'.$businessStats['services'].'</span>',
+                'url' => MyUrl::to(['business/service/'.$business->slug]),
+                'class' => $highlightedAction === 'service' ? 'list-group-item-info' : '',
+            ];
+
+            $items[] = [
+                'label' => $business->name,
+                'content' => $contents,
+                'bodyOptions' => ['class' => 'p-0'],
+                'options' => ['class' => 'p-0'],
+                'raw' => true,
+                'isExpanded' => $isExpanded,
+            ];
+        } 
+
+        return $items;
     }
 
 }

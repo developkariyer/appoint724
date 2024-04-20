@@ -25,4 +25,18 @@ class BusinessQuery extends ActiveQuery
         return parent::one($db);
     }
 
+    public function byUserRoles($userId, $roles): BusinessQuery
+    {
+        $userBusinessTable = UserBusiness::tableName();
+        $businessTable = Business::tableName();
+
+        $this->innerJoin("$userBusinessTable AS ub", "{$businessTable}.id = ub.business_id")
+            ->andWhere(['ub.user_id' => $userId])
+            ->andWhere(['ub.role' => $roles])
+            ->andWhere(['ub.deleted_at' => null])
+            ->andWhere(["{$businessTable}.deleted_at" => null]);
+
+        return $this;
+    }
+
 }
