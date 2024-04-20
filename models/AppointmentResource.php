@@ -39,11 +39,6 @@ class AppointmentResource extends ActiveRecord
     public function attributeLabels(): array
     {
         return [
-            'id' => Yii::t('app', 'ID'),
-            'appointment_id' => Yii::t('app', 'Appointment ID'),
-            'resource_id' => Yii::t('app', 'Resource ID'),
-            'created_at' => Yii::t('app', 'Created At'),
-            'deleted_at' => Yii::t('app', 'Deleted At'),
         ];
     }
 

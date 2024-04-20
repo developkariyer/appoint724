@@ -26,7 +26,7 @@ use yii\widgets\ActiveForm;
         <?php echo Html::a(Yii::t('app', 'Delete'), MyUrl::to(["business/delete/$model->slug", 'id' => $model->id]), [
             'class' => 'btn btn-danger',
             'data' => [
-                'confirm' => Yii::t('app', 'Are you sure you want to delete this item?'),
+                'confirm' => Yii::t('app', 'Are you sure you want to delete this?'),
                 'method' => 'post',
             ],
         ]); ?>

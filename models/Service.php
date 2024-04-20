@@ -47,15 +47,10 @@ class Service extends ActiveRecord
     public function attributeLabels(): array
     {
         return [
-            'id' => Yii::t('app', 'ID'),
-            'business_id' => Yii::t('app', 'Business ID'),
             'name' => Yii::t('app', 'Service Name'),
             'resource_type' => Yii::t('app', 'Resource Type'),
             'expert_type' => Yii::t('app', 'Expert Type'),
             'duration' => Yii::t('app', 'Duration'),
-            'created_at' => Yii::t('app', 'Created At'),
-            'updated_at' => Yii::t('app', 'Updated At'),
-            'deleted_at' => Yii::t('app', 'Deleted At'),
         ];
     }
 

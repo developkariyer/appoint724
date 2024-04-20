@@ -40,14 +40,6 @@ class Login extends ActiveRecord
     public function attributeLabels(): array
     {
         return [
-            'id' => Yii::t('app', 'ID'),
-            'ip_address' => Yii::t('app', 'Ip Address'),
-            'user_agent' => Yii::t('app', 'User Agent'),
-            'id_type' => Yii::t('app', 'Id Type'),
-            'identifier' => Yii::t('app', 'Identifier'),
-            'user_id' => Yii::t('app', 'User ID'),
-            'date' => Yii::t('app', 'Date'),
-            'success' => Yii::t('app', 'Success'),
         ];
     }
 

@@ -109,10 +109,6 @@ class LogBase extends ActiveRecord
     public function attributeLabels(): array
     {
         return [
-            'id' => Yii::t('app', 'ID'),
-            'event_type' => Yii::t('app', 'Event Type'),
-            'event' => Yii::t('app', 'Event'),
-            'created_at' => Yii::t('app', 'Created At'),
         ];
     }
 

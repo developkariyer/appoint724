@@ -69,16 +69,6 @@ class Authidentity extends ActiveRecord implements IdentityInterface
     public function attributeLabels(): array
     {
         return [
-            'id' => Yii::t('app', 'ID'),
-            'user_id' => Yii::t('app', 'User ID'),
-            'type' => Yii::t('app', 'Type'),
-            'secret' => Yii::t('app', 'Secret'),
-            'expires' => Yii::t('app', 'Expires'),
-            'extra' => Yii::t('app', 'Extra'),
-            'force_reset' => Yii::t('app', 'Force Reset'),
-            'last_used_at' => Yii::t('app', 'Last Used At'),
-            'created_at' => Yii::t('app', 'Created At'),
-            'updated_at' => Yii::t('app', 'Updated At'),
         ];
     }
 

@@ -42,12 +42,6 @@ class AppointmentUser extends ActiveRecord
     public function attributeLabels(): array
     {
         return [
-            'id' => Yii::t('app', 'ID'),
-            'appointment_id' => Yii::t('app', 'Appointment ID'),
-            'user_id' => Yii::t('app', 'User ID'),
-            'role' => Yii::t('app', 'Role'),
-            'created_at' => Yii::t('app', 'Created At'),
-            'deleted_at' => Yii::t('app', 'Deleted At'),
         ];
     }
 

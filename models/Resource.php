@@ -47,13 +47,8 @@ class Resource extends ActiveRecord
     public function attributeLabels(): array
     {
         return [
-            'id' => Yii::t('app', 'ID'),
             'name' => Yii::t('app', 'Resource'),
-            'business_id' => Yii::t('app', 'Business ID'),
             'resource_type' => Yii::t('app', 'Resource Type'),
-            'created_at' => Yii::t('app', 'Created At'),
-            'updated_at' => Yii::t('app', 'Updated At'),
-            'deleted_at' => Yii::t('app', 'Deleted At'),
         ];
     }
 

@@ -47,14 +47,9 @@ class Appointment extends ActiveRecord
     public function attributeLabels(): array
     {
         return [
-            'id' => Yii::t('app', 'ID'),
-            'business_id' => Yii::t('app', 'Business ID'),
             'start_time' => Yii::t('app', 'Start Time'),
             'end_time' => Yii::t('app', 'End Time'),
             'status' => Yii::t('app', 'Status'),
-            'created_at' => Yii::t('app', 'Created At'),
-            'updated_at' => Yii::t('app', 'Updated At'),
-            'deleted_at' => Yii::t('app', 'Deleted At'),
         ];
     }
 

@@ -135,7 +135,7 @@ class BusinessController extends Controller
         $model = $this->findModel(slug:$slug);
 
         if ($model->id != $this->request->get('id')) {
-            throw new BadRequestHttpException(Yii::t('app', 'Invalid request.'. $model->id . ' ' . $this->request->get('id') .''));
+            throw new BadRequestHttpException(Yii::t('app', 'Invalid request.'));
         }
         
         if (!ACL::canBusinessUpdateDelete($model->id)) {

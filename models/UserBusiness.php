@@ -47,11 +47,7 @@ class UserBusiness extends ActiveRecord
     public function attributeLabels(): array
     {
         return [
-            'id' => Yii::t('app', 'ID'),
-            'user_id' => Yii::t('app', 'User ID'),
             'role' => Yii::t('app', 'Role'),
-            'business_id' => Yii::t('app', 'Business ID'),
-            'created_at' => Yii::t('app', 'Created At'),
         ];
     }
 
