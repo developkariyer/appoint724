@@ -45,7 +45,6 @@ TODO
 ### Short Term
 - Log user Login/Logout/Register/Session activities to 'logins' table
 - Check if all models honour LogBehavior
-- Convert delete() to softDelete() for SoftDeleteTrait enabled models
 - Check if retrieved models (find/get etc.) are filtered based on deleted_at in SoftDeleteTrait enabled models
 - Modify SoftDeleteTrait enabled tables unique values to include deleted_at to avoid unnecessary "not unique" errors
 - Decide when to create a new record and when to softUndelete and put into Model or Controller logic
