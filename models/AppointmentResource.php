@@ -19,9 +19,7 @@ use app\components\LogBehavior;
  * @property resource    $resource
  */
 class AppointmentResource extends ActiveRecord
-{
-    use traits\SoftDeleteTrait;
-
+{    
     public static function tableName(): string
     {
         return 'appointments_resources';

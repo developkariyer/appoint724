@@ -14,7 +14,6 @@ use yii\db\ActiveRecord;
  */
 class LogBase extends ActiveRecord
 {
-
     const EVENT_USER_CREATED = 'user_created';
     const EVENT_USER_UPDATED = 'user_updated';
     const EVENT_USER_DELETED = 'user_deleted';

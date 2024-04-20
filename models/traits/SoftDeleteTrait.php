@@ -2,11 +2,25 @@
 
 namespace app\models\traits;
 
-use yii\db\ActiveQuery;
 use yii\db\Expression;
 
 trait SoftDeleteTrait
 {
+
+    public function delete() : bool
+    {
+        if ($this->hasAttribute('deleted_at')) {
+            return $this->softDelete();
+        } else {
+            return $this->hardDelete();
+        }
+    }
+
+    public function hardDelete() : bool
+    {
+        return parent::delete();
+    }
+
     public function softDelete(): bool
     {
         if ($this->hasAttribute('deleted_at')) {

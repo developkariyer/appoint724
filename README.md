@@ -43,7 +43,6 @@ The minimum requirement by this project that your Web server supports PHP 8.1.
 TODO
 ----
 ### Short Term
-+ Establish access control system 
 - Log user Login/Logout/Register/Session activities to 'logins' table
 - Check if all models honour LogBehavior
 - Convert delete() to softDelete() for SoftDeleteTrait enabled models
@@ -52,6 +51,7 @@ TODO
 - Decide when to create a new record and when to softUndelete and put into Model or Controller logic
 
 ### Medium Term
+- Test ACL subsystem throughly
 - Construct a test implementation
 - Build a roadmap
 - Standardize documentation

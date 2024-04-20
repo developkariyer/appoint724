@@ -22,8 +22,6 @@ use app\components\LogBehavior;
  */
 class AppointmentUser extends ActiveRecord
 {
-    use traits\SoftDeleteTrait;
-
     public static function tableName(): string
     {
         return 'appointments_users';

@@ -161,11 +161,6 @@ class Business extends ActiveRecord
         return new BusinessQuery(get_called_class());
     }
 
-    public function getPermissions(): ActiveQuery
-    {
-        return $this->hasMany(Permission::class, ['business_id' => 'id'])->inverseOf('business');
-    }
-
     public function getAvailableUsers()
     {
         $linkedUserIds = UserBusiness::find()

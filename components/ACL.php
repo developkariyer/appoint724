@@ -28,7 +28,7 @@ class ACL
             UserBusiness::find()->where([
                 'business_id' => $business_id,
                 'user_id' => Yii::$app->user->identity->user->id,
-                'role' => ['in', ['admin', 'secretary']],
+                'role' => ['admin', 'secretary'],
             ])->exists();
     }
 
@@ -41,7 +41,7 @@ class ACL
         $userBusinesses = UserBusiness::find()
             ->where([
                 'user_id' => Yii::$app->user->identity->user->id,
-                'role' => ['in', ['admin', 'secretary']],
+                'role' => ['admin', 'secretary'],
                 'deleted_at' => null
             ])->all();
 
@@ -93,7 +93,7 @@ class ACL
             self::isSuperAdmin() ||
             UserBusiness::find()->where([
                 'user_id' => Yii::$app->user->identity->user->id,
-                'role' => ['in', ['admin', 'secretary']],
+                'role' => ['admin', 'secretary'],
                 'business_id' => $business_id,
             ])->exists()
         );
