@@ -1,111 +1,75 @@
 <?php
 use yii\bootstrap5\Popover;
 
-$pixPerHour = 40;
-$days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+$timezone = new DateTimeZone('Europe/Istanbul');
+$now = new DateTime('now', $timezone);
+$currentHour = $now->format('H');
+$dayWidth = 100 / count($days);
 
-function displayDayBoxes($days) {
-    $dayWidth = 100 / count($days);
-    foreach ($days as $day) {
-        echo "<div class='day-box' style='left: ". array_search($day, $days)*$dayWidth ."%; width: $dayWidth%;'><small>$day</small></div>";
-    }
-}
+function eventPrint($event, $tabIndex, $pixPerHour, $days) 
+{
+    $top = ($event['start']->format('H') * 60 + $event['start']->format('i')) * $pixPerHour / 60;
+    $height = ($event['duration']) * $pixPerHour / 60;
+    $width = 100 / count($days);
 
-function displayTimeSlots() {
-    $timezone = new DateTimeZone('Europe/Istanbul');
-    $now = new DateTime('now', $timezone);
-    $currentHour = $now->format('H');
-
-    for ($hour = 0; $hour < 24; $hour++) {
-        if ($currentHour == $hour) {
-            echo "<div class='timeslot bg-success text-white'><small>" . sprintf("%02d:00", $hour) . "</small></div>";
-        } else {
-            echo "<div class='timeslot'><small>" . sprintf("%02d:00", $hour) . "</small></div>";
-        }
-    }
-}
-
-function displayEvents($pixPerHour = 40, $dayCount) {
-    $events = [
-        [
-            'title' => 'Morning Meeting',
-            'start' => DateTime::createFromFormat('H:i', '03:00'),
-            'duration' => 50,
-        ],
-        [
-            'title' => 'Morning Meeting Morning Meeting Morning Meeting Morning Meeting Morning Meeting ',
-            'start' => DateTime::createFromFormat('H:i', '05:00'),
-            'duration' => 50,
-        ],
-        [
-            'title' => 'Morning Meeting',
-            'start' => DateTime::createFromFormat('H:i', '07:00'),
-            'duration' => 50,
-        ],
-        [
-            'title' => 'Morning Meeting',
-            'start' => DateTime::createFromFormat('H:i', '09:00'),
-            'duration' => 50,
-        ],
-        [
-            'title' => 'Morning Meeting',
-            'start' => DateTime::createFromFormat('H:i', '11:00'),
-            'duration' => 50,
-        ],
-        [
-            'title' => 'Morning Meeting',
-            'start' => DateTime::createFromFormat('H:i', '13:00'),
-            'duration' => 50,
-        ],
-        [
-            'title' => 'Lunch Break',
-            'start' => DateTime::createFromFormat('H:i', '15:30'),
-            'duration' => 90,
-        ],
-    ];
-
-    foreach ($events as $event) {
-        $top = ($event['start']->format('H') * 60 + $event['start']->format('i') + rand(-20, 20))*$pixPerHour/60;
-        $height = ($event['duration']+rand(0,30))*$pixPerHour/60;
-        ?>
-        <a tabindex="0" class="event-box draggable"  draggable="true" id="event-<?= htmlspecialchars($event['title']) ?>"
-            style="top: <?= htmlspecialchars($top) ?>px; 
-                height: <?= htmlspecialchars($height) ?>px; 
-                width: calc(<?= 100/$dayCount ?>% - 40px);"
-            role="button" data-bs-toggle="popover" 
+    return <<<HTML
+        <a
+            tabindex="{$tabIndex}"
+            class="event-box draggable"
+            draggable="true"
+            id="event-{$event['title']}"
+            style="top: {$top}px; height: {$height}px; width: calc({$width}% - 40px);"
+            role="button"
+            data-day="0"
+            data-bs-toggle="popover"
             data-bs-placement="top"
-            data-bs-trigger="focus" data-bs-title="Dismissible popover" 
+            data-bs-trigger="focus" data-bs-title="Dismissible popover"
             data-bs-content="And here's some amazing content. It's very engaging. Right?"
-        ><?= htmlspecialchars($event['title']) ?></a>
-
-        <?php
-    }
+        >{$event['title']}</a>
+        HTML;
 }
 
 ?>
-
 <div class="calendar-container">
-    <div class="scroll-container">
+    <div class="row p-0 m-0">
+        <?php foreach ($days as $key=>$day) : ?>
+            <div class="col row px-2" style="width: calc(100% / <?= count($days) ?>); padding: 0; margin: 0;">
+                <div class="col text-center text-muted"><?= $day ?></div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+    <div class="scroll-container" style="height: <?= $pixPerHour*24 ?>px;">
         <div id="timeslot-container">
-            <?php displayDayBoxes($days); ?>
-            <?php displayTimeSlots(); ?>
+            <?php foreach ($days as $key=>$day) : ?>
+                <div class="day-box" style="left: <?= $key * $dayWidth ?>%; width: <?= $dayWidth ?>%;"></div>
+            <?php endforeach; ?>
+            <div class="row p-0 m-0">
+                <?php for ($t = 0; $t < count($days); $t++) : ?>
+                    <div class="col" style="width: calc(100% / <?= count($days) ?>); padding: 0; margin: 0;">
+                        <?php for ($hour = 0; $hour < 24; $hour++) : ?>
+                            <div class="timeslot" style="height: <?= $pixPerHour ?>px;">
+                                <small><?= sprintf("%02d:00", $hour) ?></small>
+                            </div>
+                        <?php endfor; ?>
+                    </div>
+                <?php endfor; ?>
+            </div>        
         </div>
         <div id="events-container">
-            <?php displayEvents($pixPerHour, count($days)); ?>
+            <?php foreach ($events as $key=>$event) {
+                echo eventPrint($event, $key+1, $pixPerHour, $days);
+            } ?>
         </div>
     </div>
 </div>
 
 <?php
 
-$pixPerHour24 = $pixPerHour * 24;
-
 $this->registerCss(<<<CSS
         .scroll-container {
             overflow-y: auto;
             display: flex;
             position: relative;
-            height: {$pixPerHour24}px;
 
         }
         .day-box {
@@ -139,7 +103,6 @@ $this->registerCss(<<<CSS
             /*margin-left: 40px;*/
         }
         .timeslot {
-            height: {$pixPerHour}px;
             padding: 0;
             border-bottom: 1px solid #dee2e6;
             color: #aaaaaa;
@@ -201,17 +164,37 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
     var draggedElement = null;
+    const dayCount = <?= count($days) ?>;
+    const eventsContainer = document.getElementById('events-container');
+    const pixPerHour = <?= $pixPerHour ?>;
 
-    function setPosition(e, element, container) {
+    function setEventPosition(e, element, container) {
+        const dayWidth = eventsContainer.offsetWidth / dayCount;
         const rect = container.getBoundingClientRect();
-        const top = e.clientY - rect.top - (element.offsetHeight / 2);
-        const left = e.clientX - rect.left - (element.offsetWidth / 2);
+        let top = e.clientY - rect.top - (element.offsetHeight / 2);
+        let left = e.clientX - rect.left - (element.offsetWidth / 2);
 
         if (top<0) top = 0;
         if (left<0) left = 0;
 
+        let day = Math.floor(left / dayWidth);
+        left = day * dayWidth;
+        /* let startTime with 5 minutes interval, not 5 hour */
+        let startMinute = Math.floor((top / pixPerHour) * 60 / 15) * 15;
+        top = startMinute * pixPerHour / 60;
+
+        element.dataset.day = day;
         element.style.top = `${top}px`;
         element.style.left = `${left}px`;
+        console.log(top, left, day, dayCount, dayWidth);
+    }
+
+    function updateEventPositions() {
+        const dayWidth = eventsContainer.offsetWidth / dayCount;
+        document.querySelectorAll('.event-box').forEach(function(item) {
+            const day = item.dataset.day;
+            item.style.left = `${day * dayWidth}px`;
+        });
     }
 
     document.querySelectorAll('.draggable').forEach(function(item) {
@@ -227,11 +210,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         item.addEventListener('dragend', function(e) {
             e.preventDefault();
-            setPosition(e, draggedElement, document.getElementById('events-container'));
+            setEventPosition(e, draggedElement, document.getElementById('events-container'));
         });
     });
 
-    const eventsContainer = document.getElementById('events-container');
     eventsContainer.addEventListener('dragover', function(e) {
         e.preventDefault(); // Necessary to allow dropping
         e.dataTransfer.dropEffect = 'move';
@@ -240,9 +222,24 @@ document.addEventListener('DOMContentLoaded', function () {
     eventsContainer.addEventListener('drop', function(e) {
         e.preventDefault();
         if (draggedElement) {
-            setPosition(e, draggedElement, this);
+            setEventPosition(e, draggedElement, this);
         }
     });
+
+    window.addEventListener('resize', debounce(updateEventPositions, 250));
+
+    function debounce(func, wait, immediate) {
+        var timeout;
+        return function() {
+            var context = this, args = arguments;
+            clearTimeout(timeout);
+            timeout = setTimeout(function() {
+                timeout = null;
+                if (!immediate) func.apply(context, args);
+            }, wait);
+            if (immediate && !timeout) func.apply(context, args);
+        };
+    }
 
 });
 
