@@ -93,7 +93,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
             </div>
         <?php endif; ?>
 
-            <div class="col p-5 rightContent h-100" id="main-content">
+            <div class="col p-1 rightContent h-100" id="main-content">
                 <?php try {
                     echo Alert::widget();
                 } catch (Throwable $e) {
