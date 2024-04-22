@@ -1,13 +1,10 @@
 <?php
 use app\components\MyUrl;
-use yii\bootstrap5\Popover;
 
 $timezone = new DateTimeZone('Europe/Istanbul');
 $now = new DateTime('now', $timezone);
 $currentHour = $now->format('H');
 $dayWidth = 100 / count($days);
-
-
 
 function eventPrint($event, $tabIndex, $pixPerHour, $days)
 {
@@ -168,6 +165,7 @@ CSS);
 <script>
 
 async function fetchEvents() {
+
     const response = await fetch('<?= MyUrl::to(['appointment/events/demo']) ?>');
     const events = await response.json();
     addEventsToDOM(events);

@@ -99,13 +99,6 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                 } catch (Throwable $e) {
                 } ?>
                 <?= $content ?>
-                <br />
-                <?php /* echo
-                    Card::widget([
-                        'title' => Yii::t('app', 'Debugging'),
-                        'content' => '<pre>'.print_r(Yii::$app->user->identity->user->getBusinesses()->active()->orderBy('name')->all(), true).'</pre>',
-                    ]);*/
-                ?>
             </div>
 
         </div>

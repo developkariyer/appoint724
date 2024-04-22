@@ -4,7 +4,6 @@ namespace app\controllers;
 
 use app\components\LanguageBehavior;
 use app\models\Appointment;
-use app\models\Business;
 use DateTime;
 use yii;
 use yii\web\Controller;
@@ -20,50 +19,35 @@ class AppointmentController extends Controller
     
     public function getEvents()
     {
-        return [
-            [
-                'title' => 'Morning Meeting #1',
-                'start' => DateTime::createFromFormat('H:i', '03:00'),
-                'duration' => 50,
+        $events = [];
+        for ($t=0;$t<10;$t++) {
+            $events[] = [
+                'title' => "Morning Meeting $t",
+                //'start' => DateTime::createFromFormat('H:i', '08:00')->modify("+".rand(0, 480)." minutes"),
+                'start' => DateTime::createFromFormat('H:i', '00:00')->modify("+".($t*120)." minutes"),
+                'duration' => 100,
                 'day' => 0,
-            ],
-            [
-                'title' => 'Morning Meeting #2',
-                'start' => DateTime::createFromFormat('H:i', '05:00'),
-                'duration' => 50,
-                'day' => 1,
-            ],
-            [
-                'title' => 'Morning Meeting #3',
-                'start' => DateTime::createFromFormat('H:i', '07:00'),
-                'duration' => 150,
-                'day' => 2,
-            ],
-            [
-                'title' => 'Morning Meeting #4',
-                'start' => DateTime::createFromFormat('H:i', '09:00'),
-                'duration' => 150,
+            ];
+        }
+        for ($t=0;$t<5;$t++) {
+            $events[] = [
+                'title' => "Morning Meeting $t x",
+                'start' => DateTime::createFromFormat('H:i', '06:15')->modify("+".($t*120)." minutes"),
+                'duration' => 180,
                 'day' => 0,
-            ],
-            [
-                'title' => 'Morning Meeting #5',
-                'start' => DateTime::createFromFormat('H:i', '10:00'),
-                'duration' => 150,
+            ];
+        }
+/*
+        for ($t=0;$t<50;$t++) {
+            $events[] = [
+                'title' => "Morning Meeting $t",
+                'start' => DateTime::createFromFormat('H:i', '08:00')->modify("+".rand(0, 480)." minutes"),
+                'duration' => 60,
                 'day' => 0,
-            ],
-            [
-                'title' => 'Morning Meeting #6',
-                'start' => DateTime::createFromFormat('H:i', '13:00'),
-                'duration' => 50,
-                'day' => 0,
-            ],
-            [
-                'title' => 'Lunch Break',
-                'start' => DateTime::createFromFormat('H:i', '15:30'),
-                'duration' => 90,
-                'day' => 0,
-            ],
-        ];
+            ];
+        }
+*/  
+        return $events;
     }
 
     /**
@@ -103,13 +87,11 @@ class AppointmentController extends Controller
 
     public function actionView($slug)
     {
-        Yii::$app->session->setFlash('info', Yii::t('app', 'Try moving "Morning Meeting" events around :)'));
-    
-        $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        $days = ['Monday', 'Tuesday', 'Wednesday']; //, 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
         $pixPerHour = 40;
 
-        return $this->render('view1', ['events' => $this->events, 'days' => array_values($days), 'pixPerHour' => $pixPerHour]);
+        return $this->render('view', ['events' => $this->events, 'days' => array_values($days), 'pixPerHour' => $pixPerHour]);
     }
 
 }
