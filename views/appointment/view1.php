@@ -1,4 +1,5 @@
 <?php
+use app\components\MyUrl;
 use yii\bootstrap5\Popover;
 
 $timezone = new DateTimeZone('Europe/Istanbul');
@@ -6,35 +7,45 @@ $now = new DateTime('now', $timezone);
 $currentHour = $now->format('H');
 $dayWidth = 100 / count($days);
 
-function eventPrint($event, $tabIndex, $pixPerHour, $days) 
+
+
+function eventPrint($event, $tabIndex, $pixPerHour, $days)
 {
-    $top = ($event['start']->format('H') * 60 + $event['start']->format('i')) * $pixPerHour / 60;
+    $top = ($event['start']->format('H') * 60 + $event['start']->format('i')) * $pixPerHour / 60;    
     $height = ($event['duration']) * $pixPerHour / 60;
-    $width = 100 / count($days);
+    $dayWidth = 100 / count($days);
+    $left = $dayWidth * $event['day'];
 
     return <<<HTML
-        <a
-            tabindex="{$tabIndex}"
+        <div
             class="event-box draggable"
             draggable="true"
             id="event-{$event['title']}"
-            style="top: {$top}px; height: {$height}px; width: calc({$width}% - 40px);"
+            style="top: {$top}px; height: {$height}px; width: calc({$dayWidth}% - 40px); left: {$left}%;"
             role="button"
-            data-day="0"
+            data-day="{$event['day']}"
             data-bs-toggle="popover"
             data-bs-placement="top"
-            data-bs-trigger="focus" data-bs-title="Dismissible popover"
+            data-bs-trigger="focus"
+            data-bs-title="Dismissible popover"
             data-bs-content="And here's some amazing content. It's very engaging. Right?"
-        >{$event['title']}</a>
+            tabindex="{$tabIndex}"
+        ><span class="event-title">{$event['title']}</span>
+        </div>
         HTML;
 }
 
 ?>
+
+<div id="info-box" style="z-index: 10000; display: none; position: fixed; top: 0px; left: 200px; height: 40px; background: red; color: white; padding: 3px;">
+    Drag info will appear here.
+</div>
+
 <div class="calendar-container">
     <div class="row p-0 m-0">
         <?php foreach ($days as $key=>$day) : ?>
             <div class="col row px-2" style="width: calc(100% / <?= count($days) ?>); padding: 0; margin: 0;">
-                <div class="col text-center text-muted"><?= $day ?></div>
+                <div class="col text-center text-muted" id="day<?= $key ?>"><?= $day ?></div>
             </div>
         <?php endforeach; ?>
     </div>
@@ -57,7 +68,7 @@ function eventPrint($event, $tabIndex, $pixPerHour, $days)
         </div>
         <div id="events-container">
             <?php foreach ($events as $key=>$event) {
-                echo eventPrint($event, $key+1, $pixPerHour, $days);
+                echo eventPrint($event, $key+1, $pixPerHour+5, $days);
             } ?>
         </div>
     </div>
@@ -155,6 +166,47 @@ $this->registerCss(<<<CSS
 CSS);
 ?>
 <script>
+
+async function fetchEvents() {
+    const response = await fetch('<?= MyUrl::to(['appointment/events/demo']) ?>');
+    const events = await response.json();
+    addEventsToDOM(events);
+}
+
+function addEventsToDOM(events) {
+    const eventsContainer = document.getElementById('events-container');
+
+    events.forEach(event => {
+        const startTime = new Date(event.start.date);
+        const top = (startTime.getHours() * 60 + startTime.getMinutes()) * <?= $pixPerHour ?> / 60;
+        const height = event.duration * <?= $pixPerHour ?> / 60;
+        const dayWidth = 100 / 7; /* TODO to be calculated based on number of days */
+        const left = dayWidth * event.day;
+        const eventDiv = document.createElement('div');
+        eventDiv.className = 'event-box draggable';
+        eventDiv.draggable = true;
+        eventDiv.id = 'event'+event.id;
+        eventDiv.style.cssText = `top: ${top}px; height: ${height}px; width: calc(${dayWidth}% - 40px); left: ${left}%;`;
+        eventDiv.setAttribute('role', 'button');
+        eventDiv.setAttribute('data-day', event.day);
+        eventDiv.setAttribute('data-bs-toggle', 'popover');
+        eventDiv.setAttribute('data-bs-placement', 'top');
+        eventDiv.setAttribute('data-bs-trigger', 'focus');
+        eventDiv.setAttribute('data-bs-title', event.title);
+        eventDiv.setAttribute('data-bs-content', event.title);
+
+        const spanTitle = document.createElement('span');
+        spanTitle.className = 'event-title';
+        spanTitle.textContent = event.title;
+        eventDiv.appendChild(spanTitle);
+
+        eventsContainer.appendChild(eventDiv);
+
+        // Initialize Bootstrap Popover for this element
+        new bootstrap.Popover(eventDiv);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     var popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
     var popoverList = Array.from(popoverTriggerList).map(function(popoverTriggerEl) {
@@ -168,33 +220,42 @@ document.addEventListener('DOMContentLoaded', function () {
     const eventsContainer = document.getElementById('events-container');
     const pixPerHour = <?= $pixPerHour ?>;
 
-    function setEventPosition(e, element, container) {
+    fetchEvents();
+
+    function setEventPosition(e, element) {
         const dayWidth = eventsContainer.offsetWidth / dayCount;
-        const rect = container.getBoundingClientRect();
-        let top = e.clientY - rect.top - (element.offsetHeight / 2);
-        let left = e.clientX - rect.left - (element.offsetWidth / 2);
+        const rect = eventsContainer.getBoundingClientRect();
+        let top = e.clientY - rect.top;
+        let left = e.clientX - rect.left;
+
+        console.log(left, dayWidth);
 
         if (top<0) top = 0;
         if (left<0) left = 0;
 
-        let day = Math.floor(left / dayWidth);
-        left = day * dayWidth;
-        /* let startTime with 5 minutes interval, not 5 hour */
-        let startMinute = Math.floor((top / pixPerHour) * 60 / 15) * 15;
+        const day = Math.floor(left / dayWidth);
+        const startMinute = Math.floor((top / pixPerHour) * 60 /5)*5;
         top = startMinute * pixPerHour / 60;
+        left = day * dayWidth;
+
+        const dayDivId = `day${day}`;
+        const eventHours = Math.floor(startMinute / 60).toString().padStart(2, '0');
+        const eventMinutes = (startMinute % 60).toString().padStart(2, '0');
+        const eventDay = document.getElementById(dayDivId).innerHTML;
 
         element.dataset.day = day;
         element.style.top = `${top}px`;
         element.style.left = `${left}px`;
-        console.log(top, left, day, dayCount, dayWidth);
-    }
 
-    function updateEventPositions() {
-        const dayWidth = eventsContainer.offsetWidth / dayCount;
-        document.querySelectorAll('.event-box').forEach(function(item) {
-            const day = item.dataset.day;
-            item.style.left = `${day * dayWidth}px`;
-        });
+        const titleSpan = element.querySelector('.event-title');
+        /*titleSpan.textContent = `${eventDay} ${eventHours}:${eventMinutes}`;*/
+        const popoverInstance = bootstrap.Popover.getInstance(element);
+        if (popoverInstance) {
+            popoverInstance.setContent({
+                '.popover-body': `${eventDay} ${eventHours}:${eventMinutes}`
+            });
+            popoverInstance.update();
+        }
     }
 
     document.querySelectorAll('.draggable').forEach(function(item) {
@@ -206,16 +267,42 @@ document.addEventListener('DOMContentLoaded', function () {
             if (popoverInstance) {
                 popoverInstance.hide(); 
             }
+            const infoBox = document.getElementById('info-box');
+            infoBox.style.display = 'block';
+            infoBox.textContent = draggedElement.querySelector('.event-title').innerHTML;
+        });
+
+        item.addEventListener('drag', function(e) {
+            // Log mouse position during the drag, if available
+            if (e.clientX > 0 && e.clientY > 0) {
+                const dayWidth = eventsContainer.offsetWidth / dayCount;
+                const rect = eventsContainer.getBoundingClientRect();
+                const top = e.clientY - rect.top; - (draggedElement.offsetHeight / 2);
+                const left = e.clientX - rect.left;
+                const day = Math.floor(left / dayWidth);
+                const dayDivId = `day${day}`;
+                const eventDay = document.getElementById(dayDivId).innerHTML;
+                const startMinute = Math.floor((top / pixPerHour) * 60 /5)*5;
+                const eventHours = Math.floor(startMinute / 60).toString().padStart(2, '0');
+                const eventMinutes = (startMinute % 60).toString().padStart(2, '0');
+                const infoBox = document.getElementById('info-box');
+
+                infoBox.textContent = draggedElement.querySelector('.event-title').innerHTML+` is being moved to ${eventDay} ${eventHours}:${eventMinutes}`;
+            }
         });
 
         item.addEventListener('dragend', function(e) {
             e.preventDefault();
-            setEventPosition(e, draggedElement, document.getElementById('events-container'));
+            setEventPosition(e, draggedElement);
+            const infoBox = document.getElementById('info-box');
+            infoBox.style.display = 'none';
+            const popoverInstance = bootstrap.Popover.getOrCreateInstance(draggedElement);
+            popoverInstance.show();
         });
     });
 
     eventsContainer.addEventListener('dragover', function(e) {
-        e.preventDefault(); // Necessary to allow dropping
+        e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
     });
 
@@ -226,8 +313,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    window.addEventListener('resize', debounce(updateEventPositions, 250));
+    /* recalculate event positions when called (triggered below by debounce) */
+    function updateEventPositions() {
+        const dayWidth = eventsContainer.offsetWidth / dayCount;
+        document.querySelectorAll('.event-box').forEach(function(item) {
+            const day = item.dataset.day;
+            item.style.left = `${day * dayWidth}px`;
+        });
+    }
 
+    /* Trigger updateEventPositions when window resizes */
+    window.addEventListener('resize', debounce(updateEventPositions, 250));
     function debounce(func, wait, immediate) {
         var timeout;
         return function() {
@@ -240,6 +336,42 @@ document.addEventListener('DOMContentLoaded', function () {
             if (immediate && !timeout) func.apply(context, args);
         };
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get all resizable events
+        const resizableEvents = document.querySelectorAll('.resizable-event');
+
+        // Add resize functionality to each event
+        resizableEvents.forEach(function(resizable) {
+            const resizeHandle = resizable.querySelector('.resize-handle');
+
+            let isResizing = false;
+
+            resizeHandle.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                isResizing = true;
+                window.addEventListener('mousemove', handleMouseMove);
+                window.addEventListener('mouseup', stopResize);
+            });
+
+            function handleMouseMove(e) {
+                if (isResizing) {
+                    // Calculate the new dimensions
+                    const width = e.clientX - resizable.getBoundingClientRect().left;
+                    const height = e.clientY - resizable.getBoundingClientRect().top;
+                    resizable.style.width = `${width}px`;
+                    resizable.style.height = `${height}px`;
+                }
+            }
+
+            function stopResize(e) {
+                isResizing = false;
+                window.removeEventListener('mousemove', handleMouseMove);
+                window.removeEventListener('mouseup', stopResize);
+            }
+        });
+    });
+
 
 });
 
