@@ -20,33 +20,17 @@ class AppointmentController extends Controller
     public function getEvents()
     {
         $events = [];
-        for ($t=0;$t<10;$t++) {
-            $events[] = [
-                'title' => "Morning Meeting $t",
-                //'start' => DateTime::createFromFormat('H:i', '08:00')->modify("+".rand(0, 480)." minutes"),
-                'start' => DateTime::createFromFormat('H:i', '00:00')->modify("+".($t*120)." minutes"),
-                'duration' => 100,
-                'day' => 0,
-            ];
-        }
-        for ($t=0;$t<5;$t++) {
-            $events[] = [
-                'title' => "Morning Meeting $t x",
-                'start' => DateTime::createFromFormat('H:i', '06:15')->modify("+".($t*120)." minutes"),
-                'duration' => 180,
-                'day' => 0,
-            ];
-        }
-/*
         for ($t=0;$t<50;$t++) {
+            $startMinute = rand(1,1000);
+            $endMinute = $startMinute + rand(30,90);
             $events[] = [
+                'id' => 'A'.md5($t*7),
                 'title' => "Morning Meeting $t",
-                'start' => DateTime::createFromFormat('H:i', '08:00')->modify("+".rand(0, 480)." minutes"),
-                'duration' => 60,
+                'startMinute' => $startMinute,
+                'endMinute' => $endMinute,
                 'day' => 0,
             ];
         }
-*/  
         return $events;
     }
 
@@ -87,9 +71,9 @@ class AppointmentController extends Controller
 
     public function actionView($slug)
     {
-        $days = ['Monday', 'Tuesday', 'Wednesday']; //, 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        $days = ['Monday']; //, 'Tuesday', 'Wednesday']; //, 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-        $pixPerHour = 40;
+        $pixPerHour = 80;
 
         return $this->render('view', ['events' => $this->events, 'days' => array_values($days), 'pixPerHour' => $pixPerHour]);
     }
