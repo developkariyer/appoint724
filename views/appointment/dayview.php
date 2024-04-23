@@ -200,29 +200,13 @@ const MyApp = {
                 let startDate = new Date(event.start);
                 let endDate = new Date(event.end);
                 event.startMinute = startDate.getHours() * 60 + startDate.getMinutes();
-                event.endMinute = (startDate.getDate() === endDate.getDate()) ? 
-                    endDate.getHours() * 60 + endDate.getMinutes() : 1440;
-            }
-        });
-    },
-
-    syncAllEvents: async function () {
-        const response = await fetch('<?= MyUrl::to(['appointment/events/demo']) ?>');
-        newEventList = await response.json();
-        this.convertEventTimes(newEventList);
-        newEventList.forEach(newEevent => {
-            const event = this.eventList.find(event => event.id === newEvent.id);
-            if (event) {
-                if (event.startMinute !== newEvent.startMinute || event.endMinute !== newEvent.endMinute || event.day !== newEvent.day || event.title !== newEvent.title) {
-                    event.changed = true;
-                    event.startMinute = newEvent.startMinute;
-                    event.endMinute = newEvent.endMinute;
-                    event.day = newEvent.day;
-                    event.title = newEvent.title;
+                event.endMinute = endDate.getHours() * 60 + endDate.getMinutes();
+                if (event.endMinute > event.startMinute) {
+                    event.duration = event.endMinute - event.startMinute;
+                } else {
+                    event.duration = 1440 - event.startMinute + event.endMinute;
+                    event.endMinute = 1440;
                 }
-            } else {
-                newEvent.changed = true;
-                this.eventList.push(newEvent);
             }
         });
     },
@@ -234,20 +218,20 @@ const MyApp = {
         this.createUpdateEventObjects(true);
     },
 
+    deleteEvents: function () {
+        this.eventsContainer.innerHTML = '';
+    },
+
     updateEvent: function(id, day, startMinute) {
         const event = this.eventList.find(event => event.id === id);
         event.day = this.dayNames[day];
-        const duration = event.endMinute - event.startMinute;
         event.startMinute = startMinute;
-        event.endMinute = startMinute + duration;
+        potantialEndMinute = startMinute + event.duration;
+        event.endMinute = (potantialEndMinute<=1440) ? potantialEndMinute : 1440;
 
         this.assignEventsToColumns();
         this.setEventPositions();
         this.createUpdateEventObjects();
-    },
-
-    deleteEvents: function () {
-        this.eventsContainer.innerHTML = '';
     },
 
     assignEventsToColumns: function() {
@@ -255,7 +239,6 @@ const MyApp = {
             return event1.startMinute < event2.endMinute && event2.startMinute < event1.endMinute;
         }
 
-        /*this.eventList.sort((a, b) => a.startMinute - b.startMinute);*/
         console.log(this.eventList);
         currentColumnLength = [];
 
@@ -282,11 +265,17 @@ const MyApp = {
                 }
             }
 
-            const dayColumns = this.eventColumns[day];
+            allChanged = (currentColumnLength[day] !== this.eventColumns[day].length) ? true : false;
+/*
+            for (let i = this.eventColumns[day].length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [this.eventColumns[day][i], this.eventColumns[day][j]] = [this.eventColumns[day][j], this.eventColumns[day][i]];
+            }
+            allChanged = true;
+*/
 
-            allChanged = (currentColumnLength[day] !== dayColumns.length) ? true : false;
-            for (let i = 0; i < dayColumns.length; i++) {
-                const column = dayColumns[i];
+            for (let i = 0; i < this.eventColumns[day].length; i++) {
+                const column = this.eventColumns[day][i];
                 for (let j = 0; j < column.length; j++) {
                     const event = column[j];
                     event.changed = allChanged || event.changed || event.column !== i ? true : false;
@@ -294,8 +283,8 @@ const MyApp = {
                     let expandLeft = 0;
                     for (let k = i - 1; k >= 0; k--) {
                         let canExpand = true;
-                        for (let m = 0; m < dayColumns[k].length; m++) {
-                            if (eventsOverlap(event, dayColumns[k][m])) {
+                        for (let m = 0; m < this.eventColumns[day][k].length; m++) {
+                            if (eventsOverlap(event, this.eventColumns[day][k][m])) {
                                 canExpand = false;
                                 break;
                             }
@@ -306,10 +295,10 @@ const MyApp = {
                     event.changed = event.changed || (event.spanLeft !== expandLeft) ? true : false;
                     event.spanLeft = expandLeft;
                     let expandRight = 0;
-                    for (let k = i + 1; k < dayColumns.length; k++) {
+                    for (let k = i + 1; k < this.eventColumns[day].length; k++) {
                         let canExpand = true;
-                        for (let m = 0; m < dayColumns[k].length; m++) {
-                            if (eventsOverlap(event, dayColumns[k][m])) {
+                        for (let m = 0; m < this.eventColumns[day][k].length; m++) {
+                            if (eventsOverlap(event, this.eventColumns[day][k][m])) {
                                 canExpand = false;
                                 break;
                             }
@@ -322,6 +311,7 @@ const MyApp = {
                 }
             }
         });
+        console.log(currentColumnLength);
     },
 
     setEventPositions: function () {
@@ -330,7 +320,7 @@ const MyApp = {
             const dayColumns = this.eventColumns[day];
             const columnCount = dayColumns.length;
             dayColumns.forEach((column, columnIndex) => {
-                column.forEach((event, index) => {
+                column.forEach(event => {
                     event.top = event.startMinute * this.pixPerHour / 60;
                     event.height = (event.endMinute>event.startMinute) ? 
                             (event.endMinute - event.startMinute) * this.pixPerHour / 60 : (1440-event.startMinute) * this.pixPerHour / 60;

@@ -73,11 +73,12 @@ class AppointmentController extends Controller
         for ($t = 0; $t < 500; $t++) {
             $randomHourStart = mt_rand(0, 22);
             $randomHourEnd = $randomHourStart + mt_rand(1, 2); // Ensure event ends after it starts
+            $randomDay = mt_rand(1, 4);
             $events[] = [
                 'id' => 'A' . md5($t * 7),
                 'title' => "Morning Meeting $t",
-                'start' => '2024-01-01T' . str_pad($randomHourStart, 2, "0", STR_PAD_LEFT) . ':01:00', // UTC
-                'end' => '2024-01-01T' . str_pad($randomHourEnd, 2, "0", STR_PAD_LEFT) . ':01:00', // UTC
+                'start' => '2024-01-0'.$randomDay.'T' . str_pad($randomHourStart, 2, "0", STR_PAD_LEFT) . ':01:00', // UTC
+                'end' => '2024-01-0'.$randomDay.'T' . str_pad($randomHourEnd, 2, "0", STR_PAD_LEFT) . ':01:00', // UTC
             ];
         }
 
