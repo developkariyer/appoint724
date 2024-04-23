@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use DateTime;
+use DateTimeZone;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
@@ -63,6 +65,37 @@ class Appointment extends ActiveRecord
                 'eventTypeDelete' => LogBase::EVENT_BUSINESS_DELETED,
             ],
         ];
+    }
+
+    public function getStartTime()
+    {
+        return new DateTime($this->start_time, new DateTimeZone('UTC'));
+    }
+
+    public function setStartTime(DateTime $dateTime)
+    {
+        $this->start_time = $dateTime->format('Y-m-d H:i:s');  // Always store back as UTC string
+    }
+
+    public function getEndTime()
+    {
+        return new DateTime($this->end_time, new DateTimeZone('UTC'));
+    }
+
+    public function setEndTime(DateTime $dateTime)
+    {
+        $this->end_time = $dateTime->format('Y-m-d H:i:s');  // Always store back as UTC string
+    }
+
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+            // Ensure UTC datetime strings are correctly set
+            $this->start_time = $this->getStartTime()->format('Y-m-d H:i:s');
+            $this->end_time = $this->getEndTime()->format('Y-m-d H:i:s');
+            return true;
+        }
+        return false;
     }
 
     /**
