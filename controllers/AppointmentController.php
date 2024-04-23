@@ -17,23 +17,6 @@ use yii\web\NotFoundHttpException;
 class AppointmentController extends Controller
 {
     
-    public function getEvents()
-    {
-        $events = [];
-        for ($t=0;$t<50;$t++) {
-            $startMinute = rand(1,1000);
-            $endMinute = $startMinute + rand(30,90);
-            $events[] = [
-                'id' => 'A'.md5($t*7),
-                'title' => "Morning Meeting $t",
-                'startMinute' => $startMinute,
-                'endMinute' => $endMinute,
-                'day' => 0,
-            ];
-        }
-        return $events;
-    }
-
     /**
      * @inheritDoc
      */
@@ -62,6 +45,25 @@ class AppointmentController extends Controller
             throw new NotFoundHttpException(Yii::t('app', 'The requested page does not exist.'));
         }
         return $model;
+    }
+ 
+    public function getEvents()
+    {
+        $events = [];
+        for ($t=0;$t<50;$t++) {
+            $startMinute = rand(1,1000);
+            $endMinute = $startMinute + rand(30,90);
+            $events[] = [
+                'id' => 'A'.md5($t*7),
+                'title' => "Morning Meeting $t",
+                'start' => '2021-01-01T08:00:00',
+                'end' => '2021-01-01T09:00:00',
+                //'startMinute' => $startMinute,
+                //'endMinute' => $endMinute,
+                //'day' => 0,
+            ];
+        }
+        return $events;
     }
 
     public function actionEvents($slug)

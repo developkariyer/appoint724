@@ -46,11 +46,7 @@ $dayWidth = 100 / count($days);
                 <?php endfor; ?>
             </div>        
         </div>
-        <div id="events-container">
-            <?php /*foreach ($events as $key=>$event) {
-                echo eventPrint($event, $key+1, $pixPerHour+5, $days); // switched to dynamically json loaded version
-            } */?>
-        </div>
+        <div id="events-container"></div>
     </div>
 </div>
 
@@ -91,7 +87,6 @@ $this->registerCss(<<<CSS
             left: 0;
             right: 0;
             z-index: 4;
-            /*margin-left: 40px;*/
         }
         .timeslot {
             padding: 0;
