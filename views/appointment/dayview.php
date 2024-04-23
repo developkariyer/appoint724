@@ -200,7 +200,8 @@ const MyApp = {
                 let startDate = new Date(event.start);
                 let endDate = new Date(event.end);
                 event.startMinute = startDate.getHours() * 60 + startDate.getMinutes();
-                event.endMinute = endDate.getHours() * 60 + endDate.getMinutes();
+                event.endMinute = (startDate.getDate() === endDate.getDate()) ? 
+                    endDate.getHours() * 60 + endDate.getMinutes() : 1440;
             }
         });
     },
@@ -255,7 +256,7 @@ const MyApp = {
         }
 
         /*this.eventList.sort((a, b) => a.startMinute - b.startMinute);*/
-
+        console.log(this.eventList);
         currentColumnLength = [];
 
         this.dayNames.forEach(day => {
@@ -331,7 +332,8 @@ const MyApp = {
             dayColumns.forEach((column, columnIndex) => {
                 column.forEach((event, index) => {
                     event.top = event.startMinute * this.pixPerHour / 60;
-                    event.height = (event.endMinute - event.startMinute) * this.pixPerHour / 60;
+                    event.height = (event.endMinute>event.startMinute) ? 
+                            (event.endMinute - event.startMinute) * this.pixPerHour / 60 : (1440-event.startMinute) * this.pixPerHour / 60;
                     event.left = this.dayWidth * key + (columnIndex - event.spanLeft) * this.dayWidth / columnCount;
                     event.width = (1+event.spanRight) * this.dayWidth / columnCount;
                     event.widthMargin = Math.floor((1+event.spanLeft+event.spanRight)*40/columnCount)+(columnCount ? 2 : 0);
