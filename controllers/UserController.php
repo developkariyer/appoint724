@@ -88,7 +88,7 @@ class UserController extends Controller
             $user = new User();
             $user->attributes = $model->attributes;
             if ($user->save()) {
-                if (UserBusiness::addUserBusiness($user->id, $business->id, Yii::$app->request->get('role'))) {
+                if (UserBusiness::addUserBusiness($user->id, $business->id, Yii::$app->request->get('role'), $model->expertType)) {
                     Yii::$app->session->setFlash('info', Yii::t('app', '{user} created and added to {business} {role} role.', ['user' => $user->fullname, 'business' => $business->name, 'role' => Yii::$app->request->get('role')]));
                 } else {
                     Yii::$app->session->setFlash('error', Yii::t('app', 'Error adding {user} to {business}.', ['user' => $user->fullname, 'business' => $business->name]));
@@ -98,7 +98,7 @@ class UserController extends Controller
                 Yii::debug($user->getErrors());
                 Yii::$app->session->setFlash('error', Yii::t('app', 'Error creating {user}.', ['user' => $user->fullname]));
             }
-            return $this->redirect(["business/user/".Yii::$app->request->get('role')."/".$business->slug]);
+            return $this->redirect(MyURl::to(["business/user/{$business->slug}/".Yii::$app->request->get('role')]));
         }
 
         return $this->render('user', [

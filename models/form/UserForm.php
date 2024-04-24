@@ -25,6 +25,7 @@ class UserForm extends Model
     public $password;
     public $password_repeat;
     public $password_old;
+    public $slug;
 
 
     public function scenarios()

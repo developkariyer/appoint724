@@ -19,9 +19,9 @@ echo GridView::widget([
         'email',
         'gsm',
         [
-            'class' => 'yii\grid\Column', // Default grid column
+            'class' => 'yii\grid\Column',
             'content' => function ($model, $key, $index, $column) use ($role, $slug) {
-                $url = MyUrl::to(["business/user/$role/$slug"]);
+                $url = MyUrl::to(["business/user/$slug/$role"]);
                 return Html::beginForm($url, 'post')
                     . Html::hiddenInput('id', $model->id)
                     . Html::submitButton('<i class="bi bi-person-fill-add"></i>', [

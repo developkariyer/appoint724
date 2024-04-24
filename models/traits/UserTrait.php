@@ -7,6 +7,8 @@ use Yii;
 trait UserTrait
 {
     
+    public $expertType;
+
     public function commonRules(): array
     {
         return [
@@ -31,6 +33,8 @@ trait UserTrait
                             }
                             $query->andWhere(['deleted_at' => null]); 
                         }],
+            ['expertType', 'safe'],
+            ['expertType', 'string', 'max'=>255],
         ];
     }
 

@@ -16,12 +16,12 @@ return [
 
     "<lang:$langPattern>/site/login/<s>" => 'site/login',
 
-    "<lang:$langPattern>/business/user/<role:$roles>/<slug>" => 'business/user',
+    "<lang:$langPattern>/business/user/<slug>/<role:$roles>" => 'business/user',
     "<lang:$langPattern>/business/<action:$businessActions>/<slug>/<id>" => 'business/<action>',
     "<lang:$langPattern>/business/<action:$businessActions>/<slug>" => 'business/<action>',
 
-    "<lang:$langPattern>/user/add/<role:$roles>/<slug>/<id>" => 'user/add',
-    "<lang:$langPattern>/user/add/<role:$roles>/<slug>" => 'user/add',
+    "<lang:$langPattern>/user/add/<slug>/<role:$roles>/<id>" => 'user/add',
+    "<lang:$langPattern>/user/add/<slug>/<role:$roles>" => 'user/add',
     "<lang:$langPattern>/user/<action:\w+>/<id>" => 'user/<action>',
 
     "<lang:$langPattern>/appointment/<action:\w+>/<slug>" => 'appointment/<action>',

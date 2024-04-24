@@ -16,6 +16,8 @@ use app\components\LogBehavior;
  * @property int         $user_id
  * @property int         $business_id
  * @property string      $created_at
+ * @property string|null $role
+ * @property string|null $expert_type
  * @property Business    $business
  * @property User        $user
  */
@@ -38,7 +40,9 @@ class UserBusiness extends ActiveRecord
         return [
             [['user_id', 'business_id'], 'required'],
             [['user_id', 'business_id'], 'integer'],
-            [['created_at'], 'safe'],
+            ['expert_type', 'string', 'max' => 255],
+            ['role', 'string', 'max' => 255],
+            [['created_at', 'expert_type'], 'safe'],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
             [['business_id'], 'exist', 'skipOnError' => true, 'targetClass' => Business::class, 'targetAttribute' => ['business_id' => 'id']],
         ];
@@ -63,13 +67,14 @@ class UserBusiness extends ActiveRecord
         ];
     }
 
-    public function reassignUserBusiness($role): bool
+    public function reassignUserBusiness($role, $expertType): bool
     {
         $this->role = $role;
-        return $this->save(false, ['role']);
+        $this->expert_type = $expertType;
+        return $this->save(false, ['role', 'expert_type']);
     }
 
-    public static function addUserBusiness($userId, $businessId, $role): bool
+    public static function addUserBusiness($userId, $businessId, $role, $expertType = null): bool
     {
         $userBusiness = static::find()->where(['user_id' => $userId, 'business_id' => $businessId])->one();
 
@@ -81,6 +86,7 @@ class UserBusiness extends ActiveRecord
             'user_id' => $userId,
             'business_id' => $businessId,
             'role' => $role,
+            'expert_type' => $expertType,
         ]);
         return $userBusiness->save();
     }
