@@ -73,6 +73,7 @@ class BusinessController extends Controller
         $model = new Business();
         if ($this->request->isPost) {
             $model->expert_type_list = json_encode(array_filter(array_map('trim', explode("\n", $model->expert_type_list))));
+            $model->resource_type_list = json_encode(array_filter(array_map('trim', explode("\n", $model->resource_type_list))));
             if ($model->load($this->request->post()) && $model->save()) {
                 UserBusiness::addUserBusiness(Yii::$app->user->identity->user->id, $model->id, UserBusiness::ROLE_ADMIN);
                 if (!Yii::$app->user->identity->user->superadmin) {
@@ -95,6 +96,7 @@ class BusinessController extends Controller
     {
         $model = $this->findModel(slug:$slug);
         $model->expert_type_list = implode("\n", json_decode($model->expert_type_list, true) ?: []);
+        $model->resource_type_list = implode("\n", json_decode($model->resource_type_list, true) ?: []);
 
         if (!ACL::canBusinessUpdateDelete($model->id)) {
             throw new BadRequestHttpException(Yii::t('app', 'You are not allowed to update this business.'));
@@ -102,6 +104,7 @@ class BusinessController extends Controller
 
         if ($this->request->isPost && $model->load($this->request->post())) {
             $model->expert_type_list = json_encode(array_filter(array_map('trim', explode("\n", $model->expert_type_list))));
+            $model->resource_type_list = json_encode(array_filter(array_map('trim', explode("\n", $model->resource_type_list))));
             if ($model->save()) {
                 Yii::$app->session->setFlash('info', Yii::t('app', 'Business updated'));
                 return $this->redirect(MyUrl::to(['business/update/'.$model->slug]));

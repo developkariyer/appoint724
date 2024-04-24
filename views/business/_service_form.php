@@ -9,8 +9,8 @@ use yii\widgets\ActiveForm;
 /* @var app\models\Service|app\models\Rule|app\models\Resource $relationModel */
 /* @var app\models\Business $model */
 
-$resourceTypes = ArrayHelper::map($model->getResources()->andWhere(['deleted_at' => null])->all(), 'resource_type', 'resource_type');
-$resourceTypes = array_merge([''=>''], $resourceTypes);
+$resourceTypes = json_decode($model->expert_type_list, true) ?? [];
+$resourceTypes = array_combine($resourceTypes, $resourceTypes);
 
 $expertTypeList = json_decode($model->expert_type_list, true) ?? [];
 $expertTypeList = array_combine($expertTypeList, $expertTypeList);

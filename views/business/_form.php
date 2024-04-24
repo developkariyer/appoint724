@@ -21,7 +21,8 @@ use yii\widgets\ActiveForm;
     echo $form->field($model, 'timezone')->dropDownList($timezoneItems, ['prompt' => 'Select Timezone']);
     ?>
     
-    <?php echo $form->field($model, 'expert_type_list')->textarea(['rows' => 10]); ?>
+    <?php echo $form->field($model, 'expert_type_list')->textarea(['rows' => 6]); ?>
+    <?php echo $form->field($model, 'resource_type_list')->textarea(['rows' => 6]); ?>
 
     <div class="form-group">
         <?php echo Html::submitButton(Yii::t('app', 'Save'), ['class' => 'btn btn-primary']); ?>

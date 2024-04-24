@@ -22,6 +22,7 @@ use yii\db\ActiveRecord;
  * @property string        $slug
  * @property string        $timezone
  * @property string|null   $expert_type_list
+ * @property string|null   $resource_type_list
  * @property string|null   $created_at
  * @property string|null   $updated_at
  * @property string|null   $deleted_at
@@ -45,15 +46,30 @@ class Business extends ActiveRecord
         return $slug;
     }
 
-    protected function fixExpertTypeList($expertTypeList) : string
+    protected function fixExpertTypeList() : string
     {
-        $currentTypes = json_decode($this->expert_type_list, true);
+        $currentTypes = json_decode($this->expert_type_list, true) ?: [];
         $usedTypes = $this->getExperts()
             ->select(['expert_type'])
             ->where(['not', ['expert_type' => null]])
             ->groupBy(['expert_type'])
             ->orderBy(['expert_type' => SORT_ASC])
             ->column();
+        $updatedTypes = array_unique(array_merge($currentTypes, $usedTypes, ['']));
+        sort($updatedTypes);
+        return json_encode($updatedTypes);
+    }
+
+    protected function fixResourceTypeList(): string
+    {
+        $currentTypes = json_decode($this->resource_type_list, true) ?: [];
+        $usedTypes = $this->getResources()
+            ->select(['resource_type'])
+            ->where(['not', ['resource_type' => null]])
+            ->andWhere(['deleted_at'=> null])
+            ->groupBy(['resource_type'])
+            ->orderBy(['resource_type' => SORT_ASC])
+            ->column();        
         $updatedTypes = array_unique(array_merge($currentTypes, $usedTypes, ['']));
         sort($updatedTypes);
         return json_encode($updatedTypes);
@@ -67,7 +83,8 @@ class Business extends ActiveRecord
         if ($this->isNewRecord) {
             $this->slug = $this->generateSlug($this->name);
         }
-        $this->expert_type_list = $this->fixExpertTypeList($this->expert_type_list);        
+        $this->expert_type_list = $this->fixExpertTypeList();        
+        $this->resource_type_list = $this->fixResourceTypeList();
         return true;
     }
 
@@ -92,7 +109,7 @@ class Business extends ActiveRecord
     {
         return [
             [['name', 'timezone'], 'required'],
-            [['created_at', 'updated_at', 'deleted_at', 'expert_type_list'], 'safe'],
+            [['created_at', 'updated_at', 'deleted_at', 'expert_type_list', 'resource_type_list'], 'safe'],
             [['name'], 'string', 'max' => 100],
             [['timezone'], 'string', 'max' => 45],
             [['timezone'], 'validateTimezone'],
@@ -170,9 +187,8 @@ class Business extends ActiveRecord
 
     public function getUserBusinessRole($role, $active=true) 
     {
-        //TODO $active filter will be addad to be able to show deleted users
         return $this->hasMany(UserBusinessRole::class, ['business_id' => 'id'])
-            ->where(['role' => $role, 'deleted_at' => null]);
+            ->where($active ? ['role' => $role, 'deleted_at' => null] : ['role' => $role]);
     }
 
     public function getExperts($active = true)
