@@ -109,7 +109,7 @@ class AppointmentController extends Controller
             $days[] = (new DateTime('2024-01-01'))->modify("+$i day");
         }
 
-        Yii::$app->session->setFlash('success', 'Test page with 500 random events. Events retrieved by javascript. Timezone converted from server (+0) to Istanbul (+3). Feel free to drag events around. Push Redraw to redraw everyhing.');
+        Yii::$app->session->setFlash('success', 'Test page with 500 random events. Events retrieved by javascript. Timezone dynamically converted from server (+0) to Istanbul (+3). Feel free to drag events around. Push Redraw to redraw everyhing. Fetch All gets new 500 random events from server without page reload.');
 
         $pixPerHour = 40;
 
