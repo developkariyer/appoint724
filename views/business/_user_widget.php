@@ -20,8 +20,7 @@ $slug = $model->slug;
 
 $columns = ($role === 'expert') ? [
     [
-        'attribute' => 'expert_type',
-        //'class' => 'yii\grid\Column',
+        'class' => 'yii\grid\Column',
         'header' => Yii::t('app', 'Expertise'),
         'content' => function ($fmodel, $key, $index, $column) use ($model, $slug) {
             $expertTypeList = json_decode($model->expert_type_list, true) ?? [];
@@ -43,8 +42,7 @@ $content = GridView::widget([
         'email',
         //'myGsm',
         [
-            'attribute' => 'role',
-            //'class' => 'yii\grid\Column',
+            'class' => 'yii\grid\Column',
             'header' => Yii::t('app', 'Edit'),
             'content' => function ($model, $key, $index, $column) use ($role, $slug) {
                 $url2 = MyUrl::to(["user/update/$model->id"]);
