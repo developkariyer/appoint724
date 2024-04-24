@@ -22,7 +22,7 @@ use app\models\form\UserForm;
                         break;
                     case UserForm::SCENARIO_UPDATE:
                         $this->title = Yii::t('app', 'Update User');
-                        $content =  $this->render('_update', ['form' => $form, 'model' => $model, 'restricted' => $restricted ?? true ]);
+                        $content =  $this->render('_update', ['form' => $form, 'model' => $model, 'restricted' => $restricted ?? true]);
                         break;
                     case UserForm::SCENARIO_ADD:
                         $this->title = Yii::t('app', 'Add User');

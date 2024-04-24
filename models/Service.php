@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\models\queries\UserQuery;
 use Yii;
 use app\models\queries\BusinessQuery;
 use app\components\LogBehavior;
@@ -15,6 +16,7 @@ use yii\db\ActiveRecord;
  * @property string|null $name
  * @property string|null $resource_type
  * @property string|null $expert_type
+ * @property int         $expert_id
  * @property int         $duration
  * @property string      $created_at
  * @property string|null $updated_at
@@ -36,8 +38,8 @@ class Service extends ActiveRecord
     {
         return [
             [['business_id', 'duration'], 'required'],
-            [['business_id', 'duration'], 'integer'],
-            [['created_at', 'updated_at', 'deleted_at'], 'safe'],
+            [['business_id', 'duration', 'expert_id'], 'integer'],
+            [['created_at', 'updated_at', 'deleted_at', 'expert_id'], 'safe'],
             [['name', 'resource_type', 'expert_type'], 'string', 'max' => 255],
             [['name', 'business_id', 'deleted_at'], 'unique', 'targetAttribute' => ['name', 'business_id', 'deleted_at'], 'message' => Yii::t('app', 'Service Name must be unique.')],
             [['business_id'], 'exist', 'skipOnError' => true, 'targetClass' => Business::class, 'targetAttribute' => ['business_id' => 'id']],
@@ -73,7 +75,12 @@ class Service extends ActiveRecord
 
     public static function businessColumns(): array
     {
-        return ['name', 'resource_type', 'duration'];
+        return ['name', 'resource_type', 'expert_type', 'duration'];
+    }
+
+    public function getExpert(): ActiveQuery|UserQuery
+    {
+        return $this->hasOne(User::class, ['id' => 'expert_id'])->inverseOf('services');
     }
 
 }

@@ -187,7 +187,7 @@ class MyMenu extends Component
             foreach (Yii::$app->params['roles'] as $key=>$value) {
                 $contents[] = [
                     'label' => Yii::t('app', $value).' <span class="badge text-black bg-success-subtle">'.$businessStats['users'][$key].'</span>',
-                    'url' => MyUrl::to(["business/user/$key/$business->slug"]),
+                    'url' => MyUrl::to(["business/user/$business->slug/$key"]),
                     'class' => $highlightedAction === $key ? 'list-group-item-info' : '',
                 ];
             }

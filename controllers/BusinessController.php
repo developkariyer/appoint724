@@ -22,6 +22,7 @@ use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii;
+use yii\web\Response;
 
 
 /**
@@ -71,6 +72,7 @@ class BusinessController extends Controller
         
         $model = new Business();
         if ($this->request->isPost) {
+            $model->expert_type_list = json_encode(array_filter(array_map('trim', explode("\n", $model->expert_type_list))));
             if ($model->load($this->request->post()) && $model->save()) {
                 UserBusiness::addUserBusiness(Yii::$app->user->identity->user->id, $model->id, UserBusiness::ROLE_ADMIN);
                 if (!Yii::$app->user->identity->user->superadmin) {
@@ -78,7 +80,7 @@ class BusinessController extends Controller
                     Yii::$app->user->identity->user->save(false, ['remainingBusinessCount']);
                 }
                 Yii::$app->session->setFlash('info', Yii::t('app', 'Business created'));
-                return $this->redirect(MyUrl::to(['business/user/admin/'.$model->slug]));
+                return $this->redirect(MyUrl::to(['business/user/'.$model->slug.'/admin']));
             }
         } else {
             $model->loadDefaultValues();
@@ -92,12 +94,14 @@ class BusinessController extends Controller
     public function actionUpdate($slug): yii\web\Response|string
     {
         $model = $this->findModel(slug:$slug);
+        $model->expert_type_list = implode("\n", json_decode($model->expert_type_list, true) ?: []);
 
         if (!ACL::canBusinessUpdateDelete($model->id)) {
             throw new BadRequestHttpException(Yii::t('app', 'You are not allowed to update this business.'));
         }
 
         if ($this->request->isPost && $model->load($this->request->post())) {
+            $model->expert_type_list = json_encode(array_filter(array_map('trim', explode("\n", $model->expert_type_list))));
             if ($model->save()) {
                 Yii::$app->session->setFlash('info', Yii::t('app', 'Business updated'));
                 return $this->redirect(MyUrl::to(['business/update/'.$model->slug]));
@@ -169,6 +173,7 @@ class BusinessController extends Controller
     private function handleBusinessUserChange($model, $role): bool
     {
         $userId = $this->request->post('id');
+
         if (!$userId) {
             throw new BadRequestHttpException(Yii::t('app', 'User ID is missing.'));
         }
@@ -182,7 +187,8 @@ class BusinessController extends Controller
             throw new BadRequestHttpException(Yii::t('app', 'You cannot change your own business role.'));
         }
 
-        $postRole = $this->request->post('role', '__addnew__');
+        $postRole = $this->request->post('role', $role);
+        $expertType = $this->request->post('expert_type', null);
         $userBusiness = UserBusiness::find()->where(['user_id' => $user->id, 'business_id' => $model->id])->one();
 
         if ($userBusiness && !ACL::canBusinessUserChange($model->id, $user->id)) {
@@ -193,15 +199,11 @@ class BusinessController extends Controller
             return $userBusiness ? $userBusiness->delete() : false;
         }
 
-        if ($postRole === '__addnew__') {
-            return $userBusiness ? $userBusiness->reassignUserBusiness($role) : UserBusiness::addUserBusiness($user->id, $model->id, $role);
-        }
-
         if (!array_key_exists($postRole, Yii::$app->params['roles'])) {
             throw new BadRequestHttpException(Yii::t('app', 'Invalid role.'));
         }
 
-        return $userBusiness ? $userBusiness->reassignUserBusiness($postRole) : UserBusiness::addUserBusiness($user->id, $model->id, $postRole);        
+        return $userBusiness ? $userBusiness->reassignUserBusiness($postRole, $expertType) : UserBusiness::addUserBusiness($user->id, $model->id, $postRole, $expertType);
     }
 
     /**
@@ -225,7 +227,7 @@ class BusinessController extends Controller
             try {
                 $this->handleBusinessUserChange($model, $role);
                 Yii::$app->session->setFlash('info', Yii::t('app', 'User role updated.'));
-                return $this->redirect(MyUrl::to(['business/user/'.$role.'/'.$model->slug]));
+                return $this->redirect(MyUrl::to(['business/user/'.$model->slug.'/'.$role]));
             } catch (Exception $e) {
                 Yii::$app->session->setFlash('error', $e->getMessage());
             }
@@ -234,7 +236,7 @@ class BusinessController extends Controller
         return $this->render('business_users', [
             'model' => $model,
             'dataProvider' => new ActiveDataProvider([
-                'query' => $model->getUsersByRole($role)->active(),
+                'query' => $model->getUserBusinessRole($role),
                 'pagination' => ['pageSize' => 10],
             ]),
             'role' => $role,
@@ -265,15 +267,14 @@ class BusinessController extends Controller
             } else {
                 Yii::$app->session->setFlash('error', Yii::t('app', 'Error deleting relation.').implode(' ', $relatedModel->getErrorSummary(true)));
             }
-            return $this->redirect(MyUrl::to(["business/$relation/$slug"]));
         } else {
             if ($relatedModel->load(Yii::$app->request->post()) && $relatedModel->save()) {
                 Yii::$app->session->setFlash('info', Yii::t('app', 'Relation saved.'));
             } else {
                 Yii::$app->session->setFlash('error', Yii::t('app', 'Error saving relation.').implode(' ', $relatedModel->getErrorSummary(true)));
             }
-            return $this->redirect(MyUrl::to(["business/$relation/$slug"]));
         }
+        return $this->redirect(MyUrl::to(["business/$relation/$slug"]));
     }
 
     public function handleActionRelation($slug, $id = null, $modelRelation, $relation)

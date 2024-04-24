@@ -3,15 +3,17 @@
 namespace app\models;
 
 use app\models\queries\UserQuery;
+use app\models\views\UserBusinessRole;
 use DateTimeZone;
 use Yii;
 use app\models\queries\AppointmentQuery;
 use app\models\queries\BusinessQuery;
 use app\components\LogBehavior;
 use yii\base\InvalidConfigException;
+use yii\behaviors\AttributeBehavior;
 use yii\db\ActiveQuery;
-use yii\db\ActiveRecord;
 use yii\helpers\Inflector;
+use yii\db\ActiveRecord;
 
 
 /**
@@ -19,6 +21,7 @@ use yii\helpers\Inflector;
  * @property string        $name
  * @property string        $slug
  * @property string        $timezone
+ * @property string|null   $expert_type_list
  * @property string|null   $created_at
  * @property string|null   $updated_at
  * @property string|null   $deleted_at
@@ -32,21 +35,40 @@ class Business extends ActiveRecord
 {
     use traits\SoftDeleteTrait;
 
+    protected function generateSlug($name): string
+    {
+        $slug = Inflector::slug($name);
+        $count = Business::find()->where(['slug' => $slug])->count();
+        if ($count > 0) {
+            $slug = $slug . '-ins' . $count;
+        }
+        return $slug;
+    }
+
+    protected function fixExpertTypeList($expertTypeList) : string
+    {
+        $currentTypes = json_decode($this->expert_type_list, true);
+        $usedTypes = $this->getExperts()
+            ->select(['expert_type'])
+            ->where(['not', ['expert_type' => null]])
+            ->groupBy(['expert_type'])
+            ->orderBy(['expert_type' => SORT_ASC])
+            ->column();
+        $updatedTypes = array_unique(array_merge($currentTypes, $usedTypes, ['']));
+        sort($updatedTypes);
+        return json_encode($updatedTypes);
+    }
+
     public function beforeSave($insert): bool
     {
-        if (parent::beforeSave($insert)) {
-            if ($this->isNewRecord) {
-                $slug = Inflector::slug($this->name);
-                // check if generated slug exists in Business table
-                $count = Business::find()->where(['slug' => $slug])->count();
-                if ($count > 0) {
-                    $slug = $slug . '-ins' . $count;
-                }
-                $this->slug = $slug;
-            }
-            return true;
+        if (!parent::beforeSave($insert)) {
+            return false;
         }
-        return false;
+        if ($this->isNewRecord) {
+            $this->slug = $this->generateSlug($this->name);
+        }
+        $this->expert_type_list = $this->fixExpertTypeList($this->expert_type_list);        
+        return true;
     }
 
     public function behaviors(): array
@@ -70,7 +92,7 @@ class Business extends ActiveRecord
     {
         return [
             [['name', 'timezone'], 'required'],
-            [['created_at', 'updated_at', 'deleted_at'], 'safe'],
+            [['created_at', 'updated_at', 'deleted_at', 'expert_type_list'], 'safe'],
             [['name'], 'string', 'max' => 100],
             [['timezone'], 'string', 'max' => 45],
             [['timezone'], 'validateTimezone'],
@@ -146,10 +168,36 @@ class Business extends ActiveRecord
         return $query;
     }
 
-    public function getAdmins()
+    public function getUserBusinessRole($role, $active=true) 
     {
-        return $this->hasMany(User::class, ['id' => 'user_id'])
-            ->viaTable(UserBusiness::tableName(), ['business_id' => 'id', function($query) { $query->andWhere(['role' => 'admin']); }]);    
+        //TODO $active filter will be addad to be able to show deleted users
+        return $this->hasMany(UserBusinessRole::class, ['business_id' => 'id'])
+            ->where(['role' => $role, 'deleted_at' => null]);
+    }
+
+    public function getExperts($active = true)
+    {
+        return $this->getUserBusinessRole('expert', $active);
+    }
+
+    public function getAdmins($active = true)
+    {
+        return $this->getUserBusinessRole('admin', $active);
+    }
+
+    public function getSecretaries($active = true)
+    {
+        return $this->getUserBusinessRole('secretary', $active);
+    }
+
+    public function getCustomers($active = true)
+    {
+        return $this->getUserBusinessRole('customer', $active);
+    }
+
+    public function getStaff($active = true)
+    {
+        return $this->getUserBusinessRole(['admin', 'secretary'], $active);
     }
 
     public static function find(): BusinessQuery

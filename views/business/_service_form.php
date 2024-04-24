@@ -10,12 +10,16 @@ use yii\widgets\ActiveForm;
 /* @var app\models\Business $model */
 
 $resourceTypes = ArrayHelper::map($model->getResources()->andWhere(['deleted_at' => null])->all(), 'resource_type', 'resource_type');
-//$expertTypes = ArrayHelper::map(ExpertType::find()->all(), 'id', 'name');    
+$resourceTypes = array_merge([''=>''], $resourceTypes);
+
+$expertTypeList = json_decode($model->expert_type_list, true) ?? [];
+$expertTypeList = array_combine($expertTypeList, $expertTypeList);
 
 $form = ActiveForm::begin();
 $content = $form->field($relationModel, 'name')->textInput(['maxlength' => true]);
-$content .= $form->field($relationModel, 'resource_type')->dropDownList($resourceTypes, ['prompt' => Yii::t('app', 'No Resource Required')]);
-//$content .= $form->field($relationModel, 'expert_type')->textInput(['maxlength' => true]); // EXPERT_TYPE view\business\_service_form
+$content .= $form->field($relationModel, 'resource_type')->dropDownList($resourceTypes);
+$content .= $form->field($relationModel, 'expert_type')->dropDownList($expertTypeList);
+
 
 $content .= '<div class="row">';
 $content .= '<div class="col-md-9">';

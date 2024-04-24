@@ -57,12 +57,12 @@ class AppointmentController extends Controller
         }
 
         $formatter = new IntlDateFormatter(
-            'tr_TR',                     // Locale
-            IntlDateFormatter::FULL,     // Date type
-            IntlDateFormatter::NONE,     // Time type, none because we only want the date
-            'Europe/Istanbul',           // Timezone (optional if you want timezone specific formatting)
-            IntlDateFormatter::GREGORIAN,// Calendar type
-            'EEEE'                       // Pattern (EEEE is the full name of the day)
+            'tr_TR',
+            IntlDateFormatter::FULL,
+            IntlDateFormatter::NONE,
+            'Europe/Istanbul',
+            IntlDateFormatter::GREGORIAN,
+            'EEEE'
         );
 
         $utcTimeZone = new DateTimeZone('UTC');

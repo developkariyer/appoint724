@@ -33,9 +33,9 @@ use yii\db\ActiveRecord;
  * @property Authidentity[]   $authidentities
  * @property Login[]          $logins
  * @property Business[]       $businesses
- * @property Permission[]     $permissions
  * @property int              $remainingBusinessCount
  */
+
 class User extends ActiveRecord
 {
     use traits\SoftDeleteTrait;
@@ -79,6 +79,7 @@ class User extends ActiveRecord
             'last_name' => Yii::t('app', 'Last Name'),
             'fullname' => Yii::t('app', 'Full Name'),
             'myGsm' => Yii::t('app', 'GSM Number'),
+            'expert_type' => Yii::t('app', 'Expert Type'),
         ];
     }
 
@@ -125,11 +126,6 @@ class User extends ActiveRecord
         );
     }
 
-    public function getPermissions(): ActiveQuery
-    {
-        return $this->hasMany(Permission::class, ['user_id' => 'id'])->inverseOf('user');
-    }
-
     public static function find(): UserQuery
     {
         return new UserQuery(get_called_class());
@@ -143,5 +139,10 @@ class User extends ActiveRecord
     public function getMyGsm(): string
     {
         return preg_replace("/^(\d{3})(\d{3})(\d{4})$/", "($1) $2 $3", $this->gsm);
+    }
+
+    public function getServices(): ActiveQuery
+    {
+        return $this->hasMany(Service::class, ['user_id' => 'id'])->inverseOf('expert');
     }
 }
