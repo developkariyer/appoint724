@@ -1,10 +1,10 @@
 <?php
 use app\components\MyUrl;
 
-/* @var $this yii\web\View */
-/* @var $pixPerHour int */
-/* @var $days array */
-/* @var $events array */
+/** @var $this yii\web\View */
+/** @var $pixPerHour int */
+/** @var $days array */
+/** @var $events array */
 
 // $days are in PHP DateTime format. Convert them to strings as DD MonthName YYYY WeekdayName
 
@@ -36,6 +36,8 @@ $dayCount = count($days);
 $nowMinutes = $today->format('H') * 60 + $today->format('i');
 $dayWidth = 100 / $dayCount;
 
+$today->setTime(0,0);
+
 ?>
 
 <div id="info-box" style="z-index: 10000; display: none; position: fixed; top: 0px; left: 200px; height: 40px; background: red; color: white; padding: 3px;">
@@ -45,14 +47,14 @@ $dayWidth = 100 / $dayCount;
 <div class="calendar-container">
     <div class="row p-0 m-0">
         <?php foreach ($showDays as $key => $day) : ?>
-            <div class="col row px-2<?= ($day == $today) ? ' bg-info flashing' : '' ?>" style="width: calc(100% / <?= $dayCount ?>); padding: 0; margin: 0;">
-                <div class="col text-center text-muted" id="day<?= $key ?>"><?= $day->format('Y-m-d') ?><br><?= $daysOfWeek[$day->format('w')] ?></div>
+            <div class="col row px-2" style="width: calc(100% / <?= $dayCount ?>); padding: 0; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                <div class="col text-center text-muted" id="day<?= $key ?>"><span class="<?= ($day == $today) ? 'text-danger' : '' ?>"><?= $day->format('Y-m-d') ?><br><?= $daysOfWeek[$day->format('w')] ?></span></div>
             </div>
         <?php endforeach; ?>
     </div>
-    <div class="scroll-container" style="height: <?= $pixPerHour*24 ?>px;">
+    <div class="scroll-container" style="height: <?= $pixPerHour*24+1 ?>px;">
         <div id="timeslot-container">
-            <?php foreach ($days as $key=>$day) : ?>
+            <?php foreach ($showDays as $key=>$day) : ?>
                 <div class="day-box" style="left: <?= $key * $dayWidth ?>%; width: <?= $dayWidth ?>%;"></div>
             <?php endforeach; ?>
             <div class="row p-0 m-0">
@@ -67,7 +69,7 @@ $dayWidth = 100 / $dayCount;
                 <?php endfor; ?>
             </div>        
         </div>
-        <div id="currentHourLine"></div>
+        <div id="currentHourLine" class="flashinginfinite"></div>
         <div id="events-container"></div>
     </div>
 </div>
@@ -87,7 +89,7 @@ $this->registerCss(<<<CSS
     #currentHourLine {
         position: absolute;
         width: {$currentHourLineWidth}%;
-        height: 1px;
+        height: 2px;
         background-color: red;
         left: {$currentHourLineLeft}%;
         z-index: 4;
@@ -99,7 +101,7 @@ $this->registerCss(<<<CSS
         bottom: 0;
         background-color: transparent;
         border-right: 1px solid #dee2e6;
-        z-index: 3;
+        z-index: 0;
         pointer-events: none;
         text-align: center;
         color: #aaaaaa;
@@ -183,6 +185,9 @@ $this->registerCss(<<<CSS
     .flashing {
         animation: flash 2s linear 2;
     }
+    .flashinginfinite {
+        animation: flash 2s linear infinite;
+    }
 CSS);
 ?>
 <script>
@@ -212,7 +217,7 @@ const MyApp = {
     /*****************************/
 
     fetchAllEvents: async function () {
-        const response = await fetch('<?= MyUrl::to(['appointment/events/demo', 'cache' => true]) ?>');
+        const response = await fetch('<?= MyUrl::to(['appointment/events/demo', 'cache' => true, 'firstdate'=>reset($days), 'lastdate'=>end($days)]) ?>');
         this.eventList = await response.json();
         this.convertEventTimes(this.eventList);
         this.initializeEvents();
@@ -375,7 +380,7 @@ const MyApp = {
     },
 
     setIslandEventPositions: function () {
-        let tabIndex = 1;
+        let tabIndex = 10000;
         this.islands.forEach((island, islandIndex) => {
             island['columns'].forEach((column, columnIndex) => {
                 column.forEach(event => {

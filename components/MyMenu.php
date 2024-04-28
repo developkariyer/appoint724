@@ -41,6 +41,13 @@ class MyMenu extends Component
             'options' => ['class' => 'dropdown nav-item'],
             'items' => [
                 [
+                    'label' => '<i class="bi bi-house"></i> '.Yii::t('app', 'Home Page'),
+                    'url' => Yii::$app->homeUrl,
+                ],
+                [
+                    'label' => '',
+                ],
+                [
                     'label' => '<i class="bi bi-key"></i> '.Yii::t('app', 'Change Password'),
                     'url' => MyUrl::to(['user/password']),
                 ],

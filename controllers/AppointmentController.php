@@ -54,22 +54,22 @@ class AppointmentController extends Controller
         $cache = Yii::$app->request->get('cache', true);
         if ($cache && Yii::$app->session->has('events')) {
             $events = Yii::$app->session->get('events');
-//            return $events;
+            return $events;
         }
 
         $utcTimeZone = new DateTimeZone('UTC');
         $userTimeZone = new DateTimeZone('Europe/Istanbul');
 
         $events = [];
-        for ($t = 0; $t < 500; $t++) {
-            $randomHourStart = mt_rand(0, 22);
-            $randomHourEnd = $randomHourStart + mt_rand(1, 2); // Ensure event ends after it starts
-            $randomDay = mt_rand(1, 6);
-            $start = '2024-01-0'.$randomDay.'T' . str_pad($randomHourStart, 2, "0", STR_PAD_LEFT) . ':01:00';
-            $end = '2024-01-0'.$randomDay.'T' . str_pad($randomHourEnd, 2, "0", STR_PAD_LEFT) . ':01:00';
+        for ($t = 0; $t < 50; $t++) {
+            $randomDateTime = new DateTime('now', $utcTimeZone);
+            $randomDateTime->modify('-1 day');
+            $randomDateTime->modify('+' . mt_rand(0, 7*24) . ' hour');
 
-            $startDateTime = new DateTime($start, $utcTimeZone);
-            $endDateTime = new DateTime($end, $utcTimeZone);
+            $startDateTime = clone $randomDateTime;
+            $endDateTime = clone $randomDateTime;
+
+            $endDateTime->modify('+' . mt_rand(30, 120) . ' minute');
 
             $startDateTime->setTimezone($userTimeZone);
             $endDateTime->setTimezone($userTimeZone);
@@ -94,11 +94,15 @@ class AppointmentController extends Controller
     public function actionView($slug)
     {
         $days = [];
-        for ($i = 0; $i < 4; $i++) {
-            $days[] = (new DateTime('2024-01-01', new DateTimeZone('Europe/Istanbul')))->modify("+$i day");
+        $today = new DateTime('now', new DateTimeZone('Europe/Istanbul'));
+        $today->setTime(0,0);
+        for ($i = 0; $i < 7; $i++) {
+
+            $days[] = clone $today;
+            $today->modify('+1 day');
         }
 
-        $pixPerHour = 40;
+        $pixPerHour = 57;
 
         return $this->render('dayview', ['events' => $this->events, 'showDays' => array_values($days), 'pixPerHour' => $pixPerHour]);
     }

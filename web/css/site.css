@@ -99,14 +99,16 @@ a.desc:after {
     width: 200px;
     overflow-y: auto; 
     overflow-x: hidden;
+    transition: width 0.3s ease;
 }
 .rightContent {
     overflow-y: auto; 
     overflow-x: hidden; 
+    flex-grow: 1;
     background-color: #ffffff;
 }
 .navbar-brand {
-    width: 200px;  
+    width: 150px;  
     white-space: nowrap;  
     overflow: hidden;  
     text-overflow: ellipsis;  
