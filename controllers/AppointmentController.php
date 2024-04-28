@@ -50,9 +50,15 @@ class AppointmentController extends Controller
     }
  
     public function getEvents($userTimeZone = null)
-    {
+    { // TODO: timezone yerine başlangıç bitiş zamanları gelmeli. Timezone serverdan alınmalı
+        $cache = Yii::$app->request->get('cache', true);
+        error_log('cache: '.$cache);
+        error_log('session: '.Yii::$app->session->has('events'));
+        if ($cache && Yii::$app->session->has('events')) {
+            return Yii::$app->session->get('events');
+        }
+
         if ($userTimeZone === null) {
-            // Fallback to Eurpoe/Istanbul
             $userTimeZone = 'Europe/Istanbul';
         }
 
@@ -68,12 +74,11 @@ class AppointmentController extends Controller
         $utcTimeZone = new DateTimeZone('UTC');
         $userTimeZone = new DateTimeZone($userTimeZone);
 
-        // Handmade events example
         $events = [];
         for ($t = 0; $t < 500; $t++) {
             $randomHourStart = mt_rand(0, 22);
             $randomHourEnd = $randomHourStart + mt_rand(1, 2); // Ensure event ends after it starts
-            $randomDay = mt_rand(1, 4);
+            $randomDay = mt_rand(1, 6);
             $events[] = [
                 'id' => 'A' . md5($t * 7),
                 'title' => "Morning Meeting $t",
@@ -93,7 +98,7 @@ class AppointmentController extends Controller
             $event['end'] = $endDateTime->format('c');
             $event['day'] = $formatter->format($startDateTime);
         }
-
+        Yii::$app->session->set('events', $events);
         return $events;
     }
 
@@ -105,15 +110,16 @@ class AppointmentController extends Controller
     public function actionView($slug)
     {
         $days = [];
-        for ($i = 0; $i < 5; $i++) {
-            $days[] = (new DateTime('2024-01-01'))->modify("+$i day");
+        $jsDays = [];
+        for ($i = 0; $i < 7; $i++) {
+            $days[] = (new DateTime('2024-01-01', new DateTimeZone('Europe/Istanbul')))->modify("+$i day");
         }
 
         Yii::$app->session->setFlash('success', 'Test page with 500 random events. Events retrieved by javascript. Timezone dynamically converted from server (+0) to Istanbul (+3). Feel free to drag events around. Push Redraw to redraw everyhing. Fetch All gets new 500 random events from server without page reload.');
 
         $pixPerHour = 40;
 
-        return $this->render('dayview', ['events' => $this->events, 'days' => array_values($days), 'pixPerHour' => $pixPerHour]);
+        return $this->render('dayview', ['events' => $this->events, 'showDays' => array_values($days), 'pixPerHour' => $pixPerHour]);
     }
 
 }

@@ -9,20 +9,22 @@ use app\components\MyUrl;
 // $days are in PHP DateTime format. Convert them to strings as DD MonthName YYYY WeekdayName
 
 $formatter = new IntlDateFormatter(
-    'tr_TR',                     // Locale
-    IntlDateFormatter::FULL,     // Date type
-    IntlDateFormatter::NONE,     // Time type, none because we only want the date
-    'Europe/Istanbul',           // Timezone (optional if you want timezone specific formatting)
-    IntlDateFormatter::GREGORIAN,// Calendar type
-    'EEEE'                       // Pattern (EEEE is the full name of the day)
+    'tr_TR',                     
+    IntlDateFormatter::FULL,    
+    IntlDateFormatter::NONE,    
+    'Europe/Istanbul',          
+    IntlDateFormatter::GREGORIAN,
+    'EEEE'                      
 );
 
-foreach ($days as $key=>$day) {
-    $dayNames[$key] = $formatter->format($day);
-    $days[$key] = $day->format('d M Y');
+$timezone = new DateTimeZone('Europe/Istanbul'); //TODO customer timezone will be used
+$today = new DateTime('2024-01-03', $timezone);
+
+foreach ($showDays as $key=>$showDay) {
+    $dayNames[$key] = $formatter->format($showDay);
+    $days[$key] = $showDay->format('Y-m-d');
 }
 
-$timezone = new DateTimeZone('Europe/Istanbul'); //TODO customer timezone will be used
 $now = new DateTime('now', $timezone);
 $nowMinutes = $now->format('H') * 60 + $now->format('i');
 $dayWidth = 100 / count($days);
@@ -35,12 +37,13 @@ $dayWidth = 100 / count($days);
 <div id="info-box" style="z-index: 10000; display: block; position: fixed; top: 0px; left: 600px; height: 40px; background: red; color: white; padding: 3px;">
     <button onclick="fetchEvents();">Fetch All Events</button>
     <button onclick="redrawEvents();">Redraw All Events</button>
+    <button onclick="findIslands();">Find Islands</button>
 </div>
 
 <div class="calendar-container">
     <div class="row p-0 m-0">
         <?php foreach ($dayNames as $key=>$day) : ?>
-            <div class="col row px-2" style="width: calc(100% / <?= count($days) ?>); padding: 0; margin: 0;">
+            <div class="col row px-2<?= ($showDays[$key] == $today) ? ' bg-info flashing' : '' ?>" style="width: calc(100% / <?= count($days) ?>); padding: 0; margin: 0;">
                 <div class="col text-center text-muted" id="day<?= $key ?>"><?= $day ?></div>
             </div>
         <?php endforeach; ?>
@@ -70,108 +73,128 @@ $dayWidth = 100 / count($days);
 <?php
 
 $currentHourLineTop = floor($nowMinutes * $pixPerHour / 60);
+$currentHourLineWidth = in_array($today, $showDays) ? $dayWidth : 0;
+$currentHourLineLeft = $currentHourLineWidth ? $dayWidth * array_search($today, $showDays) : 0;
 
 $this->registerCss(<<<CSS
-        .scroll-container {
-            overflow-y: auto;
-            display: flex;
-            position: relative;
+    .scroll-container {
+        overflow-y: auto;
+        display: flex;
+        position: relative;
 
+    }
+    #currentHourLine {
+        position: absolute;
+        width: {$currentHourLineWidth}%;
+        height: 1px;
+        background-color: red;
+        left: {$currentHourLineLeft}%;
+        z-index: 4;
+        top: {$currentHourLineTop}px;
+    }
+    .day-box {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        background-color: transparent;
+        border-right: 1px solid #dee2e6;
+        z-index: 3;
+        pointer-events: none;
+        text-align: center;
+        color: #aaaaaa;
+    }
+    #timeslot-container {
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: #f8f9fa;
+        position: absolute;
+        z-index: 1;
+        font-size: 0.875rem;
+    }
+    #events-container {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 4;
+    }
+    .timeslot {
+        padding: 0;
+        border-bottom: 1px solid #dee2e6;
+        color: #aaaaaa;
+    }
+    .event-box {
+        z-index: 5;
+        display: block;
+        position: absolute;
+        left: 0;
+        right: 0;
+        color: #333;
+        background-color: #f0f0f0;
+        padding: 0px 0px;
+        border-radius: 2px;
+        border: 1px solid #ccc;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        text-decoration: none;
+        font-size: 0.875rem;
+        margin: 0 5px 0 35px;
+        box-sizing: border-box;
+    }
+    .event-box:hover {
+        background-color: #0056b3;
+        color: #ffffff;
+    }
+    .popover {
+        background-color: #ffffff;
+        color: #212529;
+        border-color: #ced4da;
+    }
+    .popover .popover-body {
+        color: #212529;
+    }
+    .popover .popover-header {
+        background-color: #e91010;
+        color: #f9f0f7;
+        border-bottom-color: #dee2e6;
+    }
+    .popover .arrow::before {
+        border-bottom-color: #ced4da;
+    }
+    .popover .arrow::after {
+        border-bottom-color: #ffffff;
+    }
+    .draggable {
+        cursor: pointer;
+    }
+    @keyframes flash {
+        0%, 100% {
+            background-color: #f0f0f0; 
         }
-        #currentHourLine {
-            position: absolute;
-            width: 100%;
-            height: 1px;
-            background-color: red;
-            left: 0px;
-            z-index: 4;
-            top: {$currentHourLineTop}px;
+        50% {
+            background-color: #ff3333; 
         }
-        .day-box {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            background-color: transparent;
-            border-right: 1px solid #dee2e6;
-            z-index: 3;
-            pointer-events: none;
-            text-align: center;
-            color: #aaaaaa;
-        }
-        #timeslot-container {
-            top: 0;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: #f8f9fa;
-            position: absolute;
-            z-index: 1;
-            font-size: 0.875rem;
-        }
-        #events-container {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 4;
-        }
-        .timeslot {
-            padding: 0;
-            border-bottom: 1px solid #dee2e6;
-            color: #aaaaaa;
-        }
-        .event-box {
-            z-index: 5;
-            display: block;
-            position: absolute;
-            left: 0;
-            right: 0;
-            color: #333;
-            background-color: #f0f0f0;
-            padding: 0px 0px;
-            border-radius: 2px;
-            border: 1px solid #ccc;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            text-decoration: none;
-            font-size: 0.875rem;
-            margin: 0 5px 0 35px;
-            box-sizing: border-box;
-        }
-        .event-box:hover {
-            background-color: #0056b3;
-            color: #ffffff;
-        }
-        .popover {
-            background-color: #ffffff;
-            color: #212529;
-            border-color: #ced4da;
-        }
-        .popover .popover-body {
-            color: #212529;
-        }
-        .popover .popover-header {
-            background-color: #e91010;
-            color: #f9f0f7;
-            border-bottom-color: #dee2e6;
-        }
-        .popover .arrow::before {
-            border-bottom-color: #ced4da;
-        }
-        .popover .arrow::after {
-            border-bottom-color: #ffffff;
-        }
-        .draggable {
-            cursor: pointer;
-        }
+    }
+    .flashing {
+        animation: flash 2s linear 2;
+    }
 CSS);
 ?>
 <script>
 
 const MyApp = {
 
+        /*****************************/
+       /*                           */
+      /*   variable declarations   */
+     /*                           */
+    /*****************************/
+
+    dateList : <?= json_encode($days) ?>,
     dayNames : <?= json_encode($dayNames) ?>,
     dayCount : <?= count($days) ?>,
     eventsContainer : document.getElementById('events-container'),
@@ -179,7 +202,7 @@ const MyApp = {
     eventColumns : [],
     pixPerHour : <?= $pixPerHour ?>,
     dayWidth : <?= $dayWidth ?>,
-
+    islands : [],
 
         /*****************************/
        /*                           */
@@ -188,33 +211,37 @@ const MyApp = {
     /*****************************/
 
     fetchAllEvents: async function () {
-        const response = await fetch('<?= MyUrl::to(['appointment/events/demo']) ?>');
+        const response = await fetch('<?= MyUrl::to(['appointment/events/demo', 'cache' => true]) ?>');
         this.eventList = await response.json();
         this.convertEventTimes(this.eventList);
         this.initializeEvents();
     },    
 
+    calculateMinutes: function (event) {
+        event.startMinute = event.startDate.getHours() * 60 + event.startDate.getMinutes();
+        event.endMinute = event.endDate.getHours() * 60 + event.endDate.getMinutes();
+        if (event.startDate.getDate() !== event.endDate.getDate()) {
+            event.endMinute = 1440;
+        }
+    },
+
     convertEventTimes: function (eList) {
         eList.forEach(event => {
             if (event.startMinute === undefined) {
-                let startDate = new Date(event.start);
-                let endDate = new Date(event.end);
-                event.startMinute = startDate.getHours() * 60 + startDate.getMinutes();
-                event.endMinute = endDate.getHours() * 60 + endDate.getMinutes();
-                if (event.endMinute > event.startMinute) {
-                    event.duration = event.endMinute - event.startMinute;
-                } else {
-                    event.duration = 1440 - event.startMinute + event.endMinute;
-                    event.endMinute = 1440;
-                }
+                event.startDate = new Date(event.start);
+                event.endDate = new Date(event.end);
+                this.calculateMinutes(event);
             }
         });
     },
 
     initializeEvents: function (events) {
         this.deleteEvents();
-        this.assignEventsToColumns()
-        this.setEventPositions();
+        this.findIslands();
+        this.assignIslandsToColumns();
+        this.expandIslandColumns();
+        this.setIslandEventPositions();
+        this.deleteEvents();
         this.createUpdateEventObjects(true);
     },
 
@@ -224,67 +251,83 @@ const MyApp = {
 
     updateEvent: function(id, day, startMinute) {
         const event = this.eventList.find(event => event.id === id);
+        const duration = event.endDate.getTime() - event.startDate.getTime();
+        const newStartDate = new Date(this.dateList[day]);
+        newStartDate.setHours(Math.floor(startMinute / 60), startMinute % 60, 0, 0);
+        const newEndDate = new Date(newStartDate.getTime() + duration);
+        event.startDate = newStartDate;
+        event.endDate = newEndDate;
         event.day = this.dayNames[day];
-        event.startMinute = startMinute;
-        potantialEndMinute = startMinute + event.duration;
-        event.endMinute = (potantialEndMinute<=1440) ? potantialEndMinute : 1440;
-
-        this.assignEventsToColumns();
-        this.setEventPositions();
-        this.createUpdateEventObjects();
+        this.calculateMinutes(event);
+        this.updateEventObject(event, true);
+        this.findIslands();
+        this.assignIslandsToColumns();
+        this.expandIslandColumns();
+        this.setIslandEventPositions();
+        this.createUpdateEventObjects(false);
     },
 
-    assignEventsToColumns: function() {
-        function eventsOverlap(event1, event2) {
-            return event1.startMinute < event2.endMinute && event2.startMinute < event1.endMinute;
-        }
-
-        console.log(this.eventList);
-        currentColumnLength = [];
-
-        this.dayNames.forEach(day => {
-            if (typeof this.eventColumns[day] === 'undefined') {
-                this.eventColumns[day] = [];
+    findIslands: function () {
+        this.eventList.sort((a, b) => a.startDate - b.startDate);
+        this.islands = [];
+        let cursor = this.eventList[0].startDate;
+        let day = this.eventList[0].day;
+        this.eventList.forEach(event => {
+            if (event.startDate >= cursor || event.day !== day) {
+                island = [event];
+                this.islands.push(island);
+                cursor = event.endDate;
+            } else {
+                if (event.endDate > cursor) {
+                    cursor = event.endDate;
+                } 
+                island.push(event);
             }
-            const dayEvents = this.eventList.filter(event => event.day === day);
-            dayEvents.sort((a, b) => a.startMinute - b.startMinute);
-            currentColumnLength[day] = this.eventColumns[day].length;
-            this.eventColumns[day] = [];
-            for (const event of dayEvents) {
+            day = event.day;
+        });
+        console.log(this.islands);
+    },
+
+    assignIslandsToColumns: function () {
+        this.islands.forEach(island => {
+            let islandColumns = 0;
+            island['columns'] = [];
+            island.sort((a, b) => a.startMinute - b.startMinute);
+            for (let i = 0; i < island.length; i++) {
                 let columnFound = false;
-                for (let i = 0; i < this.eventColumns[day].length; i++) {
-                    const lastEventInColumn = this.eventColumns[day][i][this.eventColumns[day][i].length - 1];
-                    if (lastEventInColumn && lastEventInColumn.endMinute <= event.startMinute) {
-                        this.eventColumns[day][i].push(event);
+                for (let j = 0; j < island['columns'].length; j++) {
+                    const lastEventInColumn = island['columns'][j][island['columns'][j].length - 1];
+                    if (lastEventInColumn && lastEventInColumn.endMinute <= island[i].startMinute) {
+                        island['columns'][j].push(island[i]);
                         columnFound = true;
-                        break; 
+                        break;
                     }
                 }
                 if (!columnFound) {
-                    this.eventColumns[day].push([event]);
+                    island['columns'].push([island[i]]);
                 }
             }
+        });
+    },
 
-            allChanged = (currentColumnLength[day] !== this.eventColumns[day].length) ? true : false;
-/*
-            for (let i = this.eventColumns[day].length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [this.eventColumns[day][i], this.eventColumns[day][j]] = [this.eventColumns[day][j], this.eventColumns[day][i]];
-            }
-            allChanged = true;
-*/
-
-            for (let i = 0; i < this.eventColumns[day].length; i++) {
-                const column = this.eventColumns[day][i];
+    expandIslandColumns: function () {
+        function eventsOverlap(event1, event2) {
+            return event1.startMinute < event2.endMinute && event2.startMinute < event1.endMinute;
+        }
+        this.islands.forEach((island, index) => {
+            for (let i = 0; i < island['columns'].length; i++) {
+                const column = island['columns'][i];
                 for (let j = 0; j < column.length; j++) {
                     const event = column[j];
-                    event.changed = allChanged || event.changed || event.column !== i ? true : false;
-                    event.column = i;
+                    event.spanLeft = 0;
+                    event.spanRight = 0;
                     let expandLeft = 0;
+                    let expandRight = 0;
                     for (let k = i - 1; k >= 0; k--) {
                         let canExpand = true;
-                        for (let m = 0; m < this.eventColumns[day][k].length; m++) {
-                            if (eventsOverlap(event, this.eventColumns[day][k][m])) {
+                        for (let m = 0; m < island['columns'][k].length; m++) {
+                            eol = eventsOverlap(event, island['columns'][k][m]);
+                            if (eol) {
                                 canExpand = false;
                                 break;
                             }
@@ -292,35 +335,34 @@ const MyApp = {
                         if (!canExpand) { break; }
                         expandLeft++;
                     }
-                    event.changed = event.changed || (event.spanLeft !== expandLeft) ? true : false;
-                    event.spanLeft = expandLeft;
-                    let expandRight = 0;
-                    for (let k = i + 1; k < this.eventColumns[day].length; k++) {
+                    for (let k = i + 1; k < island['columns'].length; k++) {
                         let canExpand = true;
-                        for (let m = 0; m < this.eventColumns[day][k].length; m++) {
-                            if (eventsOverlap(event, this.eventColumns[day][k][m])) {
+                        for (let m = 0; m < island['columns'][k].length; m++) {
+                            eol = eventsOverlap(event, island['columns'][k][m]);
+                            if (eol) {
                                 canExpand = false;
                                 break;
                             }
                         }
                         if (!canExpand) { break; }
-                        expandRight++; 
+                        expandRight++;
                     }
-                    event.changed = allChanged || event.changed || (event.spanRight !== expandRight) ? true : false;
+                    event.spanLeft = expandLeft;
                     event.spanRight = expandRight;
                 }
             }
         });
-        console.log(currentColumnLength);
     },
 
-    setEventPositions: function () {
+    setIslandEventPositions: function () {
         let tabIndex = 1;
-        this.dayNames.forEach((day, key)=> {
-            const dayColumns = this.eventColumns[day];
-            const columnCount = dayColumns.length;
-            dayColumns.forEach((column, columnIndex) => {
+        this.islands.forEach((island, islandIndex) => {
+            island['columns'].forEach((column, columnIndex) => {
                 column.forEach(event => {
+                    key = this.dayNames.indexOf(event.day);
+                    columnCount = island['columns'].length;
+                    event.island = islandIndex;
+                    event.column = columnIndex;
                     event.top = event.startMinute * this.pixPerHour / 60;
                     event.height = (event.endMinute>event.startMinute) ? 
                             (event.endMinute - event.startMinute) * this.pixPerHour / 60 : (1440-event.startMinute) * this.pixPerHour / 60;
@@ -338,7 +380,7 @@ const MyApp = {
     createUpdateEventObjects: function (create = false) {
         this.eventList.forEach(event => {
             if (create) {
-                this.createEventObject(event);
+                this.createEventObject(event, false);
             } else {
                 this.updateEventObject(event);
             }
@@ -346,9 +388,9 @@ const MyApp = {
         this.initializePopovers()
     },
 
-    createEventObject: function (event) {
+    createEventObject: function (event, flashing = true) {
         const eventDiv = document.createElement('div');
-        eventDiv.className = 'event-box draggable';
+        eventDiv.className = flashing ? 'event-box draggable flashing' : 'event-box draggable';
         eventDiv.id = event.id;
         eventDiv.style.cssText = `top: ${event.top}px; height: ${event.height}px; width: calc(${event.width}% - ${event.widthMargin}px); left: calc(${event.left}% - ${event.leftMargin}px);`;
         eventDiv.setAttribute('role', 'button');
@@ -357,10 +399,10 @@ const MyApp = {
         eventDiv.setAttribute('data-slotorder', 0);
         eventDiv.setAttribute('data-bs-toggle', 'popover');
         eventDiv.setAttribute('data-bs-placement', 'top');
-        eventDiv.setAttribute('data-bs-trigger', 'focus');
+        eventDiv.setAttribute('data-bs-trigger', 'focus hover');
         eventDiv.setAttribute('data-bs-title', event.title);
         eventDiv.setAttribute('data-bs-content', event.text+
-            ` spanLeft:${event.spanLeft} spanRight:${event.spanRight} column:${event.column}`);
+            ` spanLeft:${event.spanLeft} spanRight:${event.spanRight} column:${event.column} island:${event.island}`);
         eventDiv.setAttribute('tabIndex', event.tabIndex);
 
         const spanTitle = document.createElement('span');
@@ -372,17 +414,20 @@ const MyApp = {
         event.changed = false;
     },
 
-    updateEventObject: function (event) {
-        // find the event object in the DOM using id = 'event'+event.id
+    updateEventObject: function (event, forceDelete = false) {
         const eventDiv = document.getElementById(event.id);
-        if (!eventDiv) {
-            this.createEventObject(event);
-            return;
+        if (eventDiv) {
+            if (forceDelete) {
+                eventDiv.remove();
+            } else {
+                eventDiv.style.cssText = `top: ${event.top}px; height: ${event.height}px; width: calc(${event.width}% - ${event.widthMargin}px); left: calc(${event.left}% - ${event.leftMargin}px); padding: 0px;`;
+                eventDiv.setAttribute('data-bs-content', event.text+` spanLeft:${event.spanLeft} spanRight:${event.spanRight} columnCount:${event.columnCount} column:${event.column}`);
+                eventDiv.setAttribute('tabIndex', event.tabIndex);
+                event.changed = false;
+                return;
+            }
         }
-        eventDiv.style.cssText = `top: ${event.top}px; height: ${event.height}px; width: calc(${event.width}% - ${event.widthMargin}px); left: calc(${event.left}% - ${event.leftMargin}px); padding: 0px;`;
-        eventDiv.setAttribute('data-bs-content', event.text+` spanLeft:${event.spanLeft} spanRight:${event.spanRight} columnCount:${event.columnCount} column:${event.column}`);
-        eventDiv.setAttribute('tabIndex', event.tabIndex);
-        event.changed = false;
+        this.createEventObject(event);
     },
 
     initializePopovers: function () {
@@ -399,6 +444,7 @@ const MyApp = {
 
 function fetchEvents() { MyApp.fetchAllEvents();}
 function redrawEvents() { MyApp.initializeEvents();}
+function findIslands() { MyApp.findIslands();}
 
 document.addEventListener('DOMContentLoaded', function () {
 
