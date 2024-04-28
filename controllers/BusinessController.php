@@ -216,15 +216,12 @@ class BusinessController extends Controller
     public function actionUser($role, $slug)
     {
         $model = $this->findModel(slug:$slug);
-
         if (!array_key_exists($role, Yii::$app->params['roles'])) {
             throw new BadRequestHttpException(Yii::t('app', 'Invalid role.'));
         }
-
         if (!ACL::canBusiness($model->id)) {
             throw new ForbiddenHttpException(Yii::t('app', 'You are not allowed to change user roles.'));
         }
-
         if ($this->request->isPost) {
             try {
                 $this->handleBusinessUserChange($model, $role);
@@ -234,7 +231,6 @@ class BusinessController extends Controller
                 Yii::$app->session->setFlash('error', $e->getMessage());
             }
         }
-
         return $this->render('business_users', [
             'model' => $model,
             'dataProvider' => new ActiveDataProvider([
@@ -243,7 +239,6 @@ class BusinessController extends Controller
             ]),
             'role' => $role,
         ]);
-
     }
 
     private function getRelationData($model, $relation) {

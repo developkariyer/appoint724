@@ -135,27 +135,36 @@ class Business extends ActiveRecord
 
     public function getAppointments(): ActiveQuery|AppointmentQuery
     {
-        return $this->hasMany(Appointment::class, ['business_id' => 'id'])->inverseOf('business');
+        return $this->hasMany(Appointment::class, ['business_id' => 'id'])
+            ->andWhere(['deleted_at' => null])
+            ->inverseOf('business');
     }
 
     public function getResources(): ActiveQuery
     {
-        return $this->hasMany(Resource::class, ['business_id' => 'id'])->inverseOf('business');
+        return $this->hasMany(Resource::class, ['business_id' => 'id'])
+            ->andWHere(['deleted_at' => null])
+            ->inverseOf('business');
     }
 
     public function getRules(): ActiveQuery
     {
-        return $this->hasMany(Rule::class, ['business_id' => 'id'])->inverseOf('business');
+        return $this->hasMany(Rule::class, ['business_id' => 'id'])
+            ->andWHere(['deleted_at' => null])
+            ->inverseOf('business');
     }
 
     public function getServices(): ActiveQuery
     {
-        return $this->hasMany(Service::class, ['business_id' => 'id'])->inverseOf('business');
-    }
+        return $this->hasMany(Service::class, ['business_id' => 'id'])
+            ->andWHere(['deleted_at' => null])
+            ->inverseOf('business');
+}
 
     public function getUserBusinesses(): ActiveQuery
     {
-        return $this->hasMany(UserBusiness::class, ['business_id' => 'id'])->inverseOf('business');
+        return $this->hasMany(UserBusiness::class, ['business_id' => 'id'])
+            ->inverseOf('business');
     }
 
     public function getUsers()
@@ -188,7 +197,8 @@ class Business extends ActiveRecord
     public function getUserBusinessRole($role, $active=true) 
     {
         return $this->hasMany(UserBusinessRole::class, ['business_id' => 'id'])
-            ->where($active ? ['role' => $role, 'deleted_at' => null] : ['role' => $role]);
+            ->where($active ? ['role' => $role, 'deleted_at' => null] : ['role' => $role])
+            ->orderBy('fullname');
     }
 
     public function getExperts($active = true)

@@ -8,13 +8,40 @@ use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\web\BadRequestHttpException;
 
 class MyMenu extends Component
 {
+    private $businesses = [];
+    private $isGuest = true;
+    private $business = null;
+    private $slug = null;
 
-    public static function getLogNavItems(): array
+    public function init()
     {
-        return Yii::$app->user->isGuest ? [
+        parent::init();
+        $this->isGuest = Yii::$app->user->isGuest;
+        if ($this->isGuest) {
+            $this->businesses = [];
+            return;
+        } 
+        $this->businesses = Yii::$app->user->identity->user->superadmin ?
+            Business::find()->active()->orderBy('name')->all() :
+            Business::find()->byUserRoles(Yii::$app->user->identity->user->id, ['admin', 'secretary'])->orderBy('name')->all();
+        if (Yii::$app->request->get('slug', false) === false) {
+            if (!Yii::$app->session->has('slug')) {return;}
+            $this->slug = Yii::$app->session->get('slug');
+        } else {
+            $this->slug = Yii::$app->request->get('slug');
+        }
+        if ($this->business = Business::find()->where(['slug' => $this->slug])->one()) {
+            Yii::$app->session->set('slug', $this->business->slug);
+        }
+    }
+
+    public function getLogNavItems(): array
+    {
+        return $this->isGuest ? [
             'label' => Yii::t('app', 'Guest'),
             'options' => ['class' => 'dropdown nav-item'],
             'items' => [
@@ -97,52 +124,197 @@ class MyMenu extends Component
         ];
     }
 
-    public static function getNavItems(): array
+    public  function getAuthorizedBusinessMenu() :array|null
     {
-        /*
-        if (Yii::$app->user->identity->user->superadmin) return [
-            [
-                'label' => Yii::t('app', 'Businesses'),
-                'items' => [
-                    [
-                        'label' => Yii::t('app', 'List Businesses'),
-                        'url' => MyUrl::to(['business/index']),
-                    ],
-                    [
-                        'label' => Yii::t('app', 'Create Business'),
-                        'url' => MyUrl::to(['business/create']),
-                    ],
+        if ($this->isGuest) return [];
+        $items = [];
+        foreach($this->businesses as $business) {
+            $items[] = [
+                'label' => $business->name,
+                'url' => MyUrl::to(['appointment/view/'.$business->slug]),
+                'options' => ['class' => 'nav-item'],
+            ];
+        }
+        $items[] = ['label' => ''];
+        if (Yii::$app->user->identity->user->superadmin || Yii::$app->user->identity->user->remainingBusinessCount) {
+            $items[] = [
+                'label' => Yii::t('app', 'Create Business'),
+                'url' => MyUrl::to(['business/create']),
+                'options' => ['class' => 'nav-item'],
+            ];
+        } else {
+            $items[] = [
+                'label' => Yii::t('app', 'Buy Business Slot'),
+                'url' => MyUrl::to(['business/slot']),
+                'options' => ['class' => 'nav-item'],
+            ];
+        }
+        return [[
+            'label' => $this->business ? $this->business->name : Yii::t('app', 'Businesses'),
+            'items' => $items,
+            'encodeLabels' => false,        
+        ]];
+    }
+
+    private function getNavItemsBusinessSettings() : array
+    {
+        return [
+            'label' => Yii::t('app', 'Business Settings'),
+            'url' => MyUrl::to(['business/update/'.$this->business->slug]),
+            'items' => [
+                [
+                    'label' => Yii::t('app', 'Business Name'),
+                    'url' => MyUrl::to(['business/update/'.$this->business->slug]),
+                ],
+                [
+                    'label' => Yii::t('app', 'Timezone'),
+                    'url' => MyUrl::to(['business/update/'.$this->business->slug]),
+                ],
+                [
+                    'label' => Yii::t('app', 'Expert Type List'),
+                    'url' => MyUrl::to(['business/update/'.$this->business->slug]),
+                ],
+                [
+                    'label' => Yii::t('app', 'Resource Type List'),
+                    'url' => MyUrl::to(['business/update/'.$this->business->slug]),
+                ],
+                [
+                    'label' => '',
+                ],
+                [
+                    'label' => Yii::t('app', 'Admins'),
+                    'url' => MyUrl::to(["business/user/{$this->business->slug}/admin"]),
+                ],
+                [
+                    'label' => Yii::t('app', 'Secretaries'),
+                    'url' => MyUrl::to(["business/user/{$this->business->slug}/secretary"]),
                 ],
             ],
-            [
-                'label' => Yii::t('app', 'Users'),
-                'items' => [
-                    [
-                        'label' => Yii::t('app', 'List Users'),
-                        'url' => MyUrl::to(['user/index']),
-                    ],
-                    [
-                        'label' => Yii::t('app', 'Add New User'),
-                        'url' => MyUrl::to(['user/create']),
-                    ],
-                    [
-                        'label' => Yii::t('app', 'Reset User Password'),
-                        'url' => MyUrl::to(['user/reset']),
-                    ],
+            
+        ];
+    }
 
+    private function getNavItemsAppointments(): array
+    {
+        $services = $this->business->getServices()->all();
+        $serviceItems = [];
+        foreach($services as $service) {
+            $serviceItems[] = [
+                'label' => $service->name,
+                'url' => MyUrl::to(['appointment/view/'.$this->business->slug]),
+            ];
+        }
+        return [
+            'label' => Yii::t('app', 'Appointments'),
+            'items' =>[
+                [
+                    'label' => Yii::t('app', 'Day View'),
+                    'url' => MyUrl::to(['appointment/view/'.$this->business->slug]),        
                 ],
+                [
+                    'label' => Yii::t('app', 'Week View'),
+                    'url' => MyUrl::to(['appointment/view/'.$this->business->slug]),        
+                ],
+                [
+                    'label' => Yii::t('app', 'Month View'),
+                    'url' => MyUrl::to(['appointment/view/'.$this->business->slug]),        
+                ],
+                [
+                    'label' => Yii::t('app', 'Listing View'),
+                    'url' => MyUrl::to(['appointment/view/'.$this->business->slug]),        
+                ],
+                [
+                    'label' => '',
+                ],
+                [
+                    'label' => Yii::t('app', 'New Appointment'),
+                    'url' => MyUrl::to(['appointment/view/'.$this->business->slug]),        
+                ],
+                ...$serviceItems,
             ],
         ];
-        */
-        return [];
+    }
+
+    private function getNavItemsExperts(): array
+    {
+        $expertItems = [];
+        $experts = $this->business->getUserBUsinessRole('expert')->all();
+        foreach ($experts as $expert) {
+            $expertItems[] = [
+                'label' => "{$expert->fullname}". ($expert->expert_type ? " ({$expert->expert_type})" : ""),
+                'url' => MyUrl::to(["user/update/{$expert->id}"]),
+            ];
+        }
+        $expertItems[] = [
+            'label' => '',
+        ];
+        $expertItems[] = [
+            'label' => Yii::t('app', 'New Expert'),
+            'url' => MyUrl::to(["user/add/{$this->business->slug}/expert"]),
+        ];
+        $expertItems[] = [
+            'label' => Yii::t('app', 'Show All'),
+            'url' => MyUrl::to(["business/user/{$this->business->slug}/expert"]),
+        ];
+        return [
+            'label' => Yii::t('app', 'Experts'),
+            'items' => $expertItems,
+        ];
+    }
+
+    private function getNavITemsRelations($relationKey, $relationName): array
+    {
+        $relationItems = [];
+        $relations = $this->getRelationData($this->business, $relationKey)->all();
+        foreach ($relations as $relation) {
+            $relationItems[] = [
+                'label' => $relation->name,
+                'url' => MyUrl::to(["business/$relationKey/{$this->business->slug}/{$relation->id}"]),
+            ];
+        }
+        $relationItems[] = [
+            'label' => '',
+        ];
+        $relationItems[] = [
+            'label' => Yii::t('app', 'Add New'),
+            'url' => MyUrl::to(["business/$relationKey/{$this->business->slug}"]),
+        ];
+        return [
+            'label' => $relationName,
+            'items' => $relationItems,
+        ];
+    }
+
+    public function getNavItems(): array
+    {
+        if ($this->isGuest) return [];
+        if (!$this->business) return [];
+        $items = [];
+        $items[] = $this->getNavItemsBusinessSettings();
+        $items[] = $this->getNavItemsAppointments();
+        $items[] = $this->getNavItemsExperts();
+
+        $dummyArray = ['resource'=>Yii::t('app', 'Resources'), 'service'=>Yii::t('app', 'Services'), 'rule'=>Yii::t('app', 'Rules')];
+        foreach ($dummyArray as $relationKey => $relationName) {
+            $items[] = $this->getNavItemsRelations($relationKey, $relationName);
+        }
+        return $items;
+    }
+
+    private function getRelationData($model, $relation) {
+        $getter = 'get' . ucfirst($relation) . 's';
+        if (method_exists($model, $getter)) {
+            return $model->$getter()->andWhere(['deleted_at' => null]);
+        } else {
+            throw new BadRequestHttpException("Invalid relation method: {$getter}");
+        }
     }
 
     public static function getLeftMenuItems(): array
     {
-        if (Yii::$app->user->isGuest) {
-            return [];
-        }
-        
+        if (Yii::$app->user->isGuest) return [];
+        return [];
+
         $businesses = Yii::$app->user->identity->user->superadmin ?
             Business::find()->active()->orderBy('name')->all() :
             Business::find()->byUserRoles(Yii::$app->user->identity->user->id, ['admin', 'secretary'])->orderBy('name')->all();

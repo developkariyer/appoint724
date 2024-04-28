@@ -37,6 +37,8 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 <header id="header">
 <?php
 
+    $menuItems = new MyMenu();
+
     NavBar::begin([
         'brandLabel' => '&nbsp;'.Yii::$app->name,
         'brandUrl' => Yii::$app->homeUrl,
@@ -45,33 +47,22 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
         'renderInnerContainer' => false,
     ]);
 
-    echo Nav::widget([
+    echo Nav::widget([ // left aligned nav menu items
         'options' => ['class' => 'navbar-nav'],
-        'items' => 
-        [
-            [
-                'label' => '<i class="bi bi-arrow-left-right"></i>',
-                'url' => '#',
-                'linkOptions' => ['onclick' => 'toggle_my_left_menu(); return false;'],
-            ],
-        ],
-        'encodeLabels' => false,
-    ]);
-
-    echo Nav::widget([
-        'options' => ['class' => 'navbar-nav'],
-        'items' => MyMenu::getNavItems(), // left aligned nav menu items, currently empty
-        'encodeLabels' => false,
+        'items' => [
+            ...$menuItems->getAuthorizedBusinessMenu(),
+            ...$menuItems->getNavItems(),
+        ]
     ]);
 
     echo "<div class='ms-auto'>"; // right aligned nav menu
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav'],
-        'items' => [
-            MyMenu::getLangNavItems(), // language specific menu items
-            MyMenu::getLogNavItems(), // login/logout specific menu items
-        ],
         'encodeLabels' => false,
+        'items' => [
+            $menuItems->getLangNavItems(), // language specific menu items
+            $menuItems->getLogNavItems(), // login/logout specific menu items
+        ],
     ]);
     echo "</div>";
 
@@ -84,23 +75,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
     <div class="container-fluid h-100">
         <div class="row h-100">
 
-        <?php if (!Yii::$app->user->isGuest) : ?>
-            <div id="left_menu" class="leftMenu h-100 bg-secondary bg-gradient p-0">
-                <div id="left_menu_content" class="list-group h-100 p-2">
-                <?php try {
-                    echo Collapse::widget([
-                        'items' => MyMenu::getLeftMenuItems(),
-                    ]);
-                } catch (Throwable $e) {
-                } ?>
-                <br />
-                <?= Yii::$app->user->identity->user->superadmin || Yii::$app->user->identity->user->remainingBusinessCount ? Html::a(Yii::t('app', 'Create Business'), MyUrl::to(['business/create']), ['class' => 'btn btn-primary btn-outline-light']) : '' ?>
-                <?= !Yii::$app->user->identity->user->superadmin && !Yii::$app->user->identity->user->remainingBusinessCount ? Html::a(Yii::t('app', 'Buy Business Slot'), MyUrl::to(['business/slot']), ['class' => 'btn btn-primary btn-outline-light']) : '' ?>
-                </div>
-            </div>
-        <?php endif; ?>
-
-            <div class="col p-0 rightContent h-100" id="main-content">
+            <div class="col<?= isset($this->params['noPadding']) ? ' p-0':' p-5' ?> rightContent h-100" id="main-content">
                 <?php try {
                     echo Alert::widget();
                 } catch (Throwable $e) {
@@ -114,26 +89,5 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 
 <?php $this->endBody(); ?>
 </body>
-<?php
-$this->registerJs(<<<JSXX
-
-window.toggle_my_left_menu = function() {
-    console.log('toggle_my_left_menu');
-    const leftMenu = document.getElementById('left_menu');
-    const leftMenuContent = document.getElementById('left_menu_content');
-    function make_me_visible() {
-        leftMenuContent.style.visibility = 'visible';
-        leftMenu.removeEventListener('transitionend', make_me_visible);
-    }
-    if (leftMenu.style.width === '0px') {
-        leftMenu.style.width = '200px';
-        leftMenu.addEventListener('transitionend', make_me_visible);
-    } else {
-        leftMenuContent.style.visibility = 'hidden';
-        leftMenu.style.width = '0px';
-    }    
-}
-JSXX, View::POS_READY);
-?>
 </html>
 <?php $this->endPage(); ?>

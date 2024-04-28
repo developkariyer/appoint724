@@ -102,7 +102,9 @@ class AppointmentController extends Controller
             $today->modify('+1 day');
         }
 
-        $pixPerHour = 57;
+        $pixPerHour = 40;
+
+        $this->view->params['noPadding'] = true;
 
         return $this->render('dayview', ['events' => $this->events, 'showDays' => array_values($days), 'pixPerHour' => $pixPerHour]);
     }
