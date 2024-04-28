@@ -17,17 +17,24 @@ $formatter = new IntlDateFormatter(
     'EEEE'                      
 );
 
+$aSundayDate = new DateTime('2024-01-07', new DateTimeZone('Europe/Istanbul'));
+$daysOfWeek = [];
+for ($t = 0; $t<7; $t++) {
+    $daysOfWeek[$t] = $formatter->format($aSundayDate);
+    $aSundayDate->modify("+1 day");
+}
+
 $timezone = new DateTimeZone('Europe/Istanbul'); //TODO customer timezone will be used
-$today = new DateTime('2024-01-03', $timezone);
+$today = new DateTime('now', $timezone);
 
 foreach ($showDays as $key=>$showDay) {
-    $dayNames[$key] = $formatter->format($showDay);
     $days[$key] = $showDay->format('Y-m-d');
 }
 
-$now = new DateTime('now', $timezone);
-$nowMinutes = $now->format('H') * 60 + $now->format('i');
-$dayWidth = 100 / count($days);
+$dayCount = count($days);
+
+$nowMinutes = $today->format('H') * 60 + $today->format('i');
+$dayWidth = 100 / $dayCount;
 
 ?>
 
@@ -42,9 +49,9 @@ $dayWidth = 100 / count($days);
 
 <div class="calendar-container">
     <div class="row p-0 m-0">
-        <?php foreach ($dayNames as $key=>$day) : ?>
-            <div class="col row px-2<?= ($showDays[$key] == $today) ? ' bg-info flashing' : '' ?>" style="width: calc(100% / <?= count($days) ?>); padding: 0; margin: 0;">
-                <div class="col text-center text-muted" id="day<?= $key ?>"><?= $day ?></div>
+        <?php foreach ($showDays as $key => $day) : ?>
+            <div class="col row px-2<?= ($day == $today) ? ' bg-info flashing' : '' ?>" style="width: calc(100% / <?= $dayCount ?>); padding: 0; margin: 0;">
+                <div class="col text-center text-muted" id="day<?= $key ?>"><?= $day->format('Y-m-d') ?><br><?= $daysOfWeek[$day->format('w')] ?></div>
             </div>
         <?php endforeach; ?>
     </div>
@@ -54,8 +61,8 @@ $dayWidth = 100 / count($days);
                 <div class="day-box" style="left: <?= $key * $dayWidth ?>%; width: <?= $dayWidth ?>%;"></div>
             <?php endforeach; ?>
             <div class="row p-0 m-0">
-                <?php for ($t = 0; $t < count($days); $t++) : ?>
-                    <div class="col" style="width: calc(100% / <?= count($days) ?>); padding: 0; margin: 0;">
+                <?php for ($t = 0; $t < $dayCount; $t++) : ?>
+                    <div class="col" style="width: calc(100% / <?= $dayCount ?>); padding: 0; margin: 0;">
                         <?php for ($hour = 0; $hour < 24; $hour++) : ?>
                             <div class="timeslot" style="height: <?= $pixPerHour ?>px;">
                                 <small><?= sprintf("%02d:00", $hour) ?></small>
@@ -81,7 +88,6 @@ $this->registerCss(<<<CSS
         overflow-y: auto;
         display: flex;
         position: relative;
-
     }
     #currentHourLine {
         position: absolute;
@@ -195,8 +201,8 @@ const MyApp = {
     /*****************************/
 
     dateList : <?= json_encode($days) ?>,
-    dayNames : <?= json_encode($dayNames) ?>,
-    dayCount : <?= count($days) ?>,
+    dayNames : <?= json_encode($daysOfWeek) ?>,
+    dayCount : <?= $dayCount ?>,
     eventsContainer : document.getElementById('events-container'),
     eventList : [],
     eventColumns : [],
@@ -225,13 +231,21 @@ const MyApp = {
         }
     },
 
+    findDateColumn: function(searchDate) {
+        for (let i = 0; i < this.dateList.length; i++) {
+            if (searchDate.slice(0, 10) === this.dateList[i]) {
+                return i;
+            }
+        }
+        return -1;
+    },
+
     convertEventTimes: function (eList) {
         eList.forEach(event => {
-            if (event.startMinute === undefined) {
-                event.startDate = new Date(event.start);
-                event.endDate = new Date(event.end);
-                this.calculateMinutes(event);
-            }
+            event.startDate = new Date(event.start);
+            event.endDate = new Date(event.end);
+            event.day = this.findDateColumn(event.start);
+            this.calculateMinutes(event);
         });
     },
 
@@ -250,6 +264,16 @@ const MyApp = {
     },
 
     updateEvent: function(id, day, startMinute) {
+        function toISOStringWithoutTZ(date) {
+            const pad = (number) => number < 10 ? '0' + number : number;
+            const year = date.getFullYear();
+            const month = pad(date.getMonth() + 1);
+            const day = pad(date.getDate());
+            const hours = pad(date.getHours());
+            const minutes = pad(date.getMinutes());
+            const seconds = pad(date.getSeconds());
+            return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+        }
         const event = this.eventList.find(event => event.id === id);
         const duration = event.endDate.getTime() - event.startDate.getTime();
         const newStartDate = new Date(this.dateList[day]);
@@ -257,7 +281,9 @@ const MyApp = {
         const newEndDate = new Date(newStartDate.getTime() + duration);
         event.startDate = newStartDate;
         event.endDate = newEndDate;
-        event.day = this.dayNames[day];
+        event.start = toISOStringWithoutTZ(newStartDate);
+        event.end = toISOStringWithoutTZ(newEndDate);
+        event.day = this.findDateColumn(event.start);
         this.calculateMinutes(event);
         this.updateEventObject(event, true);
         this.findIslands();
@@ -285,7 +311,6 @@ const MyApp = {
             }
             day = event.day;
         });
-        console.log(this.islands);
     },
 
     assignIslandsToColumns: function () {
@@ -359,7 +384,7 @@ const MyApp = {
         this.islands.forEach((island, islandIndex) => {
             island['columns'].forEach((column, columnIndex) => {
                 column.forEach(event => {
-                    key = this.dayNames.indexOf(event.day);
+                    key = event.day;
                     columnCount = island['columns'].length;
                     event.island = islandIndex;
                     event.column = columnIndex;
@@ -379,10 +404,12 @@ const MyApp = {
 
     createUpdateEventObjects: function (create = false) {
         this.eventList.forEach(event => {
-            if (create) {
-                this.createEventObject(event, false);
-            } else {
-                this.updateEventObject(event);
+            if (event.day>=0) {
+                if (create) {
+                    this.createEventObject(event, false);
+                } else {
+                    this.updateEventObject(event);
+                }
             }
         });
         this.initializePopovers()
@@ -404,12 +431,10 @@ const MyApp = {
         eventDiv.setAttribute('data-bs-content', event.text+
             ` spanLeft:${event.spanLeft} spanRight:${event.spanRight} column:${event.column} island:${event.island}`);
         eventDiv.setAttribute('tabIndex', event.tabIndex);
-
         const spanTitle = document.createElement('span');
         spanTitle.className = 'event-title';
         spanTitle.textContent = event.title;
         eventDiv.appendChild(spanTitle);
-
         this.eventsContainer.appendChild(eventDiv);
         event.changed = false;
     },
@@ -447,12 +472,9 @@ function redrawEvents() { MyApp.initializeEvents();}
 function findIslands() { MyApp.findIslands();}
 
 document.addEventListener('DOMContentLoaded', function () {
-
     MyApp.fetchAllEvents();
-    
     const eventsContainer = document.getElementById('events-container');
     const pixPerHour = <?= $pixPerHour ?>;
-
     let offsetX, offsetY;
 
     function reportEventPosition(e, element) {
@@ -460,24 +482,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const rect = eventsContainer.getBoundingClientRect();
         let top = e.clientY - rect.top - offsetY;
         let left = e.clientX - rect.left - offsetX;
-
         if (top<0) top = 0;
         if (left<0) left = 0;
-
         const day = Math.floor(left / dayWidth);
         const startMinute = Math.floor((top / pixPerHour) * 60 /5)*5;
-
         MyApp.updateEvent(element.id, day, startMinute);
-    }
-
-    /* recalculate event positions when called (triggered below by debounce) */
-    function updateEventPositions() {
-        return;
-        const dayWidth = eventsContainer.offsetWidth / MyApp.dayCount;
-        document.querySelectorAll('.event-box').forEach(function(item) {
-            const day = item.dataset.day;
-            item.style.left = `${day * dayWidth}px`;
-        });
     }
     
     function handleDragStart(e) {
