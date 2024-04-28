@@ -9,7 +9,7 @@ use yii\widgets\ActiveForm;
 /* @var app\models\Service|app\models\Rule|app\models\Resource $relationModel */
 /* @var app\models\Business $model */
 
-$resourceTypes = json_decode($model->expert_type_list, true) ?? [];
+$resourceTypes = json_decode($model->resource_type_list, true) ?? [];
 $resourceTypes = array_combine($resourceTypes, $resourceTypes);
 
 $expertTypeList = json_decode($model->expert_type_list, true) ?? [];

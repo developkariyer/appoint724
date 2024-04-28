@@ -22,7 +22,6 @@ use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii;
-use yii\web\Response;
 
 
 /**
