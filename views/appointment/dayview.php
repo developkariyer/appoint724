@@ -41,11 +41,6 @@ $dayWidth = 100 / $dayCount;
 <div id="info-box" style="z-index: 10000; display: none; position: fixed; top: 0px; left: 200px; height: 40px; background: red; color: white; padding: 3px;">
     Drag info will appear here.
 </div>
-<div id="info-box" style="z-index: 10000; display: block; position: fixed; top: 0px; left: 600px; height: 40px; background: red; color: white; padding: 3px;">
-    <button onclick="fetchEvents();">Fetch All Events</button>
-    <button onclick="redrawEvents();">Redraw All Events</button>
-    <button onclick="findIslands();">Find Islands</button>
-</div>
 
 <div class="calendar-container">
     <div class="row p-0 m-0">
@@ -515,7 +510,7 @@ document.addEventListener('DOMContentLoaded', function () {
             let day = Math.floor(left / dayWidth);
             if (day>MyApp.dayCount-1) day = MyApp.dayCount-1;
             const dayDivId = `day${day}`;
-            const eventDay = document.getElementById(dayDivId).innerHTML;
+            const eventDay = document.getElementById(dayDivId).innerHTML.replace(/<br>/g, ' ');
             const startMinute = Math.floor((top / pixPerHour) * 60 /5)*5;
             const eventHours = Math.floor(startMinute / 60).toString().padStart(2, '0');
             const eventMinutes = (startMinute % 60).toString().padStart(2, '0');
