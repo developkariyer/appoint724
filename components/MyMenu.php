@@ -249,7 +249,7 @@ class MyMenu extends Component
             'label' => '',
         ];
         $expertItems[] = [
-            'label' => Yii::t('app', 'New Expert'),
+            'label' => Yii::t('app', 'Add New'),
             'url' => MyUrl::to(["user/add/{$this->business->slug}/expert"]),
         ];
         $expertItems[] = [
@@ -277,6 +277,10 @@ class MyMenu extends Component
         ];
         $relationItems[] = [
             'label' => Yii::t('app', 'Add New'),
+            'url' => MyUrl::to(["business/$relationKey/{$this->business->slug}"]),
+        ];
+        $relationItems[] = [
+            'label' => Yii::t('app', 'Show All'),
             'url' => MyUrl::to(["business/$relationKey/{$this->business->slug}"]),
         ];
         return [

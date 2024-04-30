@@ -242,6 +242,10 @@ XML;
      */
     public function actionIndex(): Response|string
     {
+        if (Yii::$app->session->has('slug')) {
+            Yii::$app->session->set('slug', null);
+            Yii::$app->session->remove('slug');
+        }
         if (!ACL::isGuest()) {
             $authidentity = Yii::$app->user->identity; 
 

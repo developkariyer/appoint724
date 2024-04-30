@@ -68,6 +68,10 @@ class BusinessController extends Controller
         if (!ACL::canBusinessCreate()) {
             throw new BadRequestHttpException(Yii::t('app', 'You are not allowed to create a business.'));
         }
+        if (Yii::$app->session->has('slug')) {
+            Yii::$app->session->set('slug', null);
+            Yii::$app->session->remove('slug');
+        }
         
         $model = new Business();
         if ($this->request->isPost) {
